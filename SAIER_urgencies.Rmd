@@ -1,0 +1,49 @@
+---
+title: "SAIER Urgències"
+author: "Ajuntament de Barcelona - AAI"
+date: "27 novembre de 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Urgències SAIER 2017
+
+Bla bla.
+
+```{r paquets, echo=FALSE}
+library(devtools)
+devtools::install_github("rstudio/crosstalk")
+devtools::install_github("rstudio/leaflet")
+devtools::install_github("jcheng5/d3scatter")
+install.packages("leaflet.minicharts")
+library(crosstalk)
+library(leaflet)
+library(d3scatter)
+library(DT)
+```
+
+```{r pre-processat dades, echo=FALSE}
+# Wrap data frame in SharedData
+sd <- SharedData$new(quakes[sample(nrow(quakes), 100),])
+
+# Create a filter input
+filter_slider("mag", "Magnitude", sd, column=~mag, step=0.1, width=250)
+
+```
+
+```{r gràfics, echo=FALSE}
+# Use SharedData like a dataframe with Crosstalk-enabled widgets
+
+bscols(
+  leaflet(sd) %>% addTiles() %>% addMarkers(),
+#  datatable(sd, extensions="Scroller", style="bootstrap", class="compact", width="100%",
+#    options=list(deferRender=TRUE, scrollY=300, scroller=TRUE))
+
+)
+```
+
+
+Fi
