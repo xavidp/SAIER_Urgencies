@@ -13,6 +13,41 @@ library(leaflet.minicharts)
 data("eco2mix")
 head(eco2mix)
 
+# -----------
+# CUESB Data
+# -----------
+# Read From xlsx sheet
+# ..............................
+# Option 1: readxl package
+# The readxl package, developed by Hadley Wickham, can be used to easily import Excel files (xls|xlsx) into R without any external dependencies.
+if (!require("readxl")) install.packages("readxl")
+library("readxl")
+# The readxl package comes with the function read_excel() to read xls and xlsx files. 
+# xls files
+my_data <- read_excel("my_file.xls")
+# xlsx files
+my_data <- read_excel("my_file.xlsx")
+
+
+# ..............................
+# Option 2: xlsx package
+# The xlsx package, a java-based solution, is one of the powerful R packages to read, write and format Excel files.
+if (!require("xlsx")) install.packages("xlsx")
+library("xlsx")
+# There are two main functions in xlsx package for reading both xls and xlsx Excel files: read.xlsx() and read.xlsx2() [faster on big files compared to read.xlsx function].
+# The simplified formats are:
+read.xlsx(file, sheetIndex, header=TRUE)
+read.xlsx2(file, sheetIndex, header=TRUE)
+
+
+#file: file path
+#sheetIndex: the index of the sheet to be read
+#header: a logical value. If TRUE, the first row is used as column names.
+
+
+
+
+# ---
 # Renewable productions in 2016
 library(dplyr)
 
