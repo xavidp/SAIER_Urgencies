@@ -16,9 +16,12 @@ head(eco2mix)
 # -----------
 # CUESB Data
 # -----------
+my_file <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v02.xlsx")
 # Read From xlsx sheet
 # ..............................
 # Option 1: readxl package
+# ..............................
+# From http://www.sthda.com/english/wiki/reading-data-from-excel-files-xls-xlsx-into-r
 # The readxl package, developed by Hadley Wickham, can be used to easily import Excel files (xls|xlsx) into R without any external dependencies.
 if (!require("readxl")) install.packages("readxl")
 library("readxl")
@@ -28,9 +31,17 @@ my_data <- read_excel("my_file.xls")
 # xlsx files
 my_data <- read_excel("my_file.xlsx")
 
+#Specify sheet with a number or name
+# Specify sheet by its name
+my_data <- read_excel(my_file, sheet = "Dades")
+# Specify sheet by its index
+#my_data <- read_excel("my_file.xlsx", sheet = 2)
+head(my_data)
 
 # ..............................
 # Option 2: xlsx package
+# ..............................
+# From http://www.sthda.com/english/wiki/reading-data-from-excel-files-xls-xlsx-into-r
 # The xlsx package, a java-based solution, is one of the powerful R packages to read, write and format Excel files.
 if (!require("xlsx")) install.packages("xlsx")
 library("xlsx")
@@ -44,6 +55,21 @@ read.xlsx2(file, sheetIndex, header=TRUE)
 #sheetIndex: the index of the sheet to be read
 #header: a logical value. If TRUE, the first row is used as column names.
 
+# ..............................
+# option3 - read.xlsx From openxlsx v4.0.17
+# ..............................
+#https://www.rdocumentation.org/packages/openxlsx/versions/4.0.17/topics/read.xlsx
+#Read from an Excel file or Workbook object
+# Read data from an Excel file or Workbook object into a data.frame. Through the use of
+# 'Rcpp', read/write times are comparable to the 'xlsx' and 'XLConnect' packages
+# with the added benefit of removing the dependency on Java
+#
+if (!require("openxlsx")) install.packages("openxlsx")
+#
+#read.xlsx(xlsxFile, sheet = 1, startRow = 1, colNames = TRUE,
+#          rowNames = FALSE, detectDates = FALSE, skipEmptyRows = TRUE,
+#          skipEmptyCols = TRUE, rows = NULL, cols = NULL, check.names = FALSE,
+#          namedRegion = NULL, na.strings = "NA", fillMergedCells = FALSE)
 
 
 
