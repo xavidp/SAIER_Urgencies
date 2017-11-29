@@ -6,6 +6,7 @@ library(textreadr)
 #library(readtext)
 
 # ------------------------------------------
+## OPTION A:
 ## Smart way to proceed with textreadr goodies and jargon:
 ## (taken from https://github.com/trinker/textreadr#read-directory-contents )
 #library(magrittr)
@@ -22,8 +23,15 @@ fla2.aa.idx <- grep("asil", fla2$content[fla2.aero.idx], fixed=T)
 fla2.api.idx <- grep("internacional", fla2$content[fla2.aero.idx], fixed=T)
 grep("internacional", fla2$content[fla2.aero.idx], fixed=T, value=T)
 
+
+
+
+
+
+
 # ------------------------------------------
-# Hand made way to get text from all docx and pdf files 
+## OPTION B:
+## Hand made way to get text from all docx and pdf files 
 # ------------------------------------------
 # File List ALL of them (pdf and docx)
 fla <- list.files(path="K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències CUESB\\2017", 
