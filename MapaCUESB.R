@@ -182,6 +182,7 @@ prodRegions <- eco2mix %>% filter(area != "France")
       time = bal$month
     )
   
+# -----------------------------------  
 # Plot Map Using rworldmap
 # Derived from: https://blog.learningtree.com/how-to-display-data-on-a-world-map-in-r/
   if (!require("rworldmap")) install.packages("rworldmap")
@@ -198,9 +199,48 @@ prodRegions <- eco2mix %>% filter(area != "France")
 #  mapped_data <- joinCountryData2Map(population_data, joinCode = "ISO3", 
 #                                     nameJoinColumn = "Country.Code")
   #?joinCountryData2Map
+  
+  # let's have a look at my data
+  head(my_data)
+  colnames(my_data)
+  require(dplyr)
+  my_data2 <- my_data %>%
+    # filter(grepl("EUROPA", ContinentNacion.)) %>%
+    select(-Cognoms,
+           -Nom,
+           -Expedient, 
+           -`Comunicació / Derivació`,
+           -Nacionalitat, 
+           -ContinentNacion.,
+           -`Lloc de procedència`, 
+           -ContinentProced.,
+           -`Detall / Observacions`,
+           -`Alerta maltractament`,
+           -`Alerta salut`, 
+           -`Orientació de continuitat`
+           ) %>%
+#    group_by(Nacionalitat_Angles) %>%
+#    summarise_all(sum) %>%
+    ungroup()
+  
+  head(my_data2)
+  
+#  my_data3 <- my_data %>%
+    my_data3 <- add_count(my_data, Nacionalitat_Angles, wt = NULL, sort = FALSE)
+    head(my_data3[25:28])
+  colnames(my_data3)
+  my_data3
+
+  my_data4 <- count(my_data, Nacionalitat_Angles, wt = NULL, sort = FALSE)
+  
+  # let's prepare a geospatial data frame for the data to be plotted later on
   my_mapped_data <- joinCountryData2Map(my_data, joinCode = "NAME", 
                                      nameJoinColumn = "Nacionalitat_Angles")
   
+  my_mapped_data4 <- joinCountryData2Map(my_data4, joinCode = "NAME", 
+                                        nameJoinColumn = "Nacionalitat_Angles")
+
+    #head(my_mapped_data)
   # joinCode = "ISO3" tells rworldmap to join the data using ISO 3166 codes.
   # 
   # joinCountryData2Map will report that it was unable to map some codes, but this doesn’t matter for our purposes.
@@ -217,7 +257,16 @@ prodRegions <- eco2mix %>% filter(area != "France")
                  mapTitle = "columnName", 
                  oceanCol = "lightblue",
                  missingCountryCol = "white")
-  ?mapCountryData
+  #?mapCountryData
+  
+  my_mapped_data4
+  
+  mapCountryData(my_mapped_data4, 
+                 catMethod="pretty",
+                 colourPalette="heat", 
+                 mapTitle = "columnName", 
+                 oceanCol = "lightblue",
+                 missingCountryCol = "white")
   # 
   # The par command only needs to be performed once in the session and just makes sure that all the available space in the window is used to display the map.
   
