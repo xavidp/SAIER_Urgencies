@@ -10,8 +10,8 @@ pacman::p_load(leaflet.minicharts)
 library(leaflet.minicharts)
 
 # Data
-data("eco2mix")
-head(eco2mix)
+#data("eco2mix")
+#head(eco2mix)
 
 # -----------
 # CUESB Data
@@ -27,9 +27,9 @@ if (!require("readxl")) install.packages("readxl")
 library("readxl")
 # The readxl package comes with the function read_excel() to read xls and xlsx files. 
 # xls files
-my_data <- read_excel("my_file.xls")
+#my_data <- read_excel("my_file.xls")
 # xlsx files
-my_data <- read_excel("my_file.xlsx")
+#my_data <- read_excel("my_file.xlsx")
 
 #Specify sheet with a number or name
 # Specify sheet by its name
@@ -43,12 +43,12 @@ head(my_data)
 # ..............................
 # From http://www.sthda.com/english/wiki/reading-data-from-excel-files-xls-xlsx-into-r
 # The xlsx package, a java-based solution, is one of the powerful R packages to read, write and format Excel files.
-if (!require("xlsx")) install.packages("xlsx")
-library("xlsx")
+#if (!require("xlsx")) install.packages("xlsx")
+#library("xlsx")
 # There are two main functions in xlsx package for reading both xls and xlsx Excel files: read.xlsx() and read.xlsx2() [faster on big files compared to read.xlsx function].
 # The simplified formats are:
-read.xlsx(file, sheetIndex, header=TRUE)
-read.xlsx2(file, sheetIndex, header=TRUE)
+#read.xlsx(file, sheetIndex, header=TRUE)
+#read.xlsx2(file, sheetIndex, header=TRUE)
 
 
 #file: file path
@@ -64,7 +64,7 @@ read.xlsx2(file, sheetIndex, header=TRUE)
 # 'Rcpp', read/write times are comparable to the 'xlsx' and 'XLConnect' packages
 # with the added benefit of removing the dependency on Java
 #
-if (!require("openxlsx")) install.packages("openxlsx")
+#if (!require("openxlsx")) install.packages("openxlsx")
 #
 #read.xlsx(xlsxFile, sheet = 1, startRow = 1, colNames = TRUE,
 #          rowNames = FALSE, detectDates = FALSE, skipEmptyRows = TRUE,
@@ -89,6 +89,32 @@ prod2016 <- eco2mix %>%
   ungroup()
 
 head(prod2016)
+head(my_data)
+
+# Desactivat per que només cal 1 vegada
+# ------
+# Get coordinates for the capital of a country
+# get cities latitude/longitude - kindly provided by google:
+# if (!require("ggmap")) install.packages("ggmap")
+# library(ggmap)
+# all_cities <- read_excel(my_file, sheet = "PaisesContinentes")
+# head(all_cities)
+# all_geocodes <- geocode(as.character(all_cities$CAPITAL))
+# all_cities2 <- data.frame(all_cities, all_geocodes)
+# head(all_cities2)  
+
+# Save this precious set of coordinates for all contry capital into a new excel file, just in case
+#library(xlsx) #load the package
+#my_file2 <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "all_cities2.xlsx")
+#write.xlsx(x = all_cities2, file = my_file2,
+#           sheetName = "all_data", row.names = FALSE)
+#workbook.sheets %>% workbook.test %>% addDataFrame(x = sample.dataframe, sheet = workbook.test,
+#                         row.names = FALSE, startColumn = 4) # write data to sheet starting on line 1, column 4
+#saveWorkbook(workbook.sheets, "test.excelfile.xlsx") # and of course you need to save it.
+# ------
+
+my_geocodes <- geocode(as.character(my_data$cities))
+my_data2 <- data.frame(my_data[,1:2], my_geocodes)
 
 #We also create a base map that will be used in all the following examples
 
