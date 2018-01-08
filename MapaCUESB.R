@@ -113,9 +113,9 @@ head(my_data)
 #saveWorkbook(workbook.sheets, "test.excelfile.xlsx") # and of course you need to save it.
 # ------
 
-my_geocodes <- geocode(as.character(my_data$cities))
-my_data2 <- data.frame(my_data[,1:2], my_geocodes)
+#my_data2 <- data.frame(my_data[,1:2], my_geocodes)
 
+# ------
 #We also create a base map that will be used in all the following examples
 
 library(leaflet)
@@ -181,3 +181,44 @@ prodRegions <- eco2mix %>% filter(area != "France")
       flow = bal$balance,
       time = bal$month
     )
+  
+# Plot Map Using rworldmap
+# Derived from: https://blog.learningtree.com/how-to-display-data-on-a-world-map-in-r/
+  if (!require("rworldmap")) install.packages("rworldmap")
+  library(rworldmap)
+#getwd()  
+#  ls()
+#  population_records <- readLines(file.path(getwd(), "API_SP.POP.TOTL_DS2_en_csv_v2.csv"))[-(1:4)]
+#  population_data <- read.csv(text=population_records, header = TRUE)
+#  head(population_data)
+  
+#  population_data$Growth.5.Year <- 
+#    ((population_data$X2014 - population_data$X2009) / population_data$X2014) * 100
+
+#  mapped_data <- joinCountryData2Map(population_data, joinCode = "ISO3", 
+#                                     nameJoinColumn = "Country.Code")
+  #?joinCountryData2Map
+  my_mapped_data <- joinCountryData2Map(my_data, joinCode = "NAME", 
+                                     nameJoinColumn = "Nacionalitat_Angles")
+  
+  # joinCode = "ISO3" tells rworldmap to join the data using ISO 3166 codes.
+  # 
+  # joinCountryData2Map will report that it was unable to map some codes, but this doesn’t matter for our purposes.
+  # 
+  # We can now display the mapped data.
+  # 
+  par(mai=c(0,0,0.2,0),xaxs="i",yaxs="i")
+#  mapCountryData(mapped_data, nameColumnToPlot = "Growth.5.Year")
+  my_mapped_data$"Nº membres al nucli" <- as.numeric(my_mapped_data$"Nº membres al nucli")
+  mapCountryData(my_mapped_data, 
+                 nameColumnToPlot = "Nº membres al nucli", 
+                 catMethod="pretty",
+                 colourPalette="heat", 
+                 mapTitle = "columnName", 
+                 oceanCol = "lightblue",
+                 missingCountryCol = "white")
+  ?mapCountryData
+  # 
+  # The par command only needs to be performed once in the session and just makes sure that all the available space in the window is used to display the map.
+  
+  
