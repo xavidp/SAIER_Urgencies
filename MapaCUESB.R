@@ -101,22 +101,28 @@ colnames(geodata)
 head(geodata)
 dim(geodata)
 
-# Add coordinates to the countries from the Dades sheet
-my_data4 <- merge(x=my_data4, y=geodata, by = "NacionalitatAngles")
+# Add coordinates to the countries from the Dades sheet, using left_join
+my_data5 <- my_data4 %>% left_join(geodata)
 
-my_data4b <- my_data4 %>%
+## Add coordinates to the countries from the Dades sheet using standard merge function
+#my_data4 <- merge(x=my_data4, y=geodata, by = "NacionalitatAngles")
+#head(my_data4)
+#colnames(my_data4)
+
+my_data5b <- my_data5 %>%
   # filter(grepl("EUROPA", ContinentNacion.)) %>%
-  select(HomeDona,
+  select(NacionalitatAngles,
+         HomeDona,
          n,
          lon,
          lat,
-         NacionalitatAngles, 
   ) %>%
   #    group_by(Nacionalitat_Angles) %>%
   #    summarise_all(sum) %>%
   ungroup()
 
-head(my_data4b)
+head(my_data5b)
+
 # ..............................
 # Option 2: xlsx package
 # ..............................
