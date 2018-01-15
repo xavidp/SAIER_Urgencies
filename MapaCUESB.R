@@ -306,6 +306,9 @@ head(my_data5b)
   basemap <- leaflet(width = "100%", height = "400px") %>%
     addTiles(tilesURL)
   
+  
+  # Map Gender of immigrants in pie charts over the world map
+  # -------------------------------------------------------------
   my_data5c <- tidyr::spread(my_data5b, HomeDona, n)
   colnames(my_data5c)[8] <- "Desconegut"
 
@@ -326,7 +329,8 @@ head(my_data5b)
       legendPosition = "topright"
     )
   
-  
+  # Map Age group of immigrants in pie charts over the world map
+  # -------------------------------------------------------------
   my_data6 <- count(my_data, NacionalitatAngles, Edat, wt = NULL, sort = FALSE)
   my_data6b <- tidyr::spread(my_data6, Edat, n)
   colnames(my_data6b)[4] <- "desconegut"
@@ -362,6 +366,53 @@ head(my_data5b)
       legend=TRUE,
       legendPosition = "topright"
     )
+  
+  
+  # Represent also flows
+  # -----------------------
+  # #  Represent flows
+  #   
+  # #  Since version 0.2, leaflet.minicharts has also functions to represent flows between points and their evolution. To illustrate this, let’s represent the evolution of electricity exchanges between France and Neighboring countries.
+  #   
+  # #  To do that, we use function addFlows. It requires coordinates of two points for each flow and the value of the flow. Other arguments are similar to addMinicharts.
+  #   
+     data("eco2mixBalance")
+     bal <- eco2mixBalance
+     head(bal)
+
+     my_data7 <- count(my_data, ProcedenciaAngles, MesDerivacioSAIER, wt = NULL, sort = FALSE)
+     my_data7$ProcedenciaAngles <- apply(my_data7, 2, toupper)
+     # Add coordinates to the countries from the Dades sheet, using left_join
+     my_data7b <- my_data7 %>% left_join(geodata, by = c("ProcedenciaAngles" = "NacionalitatAngles"))
+     
+     my_data7c <- my_data7b %>%
+       # filter(grepl("EUROPA", ContinentNacion.)) %>%
+       select(ProcedenciaAngles,
+              MesDerivacioSAIER,
+              n,
+              lon,
+              lat,
+       ) %>%
+       #    group_by(Nacionalitat_Angles) %>%
+       #    summarise_all(sum) %>%
+       ungroup()
+     
+     head(my_data7c)
+     dim(my_data7c)
+     # M'he quedat aquí XXXX - manca afegir les columnes de latitud i longitud de Barcelona com a destinació: lat1 lon1, per a grafic de fluxes de més avall
+     spain_lat <- bind_cols(
+       rep("41.385064", dim(my_data7c)[1]),
+       rep("2.173403", dim(my_data7c)[1])
+       )
+     bind_cols(my_data7c, spain_lat)
+
+     basemap %>%
+       addFlows(
+         my_data7c$lon, my_data7c$lat, my_data7c$lon1, my_data7c$lat1,
+         flow = my_data7c$n,
+         time = my_data7c$MesDerivacioSAIER
+       )
+  
 # -----------------------------------  
 # Plot Map Using rworldmap
 # Derived from: https://blog.learningtree.com/how-to-display-data-on-a-world-map-in-r/
