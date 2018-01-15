@@ -278,13 +278,21 @@ head(my_data5b)
   basemap <- leaflet(width = "100%", height = "400px") %>%
     addTiles(tilesURL)
   
+  colnames(my_data5b)[6] <- "Desconegut"
+  my_data5b <- tidyr::spread(my_data5b, HomeDona, n)
   #We now add to the base map a pie chart for each region that represents the share of renewable energies. We also change the width of the pie charts so their area is proportional to the total production of the corresponding region.
+#  colors <- c("#4fc13c", "lightyellow", "#cccccc")
+  colors <- c("pink", "blue", "#cccccc")
   
   basemap %>%
     addMinicharts(
-      my_data$long, my_data$lat,
-      chartdata = my_data[, "Nº membres al nucli"], 
-      transitionTime = 0
+      my_data5b$lon, my_data5b$lat,
+      type = "pie",
+      chartdata = my_data5b[, c("D", "H", "Desconegut")], 
+      colorPalette = colors, 
+      transitionTime = 0,
+      legend=TRUE,
+      legendPosition = "topright"
     )
 # -----------------------------------  
 # Plot Map Using rworldmap
