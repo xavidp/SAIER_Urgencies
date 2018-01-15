@@ -39,6 +39,7 @@ my_data <- read_excel(my_file, sheet = "Dades")
 head(my_data)
 colnames(my_data)
 
+
 geodata <- read_excel(my_file, sheet = "PaisesContinentes")
 
 # Summarise data based on Country of origin
@@ -70,11 +71,11 @@ head(my_data2)
 # 
 #  my_data3 <- my_data %>%
 my_data3 <- add_count(my_data, NacionalitatAngles, wt = NULL, sort = TRUE)
-head(my_data3[25:28])
+head(my_data3[25:29])
 colnames(my_data3)
 my_data3
 
-my_data4 <- count(my_data, NacionalitatAngles, HomeDona, wt = NULL, sort = FALSE)
+#my_data4 <- count(my_data, NacionalitatAngles, HomeDona, wt = NULL, sort = FALSE)
 # We get a table data frame such as:
 # # A tibble: 94 x 3
 # NacionalitatAngles HomeDona     n
@@ -91,10 +92,35 @@ my_data4 <- count(my_data, NacionalitatAngles, HomeDona, wt = NULL, sort = FALSE
 # 10            Armenia        H     2
 # # ... with 84 more rows
 
+my_data4 <- count(my_data, NacionalitatAngles, MesDerivacioSAIER, Edat, HomeDona, wt = NULL, sort = FALSE)
+# # A tibble: 346 x 5
+# NacionalitatAngles MesDerivacioSAIER  Edat HomeDona     n
+# <chr>             <chr> <chr>    <chr> <int>
+#   1        Afghanistan           2017-02 adult        D     1
+# 2        Afghanistan           2017-02 adult        H     2
+# 3        Afghanistan           2017-02 menor        H     1
+# 4        Afghanistan           2017-03 adult        H     4
+# 5        Afghanistan           2017-04 adult        H     1
+# 6        Afghanistan           2017-05 adult        H     1
+# 7        Afghanistan           2017-08 adult        H     3
+# 8        Afghanistan           2017-08 adult     <NA>     4
+# 9        Afghanistan           2017-08 menor     <NA>     1
+# 10        Afghanistan           2017-09 adult        H     2
+
 colnames(my_data4)
 my_data4$NacionalitatAngles <- apply(my_data4, 2, toupper)
 head(my_data4)
 dim(my_data4)
+
+# my_data2b <- my_data2 %>%
+#   mutate(month = format(DataDerivacioSAIER, "%Y-%m")) %>%
+#   group_by(month, HomeDona) %>%
+#   select(NacionalitatAngles,
+#          NMembresNucli,
+#          ProcedenciaAngles) %>%
+#   summarise(n = n())
+
+#colnames(my_data2b)
 
 colnames(geodata)[7] <- "NacionalitatAngles"
 colnames(geodata)
@@ -112,6 +138,8 @@ my_data5 <- my_data4 %>% left_join(geodata)
 my_data5b <- my_data5 %>%
   # filter(grepl("EUROPA", ContinentNacion.)) %>%
   select(NacionalitatAngles,
+         MesDerivacioSAIER,
+         Edat,
          HomeDona,
          n,
          lon,
@@ -278,17 +306,57 @@ head(my_data5b)
   basemap <- leaflet(width = "100%", height = "400px") %>%
     addTiles(tilesURL)
   
-  colnames(my_data5b)[6] <- "Desconegut"
-  my_data5b <- tidyr::spread(my_data5b, HomeDona, n)
-  #We now add to the base map a pie chart for each region that represents the share of renewable energies. We also change the width of the pie charts so their area is proportional to the total production of the corresponding region.
-#  colors <- c("#4fc13c", "lightyellow", "#cccccc")
-  colors <- c("pink", "blue", "#cccccc")
+  my_data5c <- tidyr::spread(my_data5b, HomeDona, n)
+  colnames(my_data5c)[8] <- "Desconegut"
+
+  #We now add to the base map a pie chart for each country of origin
+  #  colors <- c("#4fc13c", "lightyellow", "#cccccc")
+  colors <- c("pink", "lightblue", "#cccccc")
   
   basemap %>%
     addMinicharts(
-      my_data5b$lon, my_data5b$lat,
+      my_data5c$lon, my_data5c$lat,
       type = "pie",
-      chartdata = my_data5b[, c("D", "H", "Desconegut")], 
+      chartdata = my_data5c[, c("D", "H", "Desconegut")], 
+      fillColor = "white",
+      colorPalette = colors, 
+      time = my_data5c$MesDerivacioSAIER,
+      transitionTime = 0,
+      legend=TRUE,
+      legendPosition = "topright"
+    )
+  
+  
+  my_data6 <- count(my_data, NacionalitatAngles, Edat, wt = NULL, sort = FALSE)
+  my_data6b <- tidyr::spread(my_data6, Edat, n)
+  colnames(my_data6b)[4] <- "desconegut"
+  my_data6b$NacionalitatAngles <- apply(my_data6b, 2, toupper)
+  # Add coordinates to the countries from the Dades sheet, using left_join
+  my_data6c <- my_data6b %>% left_join(geodata)
+  
+  my_data6d <- my_data6c %>%
+    # filter(grepl("EUROPA", ContinentNacion.)) %>%
+    select(NacionalitatAngles,
+           adult,
+           menor,
+           desconegut,
+           lon,
+           lat,
+    ) %>%
+    #    group_by(Nacionalitat_Angles) %>%
+    #    summarise_all(sum) %>%
+    ungroup()
+  
+  head(my_data6d)
+  
+  colors <- c("blue", "lightblue", "#cccccc")
+  
+  basemap %>%
+    addMinicharts(
+      my_data6d$lon, my_data6d$lat,
+      type = "pie",
+      chartdata = my_data6d[, c("adult", "menor", "desconegut")], 
+      fillColor = "white",
       colorPalette = colors, 
       transitionTime = 0,
       legend=TRUE,
@@ -315,10 +383,10 @@ head(my_data5b)
  
   # let's prepare a geospatial data frame for the data to be plotted later on
   my_mapped_data <- joinCountryData2Map(my_data, joinCode = "NAME", 
-                                     nameJoinColumn = "Nacionalitat_Angles")
+                                     nameJoinColumn = "NacionalitatAngles")
   
-  my_mapped_data4 <- joinCountryData2Map(my_data4, joinCode = "NAME", 
-                                        nameJoinColumn = "Nacionalitat_Angles")
+#  my_mapped_data4 <- joinCountryData2Map(my_data4, joinCode = "NAME", 
+#                                        nameJoinColumn = "NacionalitatAngles")
 
     #head(my_mapped_data)
   # joinCode = "ISO3" tells rworldmap to join the data using ISO 3166 codes.
@@ -329,15 +397,20 @@ head(my_data5b)
   # 
   par(mai=c(0,0,0.2,0),xaxs="i",yaxs="i")
 #  mapCountryData(mapped_data, nameColumnToPlot = "Growth.5.Year")
-  my_mapped_data$"Nº membres al nucli" <- as.numeric(my_mapped_data$"Nº membres al nucli")
+  colnames(my_data)
+  #str(my_mapped_data)
+  my_mapped_data$NMembresNucli <- as.numeric(my_mapped_data$NMembresNucli)
   mapCountryData(my_mapped_data, 
-                 nameColumnToPlot = "Nº membres al nucli", 
+                 nameColumnToPlot = "NMembresNucli", 
                  catMethod="pretty",
                  colourPalette="heat", 
                  mapTitle = "columnName", 
                  oceanCol = "lightblue",
                  missingCountryCol = "white")
   #?mapCountryData
+  head(my_data)
+  summary(my_data$NMembresNucli)
+  table(my_data$NMembresNucli)
   
   my_mapped_data4
   
