@@ -16,7 +16,7 @@ library(leaflet.minicharts)
 # -----------
 # CUESB Data
 # -----------
-my_file <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v03.xlsx")
+my_file <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v04.xlsx")
 # Read From xlsx sheet
 # ..............................
 # Option 1: readxl package
@@ -60,7 +60,7 @@ my_data2 <- my_data %>%
          -DetallObservacions,
          -AlertaMaltractament,
          -`Alerta salut`, 
-         -OrientacioContinuitat,
+         -OrientacioContinuitat
   ) %>%
   #    group_by(Nacionalitat_Angles) %>%
   #    summarise_all(sum) %>%
@@ -143,7 +143,7 @@ my_data5b <- my_data5 %>%
          HomeDona,
          n,
          lon,
-         lat,
+         lat
   ) %>%
   #    group_by(Nacionalitat_Angles) %>%
   #    summarise_all(sum) %>%
@@ -313,7 +313,7 @@ head(my_data5b)
            H,
            Desconegut,
            lon,
-           lat,
+           lat
     ) %>%
     #    group_by(Nacionalitat_Angles) %>%
     #    summarise_all(sum) %>%
@@ -353,7 +353,7 @@ head(my_data5b)
            menor,
            desconegut,
            lon,
-           lat,
+           lat
     ) %>%
     #    group_by(Nacionalitat_Angles) %>%
     #    summarise_all(sum) %>%
@@ -361,7 +361,7 @@ head(my_data5b)
   
   head(my_data6d)
   
-  colors <- c("blue", "lightblue", "lightyellow")
+  colors <- c("green", "lightgreen", "lightyellow")
   
   basemap %>%
     addMinicharts(
@@ -390,9 +390,13 @@ head(my_data5b)
 
     # Represent flows with time info
     # ---------------------------------------------------------------
-    my_data7 <- count(my_data, NacionalitatAngles, ProcedenciaAngles, MesDerivacioSAIER, wt = NULL, sort = FALSE)
-     my_data7$ProcedenciaAngles <- apply(my_data7, 2, toupper)
-     my_data7$NacionalitatAngles <- apply(my_data7, 2, toupper)
+    my_data7 <- my_data %>% 
+          count(NacionalitatAngles, ProcedenciaAngles, MesDerivacioSAIER, wt = NULL, sort = FALSE) %>%
+          filter(!is.na(NacionalitatAngles) & !is.na(ProcedenciaAngles))
+            
+    
+     my_data7$ProcedenciaAngles <- apply(matrix(my_data7$ProcedenciaAngles), 2, toupper)
+     my_data7$NacionalitatAngles <- apply(matrix(my_data7$NacionalitatAngles), 2, toupper)
      # Add coordinates to the countries from the Dades sheet, using left_join
      my_data7b <- my_data7 %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
      
@@ -411,6 +415,9 @@ head(my_data5b)
        #    summarise_all(sum) %>%
        ungroup()
      
+     table(my_data7b$NacionalitatAngles)
+     table(my_data7b$ProcedenciaAngles)
+
      my_data7c <- my_data7b %>% left_join(geodata, by = c("ProcedenciaAngles" = "PaisAngles"))
      my_data7c <- my_data7c %>%
        # filter(grepl("EUROPA", ContinentNacion.)) %>%
@@ -431,7 +438,8 @@ head(my_data5b)
      
      head(my_data7c)
      dim(my_data7c)
-     # M'he quedat aquí XXXX - manca afegir les columnes de latitud i longitud de Barcelona com a destinació: lat1 lon1, per a grafic de fluxes de més avall
+     
+     # Afegir les columnes de latitud i longitud de Barcelona com a destinació: lat1 lon1, per a grafic de fluxes de més avall
      bcn_lat <- rep(41.385064, dim(my_data7c)[1])
      bcn_lon <- rep(2.173403, dim(my_data7c)[1])
      
@@ -440,12 +448,12 @@ head(my_data5b)
 
      # I comment out this section (below) since the animation of the flows doesn't get updated properly due to some unknown reason
      # --------------------
-      # basemap %>%
-      #   addFlows(
-      #     my_data7c$lon0, my_data7c$lat0, my_data7c$lon1, my_data7c$lat1,
-      #     flow = my_data7c$n,
-      #     time = my_data7c$MesDerivacioSAIER
-      #   )
+       # basemap %>%
+       #   addFlows(
+       #     my_data7c$lon0, my_data7c$lat0, my_data7c$lon1, my_data7c$lat1,
+       #     flow = my_data7c$n,
+       #     time = my_data7c$MesDerivacioSAIER
+       #   )
 
        
      # Represent flows with no time data, but flows aggregated over time per country
@@ -457,14 +465,14 @@ head(my_data5b)
        summarise_all(sum) %>%
        ungroup()
        
-     filter(my_data7c, NacionalitatAngles != ProcedenciaAngles)
+     #filter(my_data7c, NacionalitatAngles != ProcedenciaAngles)
             
      basemap %>%
        addFlows(
-         lng0 = my_data7d$lon, 
-         lat0 = my_data7d$lat, 
-         lng1 = my_data7d$bcn_lon,
-         lat1 = my_data7d$bcn_lat,
+         lng0 = my_data7d$lon0, 
+         lat0 = my_data7d$lat0, 
+         lng1 = my_data7d$lon1,
+         lat1 = my_data7d$lat1,
          color = "blue",
          flow = my_data7d$n,
          maxFlow = max(my_data7d$n),
