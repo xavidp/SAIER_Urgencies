@@ -122,13 +122,13 @@ dim(my_data4)
 
 #colnames(my_data2b)
 
-colnames(geodata)[7] <- "NacionalitatAngles"
+#colnames(geodata)[7] <- "NacionalitatAngles"
 colnames(geodata)
 head(geodata)
 dim(geodata)
 
 # Add coordinates to the countries from the Dades sheet, using left_join
-my_data5 <- my_data4 %>% left_join(geodata)
+my_data5 <- my_data4 %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
 
 ## Add coordinates to the countries from the Dades sheet using standard merge function
 #my_data4 <- merge(x=my_data4, y=geodata, by = "NacionalitatAngles")
@@ -150,40 +150,6 @@ my_data5b <- my_data5 %>%
   ungroup()
 
 head(my_data5b)
-
-# ..............................
-# Option 2: xlsx package
-# ..............................
-# From http://www.sthda.com/english/wiki/reading-data-from-excel-files-xls-xlsx-into-r
-# The xlsx package, a java-based solution, is one of the powerful R packages to read, write and format Excel files.
-#if (!require("xlsx")) install.packages("xlsx")
-#library("xlsx")
-# There are two main functions in xlsx package for reading both xls and xlsx Excel files: read.xlsx() and read.xlsx2() [faster on big files compared to read.xlsx function].
-# The simplified formats are:
-#read.xlsx(file, sheetIndex, header=TRUE)
-#read.xlsx2(file, sheetIndex, header=TRUE)
-
-
-#file: file path
-#sheetIndex: the index of the sheet to be read
-#header: a logical value. If TRUE, the first row is used as column names.
-
-# ..............................
-# option3 - read.xlsx From openxlsx v4.0.17
-# ..............................
-#https://www.rdocumentation.org/packages/openxlsx/versions/4.0.17/topics/read.xlsx
-#Read from an Excel file or Workbook object
-# Read data from an Excel file or Workbook object into a data.frame. Through the use of
-# 'Rcpp', read/write times are comparable to the 'xlsx' and 'XLConnect' packages
-# with the added benefit of removing the dependency on Java
-#
-#if (!require("openxlsx")) install.packages("openxlsx")
-#
-#read.xlsx(xlsxFile, sheet = 1, startRow = 1, colNames = TRUE,
-#          rowNames = FALSE, detectDates = FALSE, skipEmptyRows = TRUE,
-#          skipEmptyCols = TRUE, rows = NULL, cols = NULL, check.names = FALSE,
-#          namedRegion = NULL, na.strings = "NA", fillMergedCells = FALSE)
-
 
 
 # ---
@@ -215,6 +181,9 @@ head(my_data5b)
 # all_geocodes <- geocode(as.character(all_cities$CAPITAL))
 # all_cities2 <- data.frame(all_cities, all_geocodes)
 # head(all_cities2)  
+#
+# The other coordinates not provided by ggmap were obtained by hand through 
+# https://www.latlong.net/
 
 # Save this precious set of coordinates for all contry capital into a new excel file, just in case
 #library(xlsx) #load the package
@@ -307,14 +276,14 @@ head(my_data5b)
     addTiles(tilesURL)
   
   
-  # Map Gender of immigrants in pie charts over the world map
+  # Map Gender of immigrants in pie charts over the world map and separated by month
   # -------------------------------------------------------------
   my_data5c <- tidyr::spread(my_data5b, HomeDona, n)
   colnames(my_data5c)[8] <- "Desconegut"
 
   #We now add to the base map a pie chart for each country of origin
   #  colors <- c("#4fc13c", "lightyellow", "#cccccc")
-  colors <- c("pink", "lightblue", "#cccccc")
+  colors <- c("pink", "lightblue", "lightyellow")
   
   basemap %>%
     addMinicharts(
@@ -329,6 +298,45 @@ head(my_data5b)
       legendPosition = "topright"
     )
   
+  # Map Gender of immigrants in pie charts over the world map and integrated overtime
+  # -------------------------------------------------------------
+  my_data5d <- count(my_data, NacionalitatAngles, HomeDona, wt = NULL, sort = FALSE)
+  my_data5d <- tidyr::spread(my_data5d, HomeDona, n)
+  colnames(my_data5d)[4] <- "Desconegut"
+  my_data5d$NacionalitatAngles <- apply(my_data5d, 2, toupper)
+  # Add coordinates to the countries from the Dades sheet, using left_join
+  my_data5e <- my_data5d %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
+  my_data5e <- my_data5e %>%
+    # filter(grepl("EUROPA", ContinentNacion.)) %>%
+    select(NacionalitatAngles,
+           D,
+           H,
+           Desconegut,
+           lon,
+           lat,
+    ) %>%
+    #    group_by(Nacionalitat_Angles) %>%
+    #    summarise_all(sum) %>%
+    ungroup()
+  
+  head(my_data5e)
+  
+  #We now add to the base map a pie chart for each country of origin
+  #  colors <- c("#4fc13c", "lightyellow", "#cccccc")
+  colors <- c("pink", "lightblue", "lightyellow")
+  
+  basemap %>%
+    addMinicharts(
+      my_data5e$lon, my_data5e$lat,
+      type = "pie",
+      chartdata = my_data5e[, c("D", "H", "Desconegut")], 
+      fillColor = "white",
+      colorPalette = colors, 
+      transitionTime = 0,
+      legend=TRUE,
+      legendPosition = "topright"
+    )
+
   # Map Age group of immigrants in pie charts over the world map
   # -------------------------------------------------------------
   my_data6 <- count(my_data, NacionalitatAngles, Edat, wt = NULL, sort = FALSE)
@@ -336,7 +344,7 @@ head(my_data5b)
   colnames(my_data6b)[4] <- "desconegut"
   my_data6b$NacionalitatAngles <- apply(my_data6b, 2, toupper)
   # Add coordinates to the countries from the Dades sheet, using left_join
-  my_data6c <- my_data6b %>% left_join(geodata)
+  my_data6c <- my_data6b %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
   
   my_data6d <- my_data6c %>%
     # filter(grepl("EUROPA", ContinentNacion.)) %>%
@@ -353,7 +361,7 @@ head(my_data5b)
   
   head(my_data6d)
   
-  colors <- c("blue", "lightblue", "#cccccc")
+  colors <- c("blue", "lightblue", "lightyellow")
   
   basemap %>%
     addMinicharts(
@@ -376,23 +384,47 @@ head(my_data5b)
   #   
   # #  To do that, we use function addFlows. It requires coordinates of two points for each flow and the value of the flow. Other arguments are similar to addMinicharts.
   #   
-     data("eco2mixBalance")
-     bal <- eco2mixBalance
-     head(bal)
+    # data("eco2mixBalance")
+    # bal <- eco2mixBalance
+    # head(bal)
 
-     my_data7 <- count(my_data, ProcedenciaAngles, MesDerivacioSAIER, wt = NULL, sort = FALSE)
+    # Represent flows with time info
+    # ---------------------------------------------------------------
+    my_data7 <- count(my_data, NacionalitatAngles, ProcedenciaAngles, MesDerivacioSAIER, wt = NULL, sort = FALSE)
      my_data7$ProcedenciaAngles <- apply(my_data7, 2, toupper)
+     my_data7$NacionalitatAngles <- apply(my_data7, 2, toupper)
      # Add coordinates to the countries from the Dades sheet, using left_join
-     my_data7b <- my_data7 %>% left_join(geodata, by = c("ProcedenciaAngles" = "NacionalitatAngles"))
+     my_data7b <- my_data7 %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
      
-     my_data7c <- my_data7b %>%
+     my_data7b <- my_data7b %>%
        # filter(grepl("EUROPA", ContinentNacion.)) %>%
-       select(ProcedenciaAngles,
+       select(NacionalitatAngles, 
+              ProcedenciaAngles,
               MesDerivacioSAIER,
               n,
               lon,
-              lat,
+              lat
        ) %>%
+       rename(lon0 = lon) %>%
+       rename(lat0 = lat) %>%
+       #    group_by(Nacionalitat_Angles) %>%
+       #    summarise_all(sum) %>%
+       ungroup()
+     
+     my_data7c <- my_data7b %>% left_join(geodata, by = c("ProcedenciaAngles" = "PaisAngles"))
+     my_data7c <- my_data7c %>%
+       # filter(grepl("EUROPA", ContinentNacion.)) %>%
+       select(NacionalitatAngles, 
+              ProcedenciaAngles,
+              MesDerivacioSAIER,
+              n,
+              lon0,
+              lat0,
+              lon,
+              lat
+       ) %>%
+       rename(lon1 = lon) %>%
+       rename(lat1 = lat) %>%
        #    group_by(Nacionalitat_Angles) %>%
        #    summarise_all(sum) %>%
        ungroup()
@@ -400,19 +432,57 @@ head(my_data5b)
      head(my_data7c)
      dim(my_data7c)
      # M'he quedat aquí XXXX - manca afegir les columnes de latitud i longitud de Barcelona com a destinació: lat1 lon1, per a grafic de fluxes de més avall
-     spain_lat <- bind_cols(
-       rep("41.385064", dim(my_data7c)[1]),
-       rep("2.173403", dim(my_data7c)[1])
-       )
-     bind_cols(my_data7c, spain_lat)
+     bcn_lat <- rep(41.385064, dim(my_data7c)[1])
+     bcn_lon <- rep(2.173403, dim(my_data7c)[1])
+     
+     bcn_loc <- data.frame(bcn_lat, bcn_lon)
+     my_data7c <- bind_cols(my_data7c, bcn_loc)
 
+     # I comment out this section (below) since the animation of the flows doesn't get updated properly due to some unknown reason
+     # --------------------
+      # basemap %>%
+      #   addFlows(
+      #     my_data7c$lon0, my_data7c$lat0, my_data7c$lon1, my_data7c$lat1,
+      #     flow = my_data7c$n,
+      #     time = my_data7c$MesDerivacioSAIER
+      #   )
+
+       
+     # Represent flows with no time data, but flows aggregated over time per country
+     # ---------------------------------------------------------------
+     my_data7d <- my_data7c %>%
+       filter(!is.na(lat0) & !is.na(lat1)) %>%
+       select(-MesDerivacioSAIER, -bcn_lat, -bcn_lon) %>%
+       group_by(NacionalitatAngles, ProcedenciaAngles, lat0, lon0, lat1, lon1) %>%
+       summarise_all(sum) %>%
+       ungroup()
+       
+     filter(my_data7c, NacionalitatAngles != ProcedenciaAngles)
+            
      basemap %>%
        addFlows(
-         my_data7c$lon, my_data7c$lat, my_data7c$lon1, my_data7c$lat1,
-         flow = my_data7c$n,
-         time = my_data7c$MesDerivacioSAIER
+         lng0 = my_data7d$lon, 
+         lat0 = my_data7d$lat, 
+         lng1 = my_data7d$bcn_lon,
+         lat1 = my_data7d$bcn_lat,
+         color = "blue",
+         flow = my_data7d$n,
+         maxFlow = max(my_data7d$n),
+         minThickness = 2
        )
-  
+     #my_data7d <- count(my_data7c, ProcedenciaAngles, lon, lat, bcn_lon, bcn_lat, wt = NULL, sort = FALSE)
+     leaflet() %>% addTiles() %>%
+       addFlows(0.5, 0.2, 1.5, 1.2, flow = 10)
+     
+     basemap %>%
+       addFlows(69.2074860, 34.5553494, 2.173403, 41.385064, flow = 10)
+     
+     my_data7d$lon[1]
+     my_data7d$lat[1]
+     my_data7d$bcn_lon[1]
+     my_data7d$bcn_lat[1]
+     my_data7d$n[1]
+     
 # -----------------------------------  
 # Plot Map Using rworldmap
 # Derived from: https://blog.learningtree.com/how-to-display-data-on-a-world-map-in-r/
