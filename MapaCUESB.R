@@ -553,3 +553,16 @@ head(my_data5b)
   # The par command only needs to be performed once in the session and just makes sure that all the available space in the window is used to display the map.
   
   
+  # World Charts using Plotly
+  # ----------------------------------------
+  # https://plot.ly/r/choropleth-maps/
+  # https://plot.ly/r/bubble-maps/
+  # https://plot.ly/r/lines-on-maps/
+  #
+  #df <- read.csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
+  
+  # Keep an eye on d3treemap (based on d3.js and treemap R package)
+  # --------------------------
+  # https://github.com/timelyportfolio/d3treeR
+  # http://www.buildingwidgets.com/blog/2015/7/17/week-28-d3treer
+  # http://www.buildingwidgets.com/blog/2015/7/22/week-29-d3treer-v2
