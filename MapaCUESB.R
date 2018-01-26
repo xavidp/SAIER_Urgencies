@@ -552,6 +552,45 @@ head(my_data5b)
   # 
   # The par command only needs to be performed once in the session and just makes sure that all the available space in the window is used to display the map.
   
+  # ---------------------------------------------------------
+  # Nacionalitats SAIER per anys
+  # ---------------------------------------------------------
+  # Dades a: K:\QUOTA\DIMM_COMU\Maria\NACIONALITATS REFUGI_tancament 2015-2016 a juny 2016-2017.xlsx > Full1 
+  #
+  # Full1 	CATEGORIA 	a des. 2015 	a des. 2016 	ANY 2016 vs ANY 2015 	% creix. Anual
+  # AFGANISTAN 	ÀSIA MERIDIONAL 	17 	35 	18 	51,43%
+  # ALBANIA 	EUROPA ORIENTAL 	8 	17 	9 	52,94% 
+  # ...
+  my_file2 <- file.path("K:\\QUOTA\\DIMM_COMU\\Maria", "NACIONALITATS REFUGI_tancament 2015-2016 a juny 2016-2017.xlsx")
+  if (!require("readxl")) install.packages("readxl")
+  library("readxl")
+  my_data2 <- read_excel(my_file2, sheet = "Full1", skip=3)
+  head(my_data2)
+  colnames(my_data2)
+  
+  if (!require("dplyr")) install.packages("dplyr")
+  library(dplyr)
+  #md2 <- count(my_data2, CATEGORIA, NACIONALITAT, wt = NULL, sort = FALSE)
+  md2 <- my_data2
+  # basic treemaps
+  p2015=treemap(md2,
+            index=c("CATEGORIA","NACIONALITAT"),
+            vSize="a des. 2015",
+            type="index"
+  )            
+  p2016=treemap(md2,
+                index=c("CATEGORIA","NACIONALITAT"),
+                vSize="a des. 2016",
+                type="index"
+  )            
+  
+  # make it interactive ("rootname" becomes the title of the plot):
+  inter2015=d3tree2( p2015 ,  rootname = "Nacionalitats Usuaris SAIER - 2015" )
+  inter2016=d3tree2( p2016 ,  rootname = "Nacionalitats Usuaris SAIER - 2015" )
+  inter2015
+  inter2016
+  
+  
   
   # World Charts using Plotly
   # ----------------------------------------
@@ -560,6 +599,9 @@ head(my_data5b)
   # https://plot.ly/r/lines-on-maps/
   #
   #df <- read.csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
+  my_file3 <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v04.xlsx")
+  
+  
   
   # Keep an eye on d3treemap (based on d3.js and treemap R package)
   # --------------------------
