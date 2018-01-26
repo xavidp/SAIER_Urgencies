@@ -561,15 +561,23 @@ head(my_data5b)
   # AFGANISTAN 	ÀSIA MERIDIONAL 	17 	35 	18 	51,43%
   # ALBANIA 	EUROPA ORIENTAL 	8 	17 	9 	52,94% 
   # ...
-  my_file2 <- file.path("K:\\QUOTA\\DIMM_COMU\\Maria", "NACIONALITATS REFUGI_tancament 2015-2016 a juny 2016-2017.xlsx")
+  my_file2 <- file.path("K:\\QUOTA\\DIMM_COMU\\Maria", "NACIONALITATS REFUGI_tancament 2015-2016 a juny 2016-2017_v02.xlsx")
   if (!require("readxl")) install.packages("readxl")
   library("readxl")
-  my_data2 <- read_excel(my_file2, sheet = "Full1", skip=3)
+  my_data2 <- read_excel(my_file2, sheet = "Full1", range="A5:AJ125", na="NA")
   head(my_data2)
   colnames(my_data2)
   
+  # libraries
   if (!require("dplyr")) install.packages("dplyr")
   library(dplyr)
+  if (!require("treemap")) install.packages("treemap")
+  library(treemap)
+  if (!require("devtools")) install.packages("devtools")
+  library(devtools)
+  if (!require("d3treeR")) devtools::install_github("timelyportfolio/d3treeR")
+  library(d3treeR)
+  
   #md2 <- count(my_data2, CATEGORIA, NACIONALITAT, wt = NULL, sort = FALSE)
   md2 <- my_data2
   # basic treemaps
@@ -583,10 +591,27 @@ head(my_data5b)
                 vSize="a des. 2016",
                 type="index"
   )            
+  md2$"% creix. Anual"
+  md2$"% 2016 vs 2015"
+  md2$NACIONALITAT
+  length(md2$NACIONALITAT)
+  p2016b=treemap(md2,
+                index=c("CATEGORIA","NACIONALITAT"),
+                vSize="a des. 2016",
+                vColor="% 2016 vs 2015",
+                title="Nacionalitats d'Usuaris al SAIER 2016",
+                title.legend="Mida proporcional al nombre; color segons % de canvi anual",
+                type="dens",
+                palette="RdYlBu",
+                overlap.labels=1,
+                align.labels=c("center", "top")
+  ) 
+  # To see all possible easy color palettes, run:
+  #RColorBrewer::display.brewer.all()
   
   # make it interactive ("rootname" becomes the title of the plot):
   inter2015=d3tree2( p2015 ,  rootname = "Nacionalitats Usuaris SAIER - 2015" )
-  inter2016=d3tree2( p2016 ,  rootname = "Nacionalitats Usuaris SAIER - 2015" )
+  inter2016=d3tree2( p2016 ,  rootname = "Nacionalitats Usuaris SAIER - 2016" )
   inter2015
   inter2016
   
