@@ -640,9 +640,43 @@ head(my_data5b)
   # https://plot.ly/r/bubble-maps/
   # https://plot.ly/r/lines-on-maps/
   #
+  if (!require("plotly")) install.packages("plotly")
+  library(plotly)
+  packageVersion('plotly')
+  
+  # For a list of projections for maps, see:
+  # https://plot.ly/r/reference/#layout-geo-projection
+    
   #df <- read.csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
   my_file3 <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v04.xlsx")
   
+  # Example of Choropleth World Map
+  #----------------------------------
+  df <- read.csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
+  
+  # light grey boundaries
+  l <- list(color = toRGB("grey"), width = 0.5)
+  
+  # specify map projection/options
+  g <- list(
+    showframe = FALSE,
+    showcoastlines = FALSE,
+    projection = list(type = 'natural earth') 
+  )
+  
+  p <- plot_geo(df) %>%
+    add_trace(
+      z = ~GDP..BILLIONS., color = ~GDP..BILLIONS., colors = 'Blues',
+      text = ~COUNTRY, locations = ~CODE, marker = list(line = l)
+    ) %>%
+    colorbar(title = 'GDP Billions US$', tickprefix = '$') %>%
+    layout(
+      title = '2014 Global GDP<br>Source:<a href="https://www.cia.gov/library/publications/the-world-factbook/fields/2195.html">CIA World Factbook</a>',
+      geo = g
+    )
+  p
+  
+  # It doesn't plot the map in AAI's computer (AjBCN) I dunno why :-(  - 2/2/2018
   
   
   # Keep an eye on d3treemap (based on d3.js and treemap R package)
