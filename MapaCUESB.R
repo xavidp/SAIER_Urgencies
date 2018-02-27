@@ -16,7 +16,7 @@ library(leaflet.minicharts)
 # -----------
 # CUESB Data
 # -----------
-my_file <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v04.xlsx")
+my_file <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v10.xlsx")
 # Read From xlsx sheet
 # ..............................
 # Option 1: readxl package
