@@ -1,8 +1,8 @@
 ---
 title: "SAIER Urgències"
 author: "Ajuntament de Barcelona - AAI"
-date: "27 novembre de 2017"
-output: html_document
+date: "27 novembre de 2017 - 27 febrer 2018"
+output: html_notebook
 ---
 
 ```{r setup, include=FALSE}
@@ -11,38 +11,88 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Urgències SAIER 2017
 
-Bla bla.
+Resultats destacats a partir de les dades de derivacions del CUESB al SAIER
 
 ```{r paquets, echo=FALSE}
-library(devtools)
-devtools::install_github("rstudio/crosstalk")
-devtools::install_github("rstudio/leaflet")
-devtools::install_github("jcheng5/d3scatter")
-install.packages("leaflet.minicharts")
-library(crosstalk)
-library(leaflet)
-library(d3scatter)
-library(DT)
+#library(devtools)
+#devtools::install_github("rstudio/crosstalk")
+#devtools::install_github("rstudio/leaflet")
+#devtools::install_github("jcheng5/d3scatter")
+#library(crosstalk)
+#library(d3scatter)
+#library(DT)
+#install.packages("rpivotTable")
+#library(rpivotTable)
 ```
 
-```{r pre-processat dades, echo=FALSE}
-# Wrap data frame in SharedData
-sd <- SharedData$new(quakes[sample(nrow(quakes), 100),])
+```{r Lectura i pre-processat dades, echo=FALSE}
+# -----------
+# CUESB Data
+# -----------
+my_file <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v10.xlsx")
+# Read From xlsx sheet
+# ..............................
+# Option 1: readxl package
+# ..............................
+# From http://www.sthda.com/english/wiki/reading-data-from-excel-files-xls-xlsx-into-r
+# The readxl package, developed by Hadley Wickham, can be used to easily import Excel files (xls|xlsx) into R without any external dependencies.
+if (!require("readxl")) install.packages("readxl")
+library("readxl")
 
-# Create a filter input
-filter_slider("mag", "Magnitude", sd, column=~mag, step=0.1, width=250)
+#Specify sheet with a number or name
+# Specify sheet by its name
+my_data <- read_excel(my_file, sheet = "Dades")
+head(my_data)
+colnames(my_data)
+
+
+geodata <- read_excel(my_file, sheet = "PaisesContinentes")
+
+# Summarise data based on Country of origin
+if (!require("dplyr")) install.packages("dplyr")
+library(dplyr)
+
+my_data4 <- count(my_data, NacionalitatAngles, MesDerivacioSAIER, GrupEdat, HomeDona, wt = NULL, sort = FALSE)
+colnames(my_data4)
+my_data4$NacionalitatAngles <- apply(my_data4, 2, toupper)
+head(my_data4)
+dim(my_data4)
+
+#colnames(geodata)[7] <- "NacionalitatAngles"
+colnames(geodata)
+head(geodata)
+dim(geodata)
+
+# Add coordinates to the countries from the Dades sheet, using left_join
+my_data5 <- my_data4 %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
+
+my_data5b <- my_data5 %>%
+  # filter(grepl("EUROPA", ContinentNacion.)) %>%
+  select(NacionalitatAngles,
+         MesDerivacioSAIER,
+         GrupEdat,
+         HomeDona,
+         n,
+         lon,
+         lat
+  ) %>%
+  #    group_by(Nacionalitat_Angles) %>%
+  #    summarise_all(sum) %>%
+  ungroup()
+
+head(my_data5b)
+
+
 
 ```
 
-```{r gràfics, echo=FALSE}
-# Use SharedData like a dataframe with Crosstalk-enabled widgets
+## More output
 
-bscols(
-  leaflet(sd) %>% addTiles() %>% addMarkers(),
-#  datatable(sd, extensions="Scroller", style="bootstrap", class="compact", width="100%",
-#    options=list(deferRender=TRUE, scrollY=300, scroller=TRUE))
+```{r more output, echo=FALSE}
+# Foo
 
-)
+
+
 ```
 
 
