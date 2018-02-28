@@ -46,53 +46,53 @@ geodata <- read_excel(my_file, sheet = "PaisesContinentes")
 if (!require("dplyr")) install.packages("dplyr")
 library(dplyr)
 
-# Select columns of interest
-my_data2 <- my_data %>%
-  # filter(grepl("EUROPA", ContinentNacion.)) %>%
-  select(-Cognoms,
-         -Nom,
-         -Expedient,
-         -ComunicacioDerivacio,
-         -Nacionalitat, 
-         -ContinentNacio,
-         -LlocProcedencia, 
-         -ContinentProced,
-         -DetallObservacions,
-         -AlertaMaltractament,
-         -`Alerta salut`, 
-         -OrientacioContinuitat
-  ) %>%
-  #    group_by(Nacionalitat_Angles) %>%
-  #    summarise_all(sum) %>%
-  ungroup()
-
-head(my_data2)
+# # Select columns of interest
+# my_data2 <- my_data %>%
+#   # filter(grepl("EUROPA", ContinentNacion.)) %>%
+#   select(-Cognoms,
+#          -Nom,
+#          -Expedient,
+#          -ComunicacioDerivacio,
+#          -Nacionalitat, 
+#          -ContinentNacio,
+#          -LlocProcedencia, 
+#          -ContinentProced,
+#          -DetallObservacions,
+#          -AlertaMaltractament,
+#          -`Alerta salut`, 
+#          -OrientacioContinuitat
+#   ) %>%
+#   #    group_by(Nacionalitat_Angles) %>%
+#   #    summarise_all(sum) %>%
+#   ungroup()
+# 
+# head(my_data2)
 
 # 
-#  my_data3 <- my_data %>%
-my_data3 <- add_count(my_data, NacionalitatAngles, wt = NULL, sort = TRUE)
-head(my_data3[25:29])
-colnames(my_data3)
-my_data3
+# #  my_data3 <- my_data %>%
+# my_data3 <- add_count(my_data, NacionalitatAngles, wt = NULL, sort = TRUE)
+# head(my_data3[25:29])
+# colnames(my_data3)
+# my_data3
+# 
+# #my_data4 <- count(my_data, NacionalitatAngles, HomeDona, wt = NULL, sort = FALSE)
+# # We get a table data frame such as:
+# # # A tibble: 94 x 3
+# # NacionalitatAngles HomeDona     n
+# # <chr>    <chr> <int>
+# #   1        Afghanistan        D     1
+# # 2        Afghanistan        H    14
+# # 3        Afghanistan     <NA>     5
+# # 4            Albania        D     2
+# # 5            Albania        H     3
+# # 6            Algeria        D     2
+# # 7            Algeria        H     6
+# # 8          Argentina        D     1
+# # 9          Argentina        H     1
+# # 10            Armenia        H     2
+# # # ... with 84 more rows
 
-#my_data4 <- count(my_data, NacionalitatAngles, HomeDona, wt = NULL, sort = FALSE)
-# We get a table data frame such as:
-# # A tibble: 94 x 3
-# NacionalitatAngles HomeDona     n
-# <chr>    <chr> <int>
-#   1        Afghanistan        D     1
-# 2        Afghanistan        H    14
-# 3        Afghanistan     <NA>     5
-# 4            Albania        D     2
-# 5            Albania        H     3
-# 6            Algeria        D     2
-# 7            Algeria        H     6
-# 8          Argentina        D     1
-# 9          Argentina        H     1
-# 10            Armenia        H     2
-# # ... with 84 more rows
-
-my_data4 <- count(my_data, NacionalitatAngles, MesDerivacioSAIER, Edat, HomeDona, wt = NULL, sort = FALSE)
+my_data4 <- count(my_data, NacionalitatAngles, MesDerivacioSAIER, GrupEdat, HomeDona, wt = NULL, sort = FALSE)
 # # A tibble: 346 x 5
 # NacionalitatAngles MesDerivacioSAIER  Edat HomeDona     n
 # <chr>             <chr> <chr>    <chr> <int>
@@ -139,7 +139,7 @@ my_data5b <- my_data5 %>%
   # filter(grepl("EUROPA", ContinentNacion.)) %>%
   select(NacionalitatAngles,
          MesDerivacioSAIER,
-         Edat,
+         GrupEdat,
          HomeDona,
          n,
          lon,
@@ -289,7 +289,7 @@ head(my_data5b)
     addMinicharts(
       my_data5c$lon, my_data5c$lat,
       type = "pie",
-      chartdata = my_data5c[, c("D", "H", "Desconegut")], 
+      chartdata = my_data5c[, c("Dona", "Home", "Desconegut")], 
       fillColor = "white",
       colorPalette = colors, 
       time = my_data5c$MesDerivacioSAIER,
@@ -309,8 +309,8 @@ head(my_data5b)
   my_data5e <- my_data5e %>%
     # filter(grepl("EUROPA", ContinentNacion.)) %>%
     select(NacionalitatAngles,
-           D,
-           H,
+           Dona,
+           Home,
            Desconegut,
            lon,
            lat
@@ -329,7 +329,7 @@ head(my_data5b)
     addMinicharts(
       my_data5e$lon, my_data5e$lat,
       type = "pie",
-      chartdata = my_data5e[, c("D", "H", "Desconegut")], 
+      chartdata = my_data5e[, c("Dona", "Home", "Desconegut")], 
       fillColor = "white",
       colorPalette = colors, 
       transitionTime = 0,
@@ -339,9 +339,9 @@ head(my_data5b)
 
   # Map Age group of immigrants in pie charts over the world map
   # -------------------------------------------------------------
-  my_data6 <- count(my_data, NacionalitatAngles, Edat, wt = NULL, sort = FALSE)
-  my_data6b <- tidyr::spread(my_data6, Edat, n)
-  colnames(my_data6b)[4] <- "desconegut"
+  my_data6 <- count(my_data, NacionalitatAngles, GrupEdat, wt = NULL, sort = FALSE)
+  my_data6b <- tidyr::spread(my_data6, GrupEdat, n)
+  colnames(my_data6b)[5] <- "desconegut"
   my_data6b$NacionalitatAngles <- apply(my_data6b, 2, toupper)
   # Add coordinates to the countries from the Dades sheet, using left_join
   my_data6c <- my_data6b %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
@@ -349,8 +349,9 @@ head(my_data5b)
   my_data6d <- my_data6c %>%
     # filter(grepl("EUROPA", ContinentNacion.)) %>%
     select(NacionalitatAngles,
-           adult,
-           menor,
+           Adult,
+           Menor,
+           nsnc,
            desconegut,
            lon,
            lat
@@ -361,13 +362,13 @@ head(my_data5b)
   
   head(my_data6d)
   
-  colors <- c("green", "lightgreen", "lightyellow")
+  colors <- c("green", "lightgreen", "lightyellow", "orange")
   
   basemap %>%
     addMinicharts(
       my_data6d$lon, my_data6d$lat,
       type = "pie",
-      chartdata = my_data6d[, c("adult", "menor", "desconegut")], 
+      chartdata = my_data6d[, c("Adult", "Menor", "nsnc", "desconegut")], 
       fillColor = "white",
       colorPalette = colors, 
       transitionTime = 0,
@@ -479,17 +480,17 @@ head(my_data5b)
          minThickness = 2
        )
      #my_data7d <- count(my_data7c, ProcedenciaAngles, lon, lat, bcn_lon, bcn_lat, wt = NULL, sort = FALSE)
-     leaflet() %>% addTiles() %>%
-       addFlows(0.5, 0.2, 1.5, 1.2, flow = 10)
+     #leaflet() %>% addTiles() %>%
+     #   addFlows(0.5, 0.2, 1.5, 1.2, flow = 10)
      
-     basemap %>%
-       addFlows(69.2074860, 34.5553494, 2.173403, 41.385064, flow = 10)
+     #basemap %>%
+     #   addFlows(69.2074860, 34.5553494, 2.173403, 41.385064, flow = 10)
      
-     my_data7d$lon[1]
-     my_data7d$lat[1]
-     my_data7d$bcn_lon[1]
-     my_data7d$bcn_lat[1]
-     my_data7d$n[1]
+     #my_data7d$lon[1]
+     #my_data7d$lat[1]
+     #my_data7d$bcn_lon[1]
+     #my_data7d$bcn_lat[1]
+     #my_data7d$n[1]
      
 # -----------------------------------  
 # Plot Map Using rworldmap
@@ -538,17 +539,17 @@ head(my_data5b)
                  missingCountryCol = "white")
   #?mapCountryData
   head(my_data)
-  summary(my_data$NMembresNucli)
+  #summary(my_data$NMembresNucli)
   table(my_data$NMembresNucli)
   
-  my_mapped_data4
+#  my_mapped_data4
   
-  mapCountryData(my_mapped_data4, 
-                 catMethod="pretty",
-                 colourPalette="heat", 
-                 mapTitle = "columnName", 
-                 oceanCol = "lightblue",
-                 missingCountryCol = "white")
+  # mapCountryData(my_mapped_data4, 
+  #                catMethod="pretty",
+  #                colourPalette="heat", 
+  #                mapTitle = "columnName", 
+  #                oceanCol = "lightblue",
+  #                missingCountryCol = "white")
   # 
   # The par command only needs to be performed once in the session and just makes sure that all the available space in the window is used to display the map.
   
@@ -564,9 +565,9 @@ head(my_data5b)
   my_file2 <- file.path("K:\\QUOTA\\DIMM_COMU\\Maria", "NACIONALITATS REFUGI_tancament 2015-2016 a juny 2016-2017_v02.xlsx")
   if (!require("readxl")) install.packages("readxl")
   library("readxl")
-  my_data2 <- read_excel(my_file2, sheet = "Full1", range="A5:AJ125", na="NA")
-  head(my_data2)
-  colnames(my_data2)
+  my_data10 <- read_excel(my_file2, sheet = "Full1", range="A5:AJ125", na="NA")
+  head(my_data10)
+  colnames(my_data10)
   
   # libraries
   if (!require("dplyr")) install.packages("dplyr")
@@ -578,10 +579,10 @@ head(my_data5b)
   if (!require("d3treeR")) devtools::install_github("timelyportfolio/d3treeR")
   library(d3treeR)
   
-  #md2 <- count(my_data2, CATEGORIA, NACIONALITAT, wt = NULL, sort = FALSE)
-  md2 <- my_data2
+  #md2 <- count(my_data10, CATEGORIA, NACIONALITAT, wt = NULL, sort = FALSE)
+  md10 <- my_data10
   # basic treemaps
-  p2015=treemap(md2,
+  p2015=treemap(md10,
             index=c("CATEGORIA","NACIONALITAT"),
             vSize="a des. 2015",
             type="index",
@@ -591,7 +592,7 @@ head(my_data5b)
             aspRatio=2,
             align.labels=c("center", "center")
   )            
-  p2016=treemap(md2,
+  p2016=treemap(md10,
                 index=c("CATEGORIA","NACIONALITAT"),
                 vSize="a des. 2016",
                 type="index",
@@ -602,11 +603,11 @@ head(my_data5b)
                 bg.labels=75,
                 align.labels=c("center", "center")
   )            
-  md2$"% creix. Anual"
-  md2$"% 2016 vs 2015"
-  md2$NACIONALITAT
-  length(md2$NACIONALITAT)
-  p2016b=treemap(md2,
+  md10$"% creix. Anual"
+  md10$"% 2016 vs 2015"
+  md10$NACIONALITAT
+  length(md10$NACIONALITAT)
+  p2016b=treemap(md10,
                 index=c("CATEGORIA","NACIONALITAT"),
                 vSize="a des. 2016",
                 title="Nacionalitats d'Usuaris al SAIER 2016",
@@ -648,7 +649,7 @@ head(my_data5b)
   # https://plot.ly/r/reference/#layout-geo-projection
     
   #df <- read.csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
-  my_file3 <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v04.xlsx")
+  my_file3 <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v10.xlsx")
   
   # Example of Choropleth World Map
   #----------------------------------
@@ -684,3 +685,4 @@ head(my_data5b)
   # https://github.com/timelyportfolio/d3treeR
   # http://www.buildingwidgets.com/blog/2015/7/17/week-28-d3treer
   # http://www.buildingwidgets.com/blog/2015/7/22/week-29-d3treer-v2
+  
