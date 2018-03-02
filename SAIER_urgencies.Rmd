@@ -14,6 +14,10 @@ knitr::opts_chunk$set(echo = TRUE)
 Resultats destacats a partir de les dades de derivacions del CUESB al SAIER
 
 ```{r paquets, echo=FALSE}
+if (!require("pacman")) install.packages("pacman")
+#pacman::p_load_gh("trinker/textreadr")
+pacman::p_load(leaflet.minicharts)
+library(leaflet.minicharts)
 #library(devtools)
 #devtools::install_github("rstudio/crosstalk")
 #devtools::install_github("rstudio/leaflet")
@@ -29,7 +33,7 @@ Resultats destacats a partir de les dades de derivacions del CUESB al SAIER
 # -----------
 # CUESB Data
 # -----------
-my_file <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v10.xlsx")
+my_file <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v12.xlsx")
 # Read From xlsx sheet
 # ..............................
 # Option 1: readxl package
@@ -43,7 +47,9 @@ library("readxl")
 # Specify sheet by its name
 my_data <- read_excel(my_file, sheet = "Dades")
 head(my_data)
-colnames(my_data)
+my_data <- my_data %>% 
+  filter(ComunicacioDerivacio == "D" | ComunicacioDerivacio == "Derivació")
+#colnames(my_data)
 
 
 geodata <- read_excel(my_file, sheet = "PaisesContinentes")
@@ -53,15 +59,15 @@ if (!require("dplyr")) install.packages("dplyr")
 library(dplyr)
 
 my_data4 <- count(my_data, NacionalitatAngles, MesDerivacioSAIER, GrupEdat, HomeDona, wt = NULL, sort = FALSE)
-colnames(my_data4)
+#colnames(my_data4)
 my_data4$NacionalitatAngles <- apply(my_data4, 2, toupper)
 head(my_data4)
-dim(my_data4)
+#dim(my_data4)
 
 #colnames(geodata)[7] <- "NacionalitatAngles"
-colnames(geodata)
+#colnames(geodata)
 head(geodata)
-dim(geodata)
+#dim(geodata)
 
 # Add coordinates to the countries from the Dades sheet, using left_join
 my_data5 <- my_data4 %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
@@ -86,10 +92,303 @@ head(my_data5b)
 
 ```
 
-## More output
+## Gender of immigrants. World map with pie charts integrated overtime
 
-```{r more output, echo=FALSE}
-# Foo
+```{r Gender of immigrants}
+  
+  library(leaflet)
+  
+  tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+  
+  basemap <- leaflet(width = "100%", height = "400px") %>%
+    addTiles(tilesURL)
+  
+  # -------------------------------------------------------------
+  my_data5d <- count(my_data, NacionalitatAngles, HomeDona, wt = NULL, sort = FALSE)
+  my_data5d <- tidyr::spread(my_data5d, HomeDona, n)
+  colnames(my_data5d)[4] <- "Desconegut"
+  my_data5d$NacionalitatAngles <- apply(my_data5d, 2, toupper)
+  # Add coordinates to the countries from the Dades sheet, using left_join
+  my_data5e <- my_data5d %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
+  my_data5e <- my_data5e %>%
+    # filter(grepl("EUROPA", ContinentNacion.)) %>%
+    select(NacionalitatAngles,
+           Dona,
+           Home,
+           Desconegut,
+           lon,
+           lat
+    ) %>%
+    #    group_by(Nacionalitat_Angles) %>%
+    #    summarise_all(sum) %>%
+    ungroup()
+  
+  head(my_data5e)
+  
+  #We now add to the base map a pie chart for each country of origin
+  #  colors <- c("#4fc13c", "lightyellow", "#cccccc")
+  colors <- c("pink", "lightblue", "lightyellow")
+  
+  basemap %>%
+    addMinicharts(
+      my_data5e$lon, my_data5e$lat,
+      type = "pie",
+      chartdata = my_data5e[, c("Dona", "Home", "Desconegut")], 
+      fillColor = "white",
+      colorPalette = colors, 
+      transitionTime = 0,
+      legend=TRUE,
+      legendPosition = "topright"
+    )
+```
+
+## Age group of immigrants. World map with pie charts
+```{r Age group of immigrants}
+
+  # Map Age group of immigrants in pie charts over the world map
+  # -------------------------------------------------------------
+  my_data6 <- count(my_data, NacionalitatAngles, GrupEdat, wt = NULL, sort = FALSE)
+  my_data6b <- tidyr::spread(my_data6, GrupEdat, n)
+  colnames(my_data6b)[4] <- "desconegut"
+  my_data6b$NacionalitatAngles <- apply(my_data6b, 2, toupper)
+  # Add coordinates to the countries from the Dades sheet, using left_join
+  my_data6c <- my_data6b %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
+  
+  my_data6d <- my_data6c %>%
+    # filter(grepl("EUROPA", ContinentNacion.)) %>%
+    select(NacionalitatAngles,
+           Adult,
+           Menor,
+           desconegut,
+           lon,
+           lat
+    ) %>%
+    #    group_by(Nacionalitat_Angles) %>%
+    #    summarise_all(sum) %>%
+    ungroup()
+  
+  head(my_data6d)
+  
+  colors <- c("green", "lightgreen", "orange")
+  
+  basemap %>%
+    addMinicharts(
+      my_data6d$lon, my_data6d$lat,
+      type = "pie",
+      chartdata = my_data6d[, c("Adult", "Menor", "desconegut")], 
+      fillColor = "white",
+      colorPalette = colors, 
+      transitionTime = 0,
+      legend=TRUE,
+      legendPosition = "topright"
+    )
+
+```
+
+## Membres de les Unitats Familiars
+```{r Membres de les Unitats Familiars}
+# Plot Map Using rworldmap
+# Derived from: https://blog.learningtree.com/how-to-display-data-on-a-world-map-in-r/
+  if (!require("rworldmap")) install.packages("rworldmap")
+  library(rworldmap)
+
+  my_mapped_data <- joinCountryData2Map(my_data, joinCode = "NAME", 
+                                     nameJoinColumn = "NacionalitatAngles")
+
+  # The par command only needs to be performed once in the session and just makes sure that all the available space in the window is used to display the map.
+  par(mai=c(0,0,0.2,0),xaxs="i",yaxs="i")
+
+  my_mapped_data$NMembresNucli <- as.numeric(my_mapped_data$NMembresNucli)
+  mapCountryData(my_mapped_data, 
+                 nameColumnToPlot = "NMembresNucli", 
+                 catMethod="pretty",
+                 colourPalette="heat", 
+                 mapTitle = "columnName", 
+                 oceanCol = "lightblue",
+                 missingCountryCol = "white")
+```
+
+
+### Resum de dades de N. de membres del Nucli
+
+```{r resum numero membres del nucli, echo=FALSE}
+
+  head(my_data)
+  table(my_data$NMembresNucli)
+  
+```
+
+
+## Nacionalitats SAIER per anys
+
+```{r Nacionalitats SAIER per anys - intro, echo=FALSE}
+  
+  # ---------------------------------------------------------
+  # Nacionalitats SAIER per anys
+  # ---------------------------------------------------------
+  # Dades a: K:\QUOTA\DIMM_COMU\Maria\NACIONALITATS REFUGI_tancament 2015-2016 a juny 2016-2017.xlsx > Full1 
+  #
+  # Full1 	CATEGORIA 	a des. 2015 	a des. 2016 	ANY 2016 vs ANY 2015 	% creix. Anual
+  # AFGANISTAN 	ÀSIA MERIDIONAL 	17 	35 	18 	51,43%
+  # ALBANIA 	EUROPA ORIENTAL 	8 	17 	9 	52,94% 
+  # ...
+  my_file2 <- file.path("K:\\QUOTA\\DIMM_COMU\\Maria", "NACIONALITATS REFUGI_tancament 2015-2016 a juny 2016-2017_v02.xlsx")
+  if (!require("readxl")) install.packages("readxl")
+  library("readxl")
+  my_data10 <- read_excel(my_file2, sheet = "Full1", range="A5:AJ125", na="NA")
+  head(my_data10)
+  #colnames(my_data10)
+  
+```
+
+
+### Nacionalitats SAIER 2015 
+
+```{r Treemap 2015, echo=FALSE}
+  
+  # libraries
+  if (!require("dplyr")) install.packages("dplyr")
+  library(dplyr)
+  if (!require("treemap")) install.packages("treemap")
+  library(treemap)
+  if (!require("devtools")) install.packages("devtools")
+  library(devtools)
+  if (!require("d3treeR")) devtools::install_github("timelyportfolio/d3treeR")
+  library(d3treeR)
+  
+  #md2 <- count(my_data10, CATEGORIA, NACIONALITAT, wt = NULL, sort = FALSE)
+  md10 <- my_data10
+  # basic treemaps
+  p2015=treemap(md10,
+            index=c("CATEGORIA","NACIONALITAT"),
+            vSize="a des. 2015",
+            type="index",
+            title="Nacionalitats d'Usuaris al SAIER 2015",
+            overlap.labels=1,
+            force.print.labels=TRUE,
+            aspRatio=2,
+            align.labels=c("center", "center")
+  )  
+  
+```
+
+
+### Nacionalitats SAIER 2016
+
+```{r Treemap 2016, echo=FALSE}
+  p2016=treemap(md10,
+                index=c("CATEGORIA","NACIONALITAT"),
+                vSize="a des. 2016",
+                type="index",
+                title="Nacionalitats d'Usuaris al SAIER 2016",
+                overlap.labels=1,
+                force.print.labels=TRUE,
+                aspRatio=2.5,
+                bg.labels=75,
+                align.labels=c("center", "center")
+  )            
+  # md10$"% creix. Anual"
+  # md10$"% 2016 vs 2015"
+  # md10$NACIONALITAT
+  # length(md10$NACIONALITAT)
+
+  p2016b=treemap(md10,
+                index=c("CATEGORIA","NACIONALITAT"),
+                vSize="a des. 2016",
+                title="Nacionalitats d'Usuaris al SAIER 2016",
+                title.legend="Mida proporcional al nombre; color segons % de canvi anual",
+#                type="dens",
+#                vColor="% 2016 vs 2015",
+                type="comp",
+                vColor="a des. 2015",
+                palette="RdYlBu",
+                overlap.labels=1,
+                aspRatio=2.5,
+                force.print.labels=TRUE,
+                align.labels=c("center", "center")
+  ) 
+  # To see all possible easy color palettes, run:
+  #RColorBrewer::display.brewer.all()
+  
+```
+
+
+### Nacionalitats Usuaris SAIER - Interactive Chart 2015
+```{r Nacionalitats Usuaris SAIER - Interactive Chart 2015}
+  # make it interactive ("rootname" becomes the title of the plot):
+  inter2015=d3tree2( p2015 ,  rootname = "Nacionalitats Usuaris SAIER - 2015" )
+  inter2015
+```
+
+
+### Nacionalitats Usuaris SAIER - Interactive Chart 2016
+```{r Nacionalitats Usuaris SAIER - Interactive Chart 2016}
+  inter2016=d3tree2( p2016 ,  rootname = "Nacionalitats Usuaris SAIER - 2016" )
+  inter2016
+  
+```
+
+
+### Nacionalitats Usuaris SAIER - Interactive Chart 2016 vs 2015
+```{r Nacionalitats Usuaris SAIER - Interactive Chart 2016 vs 2015}
+  inter2016b=d3tree2( p2016b ,  rootname = "Nacionalitats Usuaris SAIER - 2016 vs 2015" )
+  inter2016b
+  
+
+```
+
+
+## Derivacions CUESB -> SAIER 2017
+
+### Derivacions CUESB -> SAIER 2017: Nacionalitats
+
+```{r Derivacions CUESB -> SAIER 2017}
+
+    my_data7a <- my_data %>% 
+          count(NacionalitatAngles, 
+                ContinentNacio,
+                MesDerivacioSAIER,
+                wt = NULL, sort = FALSE) %>%
+          filter(!is.na(NacionalitatAngles))
+
+    my_data7b <- my_data %>% 
+          count(ProcedenciaAngles,
+                ContinentProced,
+                MesDerivacioSAIER,
+                wt = NULL, sort = FALSE) %>%
+          filter(!is.na(ProcedenciaAngles))
+
+    my_data7c <- my_data %>% 
+          count(SituacioAdministrativa,
+                PaisTramitSituacioAdministrativa,
+                Perfil, 
+                MesDerivacioSAIER,
+                wt = NULL, sort = FALSE)
+
+  # basic treemaps
+  p2017.nacio=treemap(my_data7a,
+            index=c("ContinentNacio","NacionalitatAngles"),
+            vSize="n",
+            type="index",
+            title="Nacionalitats d'Usuaris Derivats del CUESB al SAIER 2017",
+            overlap.labels=1,
+            force.print.labels=TRUE,
+            aspRatio=2,
+            align.labels=c("center", "center")
+  )  
+
+```
+
+
+## Immigrants vs Refugiats Atesos
+
+```{r Immigrants vs Refugiats atesos, echo=FALSE}
+if(!require(rpivotTable)){ install.packages("rpivotTable") }
+require(rpivotTable)
+
+# Create the pivot table and save html on disk
+pt <- rpivotTable(my_data7c)
+#pt <- rpivotTable(data = table1, rows = c("Submitted.By","Category"), cols=c("Resolution.Status","Importance"), vals = "Title", aggregatorName = "Count", rendererName = "Heatmap", width="100%", height="800px")
 
 
 
