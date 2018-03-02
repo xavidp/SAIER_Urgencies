@@ -381,7 +381,12 @@ head(my_data5b)
   )  
 
 ```
-
+### Derivacions CUESB -> SAIER 2017: Nacionalitats Interactive Chart 2017
+```{r Derivacions CUESB -> SAIER 2017: Nacionalitats Interactive Chart 2017}
+  p2017.nacio.i=d3tree2( p2017.nacio ,  rootname = "Nacionalitats d'Usuaris Derivats del CUESB al SAIER 2017" )
+  p2017.nacio.i
+  
+```
 
 ## Immigrants vs Refugiats Atesos
 
