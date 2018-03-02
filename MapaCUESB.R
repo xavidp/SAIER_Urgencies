@@ -633,7 +633,55 @@ head(my_data5b)
   inter2016b=d3tree2( p2016b ,  rootname = "Nacionalitats Usuaris SAIER - 2016 vs 2015" )
   inter2016b
   
+  #===================================================
+  ### Derivacions CUESB -> SAIER 2017: Nacionalitats
+  #===================================================
+
+    my_data7 <- my_data %>% 
+    count(NacionalitatAngles, 
+          ContinentNacio,
+          MesDerivacioSAIER,
+          ProcedenciaAngles,
+          ContinentProced,
+          "Situació administrativa",
+          PaisTramitSituacioAdministrativa,
+          Perfil, 
+          wt = NULL, sort = FALSE) %>%
+    filter(!is.na(NacionalitatAngles) & !is.na(ProcedenciaAngles))
   
+  
+  my_data7$ProcedenciaAngles <- apply(matrix(my_data7$ProcedenciaAngles), 2, toupper)
+  my_data7$NacionalitatAngles <- apply(matrix(my_data7$NacionalitatAngles), 2, toupper)
+  # Add coordinates to the countries from the Dades sheet, using left_join
+  my_data7b <- my_data7 %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
+  
+  my_data7b <- my_data7b %>%
+    # filter(grepl("EUROPA", ContinentNacion.)) %>%
+    select(NacionalitatAngles,
+           ContinentNacio,
+           MesDerivacioSAIER,
+           ProcedenciaAngles,
+           ContinentProced,
+           "Situació administrativa",
+           PaisTramitSituacioAdministrativa,
+           Perfil,
+           n
+    ) %>%
+    #    group_by(Nacionalitat_Angles) %>%
+    #    summarise_all(sum) %>%
+    ungroup()
+  
+  # basic treemaps
+  p2017.nacio=treemap(my_data7b,
+                      index=c("ContinentNacio","NacionalitatAngles"),
+                      vSize="2017",
+                      type="index",
+                      title="Nacionalitats d'Usuaris Derivats del CUESB al SAIER 2017",
+                      overlap.labels=1,
+                      force.print.labels=TRUE,
+                      aspRatio=2,
+                      align.labels=c("center", "center")
+  ) 
   
   # World Charts using Plotly
   # ----------------------------------------
