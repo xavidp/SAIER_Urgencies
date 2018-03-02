@@ -42,13 +42,16 @@ my_file <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base d
 # The readxl package, developed by Hadley Wickham, can be used to easily import Excel files (xls|xlsx) into R without any external dependencies.
 if (!require("readxl")) install.packages("readxl")
 library("readxl")
+if (!require("dplyr")) install.packages("dplyr")
+library("dplyr")
 
 #Specify sheet with a number or name
 # Specify sheet by its name
 my_data <- read_excel(my_file, sheet = "Dades")
 head(my_data)
 my_data <- my_data %>% 
-  filter(ComunicacioDerivacio == "D" | ComunicacioDerivacio == "Derivació")
+#  filter(ComunicacioDerivacio == "D" | ComunicacioDerivacio == "Derivació")
+  filter(ComunicacioDerivacio == "DERIVACIÓ")
 #colnames(my_data)
 
 
