@@ -50,6 +50,13 @@ if(!require(htmlwidgets)){ install.packages("htmlwidgets") }
 require(htmlwidgets) 
 if(!require(rpivotTable)){ install.packages("rpivotTable") }
 require(rpivotTable)
+
+# Add webshot to allos making screenshots from htmlwidgets for printed versions of reports
+if(!require(webshot)){ install.packages("webshot") }
+require(webshot)
+# Install also phantomjs thorugh webshot as a required dependency (only once)
+#webshot::install_phantomjs(baseURL = "https://bitbucket.org/ariya/phantomjs/downloads/")
+
 ```
 
 ```{r Lectura i pre-processat dades, echo=FALSE}
@@ -151,7 +158,7 @@ head(my_data5b)
   #  colors <- c("#4fc13c", "lightyellow", "#cccccc")
   colors <- c("pink", "lightblue", "lightyellow")
   
-  basemap %>%
+  leaflet.2017.gender <- basemap %>%
     addMinicharts(
       my_data5e$lon, my_data5e$lat,
       type = "pie",
@@ -162,6 +169,10 @@ head(my_data5b)
       legend=TRUE,
       legendPosition = "topright"
     )
+  
+  saveWidget(leaflet.2017.gender, file=file.path(getwd(), htmlpath, "2017.leaflet.gender.html"), selfcontained=TRUE) 
+  leaflet.2017.gender
+
 ```
 
 ## Age group of immigrants. World map with pie charts
@@ -461,5 +472,26 @@ pt.2017.SA
 
 ```
 
+## Situació Administrativa vs. Perfil
 
-Fi
+```{r}
+
+# Sample Sankey Diagram - http://christophergandrud.github.io/networkD3/#sankey
+# Through networkD3
+
+if(!require(networkD3)){ install.packages("networkD3") }
+require(networkD3)
+
+# Load energy projection data
+# Load energy projection data
+URL <- paste0(
+        "https://cdn.rawgit.com/christophergandrud/networkD3/",
+        "master/JSONdata/energy.json")
+Energy <- jsonlite::fromJSON(URL)
+# Plot
+sankeyNetwork(Links = Energy$links, Nodes = Energy$nodes, Source = "source",
+             Target = "target", Value = "value", NodeID = "name",
+             units = "TWh", fontSize = 12, nodeWidth = 30)
+
+```
+
