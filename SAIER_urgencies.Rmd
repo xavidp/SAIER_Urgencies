@@ -30,6 +30,9 @@ library(leaflet.minicharts)
 ```
 
 ```{r Lectura i pre-processat dades, echo=FALSE}
+#Paths
+htmlpath <- "html"
+
 # -----------
 # CUESB Data
 # -----------
@@ -186,6 +189,16 @@ head(my_data5b)
       legendPosition = "topright"
     )
 
+  
+  # Pending-1
+  # =======================================================
+  # Test adding an easy interface to allow changing htmlwidget on the go with manipulatewidget
+  # See: https://github.com/rte-antares-rpackage/manipulateWidget
+  # =======================================================
+  # 
+  #
+  #   if (!require("manipulateWidget")) install.packages("manipulateWidget")
+
 ```
 
 ## Membres de les Unitats Familiars
@@ -209,6 +222,16 @@ head(my_data5b)
                  mapTitle = "columnName", 
                  oceanCol = "lightblue",
                  missingCountryCol = "white")
+  
+  # Pending-2
+  # =======================================================
+  # Improve type of chart with the thematic maps package
+  # See: https://github.com/mtennekes/tmap
+  # =======================================================
+  # 
+  #
+  #   if (!require("tmap")) install.packages("tmap")
+
 ```
 
 
@@ -380,6 +403,26 @@ head(my_data5b)
             align.labels=c("center", "center")
   )  
 
+  # Pending-3
+  # =======================================================
+  # Test adding svgPanZoom capabilities to these treemaps
+  # See: https://github.com/timelyportfolio/svgPanZoom
+  # =======================================================
+  # 
+  #
+  # devtools::install_github("timelyportfolio/svgPanZoom")
+  #library(svgPanZoom) # see install step above
+  #library(svglite)
+  #
+  #svgPanZoom(
+  #  svglite:::inlineSVG(
+  #    plot(1:10)
+  #  )
+  #)
+  #
+
+
+  
 ```
 ### Derivacions CUESB -> SAIER 2017: Nacionalitats Interactive Chart 2017
 ```{r Derivacions CUESB -> SAIER 2017: Nacionalitats Interactive Chart 2017}
@@ -397,6 +440,8 @@ require(rpivotTable)
 # See: https://github.com/bhaskarvk/widgetframe
 if(!require(widgetframe)){ install.packages("widgetframe") }
 require(widgetframe)
+if(!require(htmlwidgets)){ install.packages("htmlwidgets") }
+require(htmlwidgets) 
 
 # Create the pivot table and save html on disk
 #pt <- rpivotTable(my_data7c)
@@ -413,6 +458,10 @@ pt.2017.SA <- rpivotTable(
   rendererName = "Heatmap"
   )
 frameWidget(pt.2017.SA)
+getwd()
+file.path(htmlpath, "2017.pt.SituacioAdministrativa.html")
+saveWidget(pt.2017.SA, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.html"), selfcontained=TRUE) 
+
 pt.2017.SA
 
 
