@@ -18,15 +18,38 @@ if (!require("pacman")) install.packages("pacman")
 #pacman::p_load_gh("trinker/textreadr")
 pacman::p_load(leaflet.minicharts)
 library(leaflet.minicharts)
-#library(devtools)
+
 #devtools::install_github("rstudio/crosstalk")
 #devtools::install_github("rstudio/leaflet")
 #devtools::install_github("jcheng5/d3scatter")
-#library(crosstalk)
-#library(d3scatter)
-#library(DT)
-#install.packages("rpivotTable")
-#library(rpivotTable)
+
+if (!require("readxl")) install.packages("readxl")
+library(readxl)
+if (!require("dplyr")) install.packages("dplyr")
+library(dplyr)
+
+# Allowi also Ploting Maps Using rworldmap
+# Derived from: https://blog.learningtree.com/how-to-display-data-on-a-world-map-in-r/
+  if (!require("rworldmap")) install.packages("rworldmap")
+  library(rworldmap)
+
+  
+  # More libraries
+  if (!require("treemap")) install.packages("treemap")
+  library(treemap)
+  if (!require("devtools")) install.packages("devtools")
+  library(devtools)
+  if (!require("d3treeR")) devtools::install_github("timelyportfolio/d3treeR")
+  library(d3treeR)
+
+# Add package widget frame so that we attempt to get responsive iframes produced by htmlwidgets such as theones from rpivotTable
+# See: https://github.com/bhaskarvk/widgetframe
+if(!require(widgetframe)){ install.packages("widgetframe") }
+require(widgetframe)
+if(!require(htmlwidgets)){ install.packages("htmlwidgets") }
+require(htmlwidgets) 
+if(!require(rpivotTable)){ install.packages("rpivotTable") }
+require(rpivotTable)
 ```
 
 ```{r Lectura i pre-processat dades, echo=FALSE}
@@ -43,10 +66,6 @@ my_file <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base d
 # ..............................
 # From http://www.sthda.com/english/wiki/reading-data-from-excel-files-xls-xlsx-into-r
 # The readxl package, developed by Hadley Wickham, can be used to easily import Excel files (xls|xlsx) into R without any external dependencies.
-if (!require("readxl")) install.packages("readxl")
-library("readxl")
-if (!require("dplyr")) install.packages("dplyr")
-library("dplyr")
 
 #Specify sheet with a number or name
 # Specify sheet by its name
@@ -61,9 +80,6 @@ my_data <- my_data %>%
 geodata <- read_excel(my_file, sheet = "PaisesContinentes")
 
 # Summarise data based on Country of origin
-if (!require("dplyr")) install.packages("dplyr")
-library(dplyr)
-
 my_data4 <- count(my_data, NacionalitatAngles, MesDerivacioSAIER, GrupEdat, HomeDona, wt = NULL, sort = FALSE)
 #colnames(my_data4)
 my_data4$NacionalitatAngles <- apply(my_data4, 2, toupper)
@@ -204,9 +220,6 @@ head(my_data5b)
 ## Membres de les Unitats Familiars
 ```{r Membres de les Unitats Familiars}
 # Plot Map Using rworldmap
-# Derived from: https://blog.learningtree.com/how-to-display-data-on-a-world-map-in-r/
-  if (!require("rworldmap")) install.packages("rworldmap")
-  library(rworldmap)
 
   my_mapped_data <- joinCountryData2Map(my_data, joinCode = "NAME", 
                                      nameJoinColumn = "NacionalitatAngles")
@@ -259,8 +272,7 @@ head(my_data5b)
   # ALBANIA 	EUROPA ORIENTAL 	8 	17 	9 	52,94% 
   # ...
   my_file2 <- file.path("K:\\QUOTA\\DIMM_COMU\\Maria", "NACIONALITATS REFUGI_tancament 2015-2016 a juny 2016-2017_v02.xlsx")
-  if (!require("readxl")) install.packages("readxl")
-  library("readxl")
+
   my_data10 <- read_excel(my_file2, sheet = "Full1", range="A5:AJ125", na="NA")
   head(my_data10)
   #colnames(my_data10)
@@ -271,17 +283,7 @@ head(my_data5b)
 ### Nacionalitats SAIER 2015 
 
 ```{r Treemap 2015, echo=FALSE}
-  
-  # libraries
-  if (!require("dplyr")) install.packages("dplyr")
-  library(dplyr)
-  if (!require("treemap")) install.packages("treemap")
-  library(treemap)
-  if (!require("devtools")) install.packages("devtools")
-  library(devtools)
-  if (!require("d3treeR")) devtools::install_github("timelyportfolio/d3treeR")
-  library(d3treeR)
-  
+
   #md2 <- count(my_data10, CATEGORIA, NACIONALITAT, wt = NULL, sort = FALSE)
   md10 <- my_data10
   # basic treemaps
@@ -434,14 +436,6 @@ head(my_data5b)
 ## Immigrants vs Refugiats Atesos
 
 ```{r Immigrants vs Refugiats atesos, echo=FALSE}
-if(!require(rpivotTable)){ install.packages("rpivotTable") }
-require(rpivotTable)
-# Add package widget frame so that we attempt to get responsive iframes produced by htmlwidgets such as theones from rpivotTable
-# See: https://github.com/bhaskarvk/widgetframe
-if(!require(widgetframe)){ install.packages("widgetframe") }
-require(widgetframe)
-if(!require(htmlwidgets)){ install.packages("htmlwidgets") }
-require(htmlwidgets) 
 
 # Create the pivot table and save html on disk
 #pt <- rpivotTable(my_data7c)
@@ -458,8 +452,8 @@ pt.2017.SA <- rpivotTable(
   rendererName = "Heatmap"
   )
 frameWidget(pt.2017.SA)
-getwd()
-file.path(htmlpath, "2017.pt.SituacioAdministrativa.html")
+#getwd()
+#file.path(htmlpath, "2017.pt.SituacioAdministrativa.html")
 saveWidget(pt.2017.SA, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.html"), selfcontained=TRUE) 
 
 pt.2017.SA
