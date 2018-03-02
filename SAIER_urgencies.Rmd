@@ -474,24 +474,97 @@ pt.2017.SA
 
 ## Situació Administrativa vs. Perfil
 
-```{r}
+```{r Situació Administrativa vs. Perfil}
 
 # Sample Sankey Diagram - http://christophergandrud.github.io/networkD3/#sankey
 # Through networkD3
 
 if(!require(networkD3)){ install.packages("networkD3") }
 require(networkD3)
+require(dplyr)
+require(htmlwidgets)
 
-# Load energy projection data
-# Load energy projection data
-URL <- paste0(
-        "https://cdn.rawgit.com/christophergandrud/networkD3/",
-        "master/JSONdata/energy.json")
-Energy <- jsonlite::fromJSON(URL)
-# Plot
-sankeyNetwork(Links = Energy$links, Nodes = Energy$nodes, Source = "source",
-             Target = "target", Value = "value", NodeID = "name",
-             units = "TWh", fontSize = 12, nodeWidth = 30)
+my_data8 <- my_data %>% 
+  filter(AnyDerivText == 2017) %>%
+  count(SituacioAdministrativa, 
+        Perfil,
+        wt = NULL, sort = FALSE) 
+
+my_data8b <- my_data8 
+
+my_data8b$SituacioAdministrativa <-  recode(my_data8$SituacioAdministrativa,
+         "Nouvingut asil (han de fer la sol·licitud)"   = 0,
+         "Voluntat de fer sol·licitud asil"             = 1,
+         "Sol·licitant de protecció internacional (PI)" = 2,
+         "Denegat PI a Espanya"                         = 3,
+         "Denegat PI a altre país UE"                   = 4,
+         "Estatut PI concedit"                          = 5,
+         "Immigrant Situació Regular"                   = 6,
+         "Immigrant Situació Irregular"                 = 7,
+         "NO CONSTA"                                    = 8
+         )
+
+my_data8b$Perfil <-  recode(my_data8$Perfil,
+          "Immigrant amb menys de 2 anys a Espanya"                   = 9,
+          "Immigrant amb més de 2 anys a Espanya"                     = 10,
+          "En programa estatal (Refugiat)"                            = 11,
+          "Trasllat de província (Refugiat)"                          = 12,
+          "Fora de programa (Refugiat)"                               = 13,
+          "Pendent d'Entrada a Programa (Refugiat)"                   = 14,
+          "Protocol Dublín (Aeroport) (Refugiat)"                     = 15,
+          "Sol·licitant asil aeroport (Refugiat)"                     = 16,
+          "Decretada o recent majoria d'edat (Refugiat o Immigrant)"  = 17,
+          "NO CONSTA"                                                 = 18,
+          "Voluntat de sol·licitar asil"                              = 19
+          )
+
+nodeNames.SituacioAdministrativa <- c(
+         "Nouvingut asil (han de fer la sol·licitud)",       # Node  0
+         "Voluntat de fer sol·licitud asil",                 # Node  1
+         "Sol·licitant de protecció internacional (PI)",     # Node  2
+         "Denegat PI a Espanya",                             # Node  3
+         "Denegat PI a altre país UE",                       # Node  4
+         "Estatut PI concedit",                              # Node  5
+         "Immigrant Situació Regular",                       # Node  6
+         "Immigrant Situació Irregular",                     # Node  7
+         "NO CONSTA"                                         # Node  8
+         )                                        
+
+nodeNames.Perfil <- c(
+          "Immigrant amb menys de 2 anys a Espanya",                  # Node  9
+          "Immigrant amb més de 2 anys a Espanya",                    # Node 10
+          "En programa estatal (Refugiat)",                           # Node 11
+          "Trasllat de província (Refugiat)",                         # Node 12
+          "Fora de programa (Refugiat)",                              # Node 13
+          "Pendent d'Entrada a Programa (Refugiat)",                  # Node 14
+          "Protocol Dublín (Aeroport) (Refugiat)",                    # Node 15
+          "Sol·licitant asil aeroport (Refugiat)",                    # Node 16
+          "Decretada o recent majoria d'edat (Refugiat o Immigrant)", # Node 17
+          "NO CONSTA",                                                # Node 18
+          "Voluntat de sol·licitar asil"                              # Node 19
+          )
+
+nodes = data.frame("name" = c(nodeNames.SituacioAdministrativa, nodeNames.Perfil ))
+links = my_data8b
+ # How this data frame my_data8b is setup for the Sankey Diagram.
+ # Each row represents a link. 
+ # The first number represents the node being conntected from. 
+ # The second number represents the node connected to.
+ # The third number is the value of the node
+
+names(links) = c("source", "target", "value")
+sankey.2017.sa.p <- sankeyNetwork(Links = links, 
+              Nodes = nodes,
+              Source = "source",
+              Target = "target",
+              Value = "value",
+              NodeID = "name",
+              fontSize= 12,
+              nodeWidth = 30)
+
+saveWidget(sankey.2017.sa.p, file=file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"), selfcontained=TRUE) 
+
+sankey.2017.sa.p
 
 ```
 
