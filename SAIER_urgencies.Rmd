@@ -46,6 +46,21 @@ if(!require(webshot)){ install.packages("webshot") }; require(webshot)
 # Install also phantomjs thorugh webshot as a required dependency (only once)
 #webshot::install_phantomjs(baseURL = "https://bitbucket.org/ariya/phantomjs/downloads/")
 
+# =======================================================
+# Pending-0
+# =======================================================
+# Si volguessim convertir l'output en un document de Word, podríem emprar:
+## ReporteRs. 
+##   Veure: http://www.sthda.com/english/wiki/create-and-format-word-documents-using-r-software-and-reporters-package 
+## o
+##
+## Pandoc
+##   Veure: https://www.r-statistics.com/2013/03/write-ms-word-document-using-r-with-as-little-overhead-as-possible/
+## o
+##
+## WordR, OfficeR i afins
+##   Veure: https://rviews.rstudio.com/2017/10/04/wordr---a-new-r-package-for-rendering-documents-in-ms-word-format/
+##          https://davidgohel.github.io/officer/
 ```
 
 ```{r Lectura i pre-processat dades, echo=FALSE}
@@ -163,7 +178,7 @@ head(my_data5b)
   saveWidget(leaflet.2017.gender, file=file.path(getwd(), htmlpath, "2017.leaflet.gender.html"), selfcontained=TRUE) 
   webshot(file.path(getwd(), htmlpath, "2017.leaflet.gender.html"),
         file=file.path(getwd(), imgpath, "2017.leaflet.gender.png"),
-        delay=0.5, selector = "svg.leaflet-zoom-animated")
+        delay=0.5, selector="#htmlwidget_container")
   leaflet.2017.gender
 
 ```
@@ -213,7 +228,7 @@ head(my_data5b)
 
     webshot(file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"),
         file=file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"),
-        delay=0.5, selector = "svg.leaflet-zoom-animated"))
+        delay=0.5, selector = "#htmlwidget_container"))
 
   
   # Pending-1
@@ -409,7 +424,7 @@ head(my_data5b)
                 wt = NULL, sort = FALSE)
 
   # basic treemaps
-    png(filename=file.path(getwd(), imgpath, "2017.treemap.nacio.png"), width="1000", height="600")
+    png(filename=file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width="1000", height="600")
     p2017.nacio=treemap(my_data7a,
                         index=c("ContinentNacio","NacionalitatAngles"),
                         vSize="n",
