@@ -16,44 +16,33 @@ Resultats destacats a partir de les dades de derivacions del CUESB al SAIER
 ```{r paquets, echo=FALSE}
 if (!require("pacman")) install.packages("pacman")
 #pacman::p_load_gh("trinker/textreadr")
-pacman::p_load(leaflet.minicharts)
-library(leaflet.minicharts)
+pacman::p_load(leaflet.minicharts); library(leaflet.minicharts)
 
 #devtools::install_github("rstudio/crosstalk")
 #devtools::install_github("rstudio/leaflet")
 #devtools::install_github("jcheng5/d3scatter")
 
-if (!require("readxl")) install.packages("readxl")
-library(readxl)
-if (!require("dplyr")) install.packages("dplyr")
-library(dplyr)
+if (!require("readxl")) install.packages("readxl"); library(readxl)
+if (!require("dplyr")) install.packages("dplyr"); library(dplyr)
 
 # Allowi also Ploting Maps Using rworldmap
 # Derived from: https://blog.learningtree.com/how-to-display-data-on-a-world-map-in-r/
-  if (!require("rworldmap")) install.packages("rworldmap")
-  library(rworldmap)
+  if (!require("rworldmap")) install.packages("rworldmap"); library(rworldmap)
 
   
   # More libraries
-  if (!require("treemap")) install.packages("treemap")
-  library(treemap)
-  if (!require("devtools")) install.packages("devtools")
-  library(devtools)
-  if (!require("d3treeR")) devtools::install_github("timelyportfolio/d3treeR")
-  library(d3treeR)
+  if (!require("treemap")) install.packages("treemap"); library(treemap)
+  if (!require("devtools")) install.packages("devtools"); library(devtools)
+  if (!require("d3treeR")) devtools::install_github("timelyportfolio/d3treeR"); library(d3treeR)
 
 # Add package widget frame so that we attempt to get responsive iframes produced by htmlwidgets such as theones from rpivotTable
 # See: https://github.com/bhaskarvk/widgetframe
-if(!require(widgetframe)){ install.packages("widgetframe") }
-require(widgetframe)
-if(!require(htmlwidgets)){ install.packages("htmlwidgets") }
-require(htmlwidgets) 
-if(!require(rpivotTable)){ install.packages("rpivotTable") }
-require(rpivotTable)
+if(!require(widgetframe)){ install.packages("widgetframe") }; require(widgetframe)
+if(!require(htmlwidgets)){ install.packages("htmlwidgets") }; require(htmlwidgets) 
+if(!require(rpivotTable)){ install.packages("rpivotTable") }; require(rpivotTable)
 
 # Add webshot to allos making screenshots from htmlwidgets for printed versions of reports
-if(!require(webshot)){ install.packages("webshot") }
-require(webshot)
+if(!require(webshot)){ install.packages("webshot") }; require(webshot)
 # Install also phantomjs thorugh webshot as a required dependency (only once)
 #webshot::install_phantomjs(baseURL = "https://bitbucket.org/ariya/phantomjs/downloads/")
 
@@ -62,6 +51,7 @@ require(webshot)
 ```{r Lectura i pre-processat dades, echo=FALSE}
 #Paths
 htmlpath <- "html"
+imgpath <- "Grafics"
 
 # -----------
 # CUESB Data
@@ -171,6 +161,9 @@ head(my_data5b)
     )
   
   saveWidget(leaflet.2017.gender, file=file.path(getwd(), htmlpath, "2017.leaflet.gender.html"), selfcontained=TRUE) 
+  webshot(file.path(getwd(), htmlpath, "2017.leaflet.gender.html"),
+        file=file.path(getwd(), imgpath, "2017.leaflet.gender.png"),
+        delay=0.5)
   leaflet.2017.gender
 
 ```
@@ -204,7 +197,7 @@ head(my_data5b)
   
   colors <- c("green", "lightgreen", "orange")
   
-  basemap %>%
+  leaflet.2017.agegroups <- basemap %>%
     addMinicharts(
       my_data6d$lon, my_data6d$lat,
       type = "pie",
@@ -215,6 +208,12 @@ head(my_data5b)
       legend=TRUE,
       legendPosition = "topright"
     )
+
+    saveWidget(leaflet.2017.agegroups, file=file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"), selfcontained=TRUE) 
+
+    webshot(file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"),
+        file=file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"),
+        delay=0.5)
 
   
   # Pending-1
@@ -239,7 +238,7 @@ head(my_data5b)
   par(mai=c(0,0,0.2,0),xaxs="i",yaxs="i")
 
   my_mapped_data$NMembresNucli <- as.numeric(my_mapped_data$NMembresNucli)
-  mapCountryData(my_mapped_data, 
+  worldmap.2017.familysize <- mapCountryData(my_mapped_data, 
                  nameColumnToPlot = "NMembresNucli", 
                  catMethod="pretty",
                  colourPalette="heat", 
@@ -247,6 +246,12 @@ head(my_data5b)
                  oceanCol = "lightblue",
                  missingCountryCol = "white")
   
+  saveWidget(worldmap.2017.familysize, file=file.path(getwd(), htmlpath, "2017.worldmap.familysize.html"), selfcontained=TRUE) 
+
+  webshot(file.path(getwd(), htmlpath, "2017.worldmap.familysize.html"),
+        file=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"),
+        delay=0.5)
+    
   # Pending-2
   # =======================================================
   # Improve type of chart with the thematic maps package
@@ -405,17 +410,19 @@ head(my_data5b)
                 wt = NULL, sort = FALSE)
 
   # basic treemaps
-  p2017.nacio=treemap(my_data7a,
-            index=c("ContinentNacio","NacionalitatAngles"),
-            vSize="n",
-            type="index",
-            title="Nacionalitats d'Usuaris Derivats del CUESB al SAIER 2017",
-            overlap.labels=1,
-            force.print.labels=TRUE,
-            aspRatio=2,
-            align.labels=c("center", "center")
-  )  
-
+    png(filename=file.path(getwd(), imgpath, "treemap.2017.nacio.png"))
+    p2017.nacio=treemap(my_data7a,
+                        index=c("ContinentNacio","NacionalitatAngles"),
+                        vSize="n",
+                        type="index",
+                        title="Nacionalitats d'Usuaris Derivats del CUESB al SAIER 2017",
+                        overlap.labels=1,
+                        force.print.labels=TRUE,
+                        aspRatio=2,
+                        align.labels=c("center", "center")
+    )  
+    dev.off()
+    
   # Pending-3
   # =======================================================
   # Test adding svgPanZoom capabilities to these treemaps
@@ -466,7 +473,9 @@ frameWidget(pt.2017.SA)
 #getwd()
 #file.path(htmlpath, "2017.pt.SituacioAdministrativa.html")
 saveWidget(pt.2017.SA, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.html"), selfcontained=TRUE) 
-
+webshot(file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.html"),
+        file=file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.png"),
+        delay=0.5)
 pt.2017.SA
 
 
@@ -483,6 +492,7 @@ if(!require(networkD3)){ install.packages("networkD3") }
 require(networkD3)
 require(dplyr)
 require(htmlwidgets)
+require(webshot)
 
 my_data8 <- my_data %>% 
   filter(AnyDerivText == 2017) %>%
@@ -559,11 +569,13 @@ sankey.2017.sa.p <- sankeyNetwork(Links = links,
               Target = "target",
               Value = "value",
               NodeID = "name",
-              fontSize= 12,
+              fontSize= 16,
               nodeWidth = 30)
 
 saveWidget(sankey.2017.sa.p, file=file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"), selfcontained=TRUE) 
-
+webshot(file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"),
+        file=file.path(getwd(), imgpath, "2017.sankey.sa.p.png"),
+        delay=0.5)
 sankey.2017.sa.p
 
 ```
