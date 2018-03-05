@@ -163,7 +163,7 @@ head(my_data5b)
   saveWidget(leaflet.2017.gender, file=file.path(getwd(), htmlpath, "2017.leaflet.gender.html"), selfcontained=TRUE) 
   webshot(file.path(getwd(), htmlpath, "2017.leaflet.gender.html"),
         file=file.path(getwd(), imgpath, "2017.leaflet.gender.png"),
-        delay=0.5)
+        delay=0.5, selector = "svg.leaflet-zoom-animated")
   leaflet.2017.gender
 
 ```
@@ -213,7 +213,7 @@ head(my_data5b)
 
     webshot(file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"),
         file=file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"),
-        delay=0.5)
+        delay=0.5, selector = "svg.leaflet-zoom-animated"))
 
   
   # Pending-1
@@ -238,6 +238,9 @@ head(my_data5b)
   par(mai=c(0,0,0.2,0),xaxs="i",yaxs="i")
 
   my_mapped_data$NMembresNucli <- as.numeric(my_mapped_data$NMembresNucli)
+  
+  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width="1000", height="600")
+  
   worldmap.2017.familysize <- mapCountryData(my_mapped_data, 
                  nameColumnToPlot = "NMembresNucli", 
                  catMethod="pretty",
@@ -246,12 +249,8 @@ head(my_data5b)
                  oceanCol = "lightblue",
                  missingCountryCol = "white")
   
-  saveWidget(worldmap.2017.familysize, file=file.path(getwd(), htmlpath, "2017.worldmap.familysize.html"), selfcontained=TRUE) 
+  dev.off()
 
-  webshot(file.path(getwd(), htmlpath, "2017.worldmap.familysize.html"),
-        file=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"),
-        delay=0.5)
-    
   # Pending-2
   # =======================================================
   # Improve type of chart with the thematic maps package
@@ -410,7 +409,7 @@ head(my_data5b)
                 wt = NULL, sort = FALSE)
 
   # basic treemaps
-    png(filename=file.path(getwd(), imgpath, "treemap.2017.nacio.png"))
+    png(filename=file.path(getwd(), imgpath, "2017.treemap.nacio.png"), width="1000", height="600")
     p2017.nacio=treemap(my_data7a,
                         index=c("ContinentNacio","NacionalitatAngles"),
                         vSize="n",
@@ -475,7 +474,9 @@ frameWidget(pt.2017.SA)
 saveWidget(pt.2017.SA, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.html"), selfcontained=TRUE) 
 webshot(file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.html"),
         file=file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.png"),
-        delay=0.5)
+        delay=0.5, selector=".pvtUi") # to get both the heatmap table and buttons of variables in rows and columns surrounding it
+#        delay=0.5, selector=".pvtRendererArea") # to get only the heatmap table with results
+
 pt.2017.SA
 
 
@@ -575,7 +576,7 @@ sankey.2017.sa.p <- sankeyNetwork(Links = links,
 saveWidget(sankey.2017.sa.p, file=file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"), selfcontained=TRUE) 
 webshot(file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"),
         file=file.path(getwd(), imgpath, "2017.sankey.sa.p.png"),
-        delay=0.5)
+        delay=0.5, selector="#htmlwidget_container")
 sankey.2017.sa.p
 
 ```
