@@ -62,6 +62,7 @@ if (!require("svglite")) install.packages("svglite"); library(svglite)
 ##   Veure: https://davidgohel.github.io/officer/ 
 if (!require("officer")) install.packages("officer"); library(officer)
 if (!require("magrittr")) install.packages("magrittr"); library(magrittr) # Package `magrittr` makes officer usage easier.
+if (!require("mschart")) install.packages("mschart"); library(mschart)
 ##
 ## o
 ##
@@ -72,6 +73,20 @@ if (!require("magrittr")) install.packages("magrittr"); library(magrittr) # Pack
 ## WordR, OfficeR i afins
 ##   Veure: https://rviews.rstudio.com/2017/10/04/wordr---a-new-r-package-for-rendering-documents-in-ms-word-format/
 ##          https://davidgohel.github.io/officer/
+```
+
+```{r Inici informe en word}
+require(officer)
+require(magrittr)
+
+my_doc <- read_docx() 
+# styles_info(my_doc)
+
+my_doc <- my_doc %>% 
+  body_add_par(value = "Table of content", style = "heading 1") %>% 
+  body_add_toc(level = 2) 
+
+
 ```
 
 ```{r Lectura i pre-processat dades, echo=FALSE}
@@ -134,191 +149,17 @@ my_data5b <- my_data5 %>%
 
 head(my_data5b)
 
+# Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Demo de Taula de dades d'Entrada. 2017", style = "heading 2") %>% 
+  body_add_table(head(my_data5b), style = "table_template")
+
+
 
 
 ```
 
-## Gender of users. World map with pie charts integrated overtime
-
-```{r Gender of users}
-  
-  library(leaflet)
-  
-  tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-  
-  basemap <- leaflet(width = "100%", height = "400px") %>%
-    addTiles(tilesURL)
-  
-  # -------------------------------------------------------------
-  my_data5d <- count(my_data, NacionalitatAngles, HomeDona, wt = NULL, sort = FALSE)
-  my_data5d <- tidyr::spread(my_data5d, HomeDona, n)
-  colnames(my_data5d)[4] <- "Desconegut"
-  my_data5d$NacionalitatAngles <- apply(my_data5d, 2, toupper)
-  # Add coordinates to the countries from the Dades sheet, using left_join
-  my_data5e <- my_data5d %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
-  my_data5e <- my_data5e %>%
-    # filter(grepl("EUROPA", ContinentNacion.)) %>%
-    select(NacionalitatAngles,
-           Dona,
-           Home,
-           Desconegut,
-           lon,
-           lat
-    ) %>%
-    #    group_by(Nacionalitat_Angles) %>%
-    #    summarise_all(sum) %>%
-    ungroup()
-  
-  head(my_data5e)
-  
-  #We now add to the base map a pie chart for each country of origin
-  #  colors <- c("#4fc13c", "lightyellow", "#cccccc")
-  colors <- c("pink", "lightblue", "lightyellow")
-  
-  leaflet.2017.gender <- basemap %>%
-    addMinicharts(
-      my_data5e$lon, my_data5e$lat,
-      type = "pie",
-      chartdata = my_data5e[, c("Dona", "Home", "Desconegut")], 
-      fillColor = "white",
-      colorPalette = colors, 
-      transitionTime = 0,
-      legend=TRUE,
-      legendPosition = "topright"
- #   ) %>% 
-#    addLegend("bottomright", title = "Gènere. 2017", pal=colors, values=my_data5e[, c("Dona", "Home", "Desconegut")], 
-#    labFormat = labelFormat(prefix = "$"),
-#    opacity = 1
-  )
-  
-  saveWidget(leaflet.2017.gender, file=file.path(getwd(), htmlpath, "2017.leaflet.gender.html"), selfcontained=TRUE) 
-  webshot(file.path(getwd(), htmlpath, "2017.leaflet.gender.html"),
-        file=file.path(getwd(), imgpath, "2017.leaflet.gender.png"),
-        delay=0.5, selector="#htmlwidget_container")
-  leaflet.2017.gender
-
-```
-
-## Age group of users. World map with pie charts
-```{r Age group of users}
-
-  # Map Age group of immigrants in pie charts over the world map
-  # -------------------------------------------------------------
-  my_data6 <- count(my_data, NacionalitatAngles, GrupEdat, wt = NULL, sort = FALSE)
-  my_data6b <- tidyr::spread(my_data6, GrupEdat, n)
-  colnames(my_data6b)[4] <- "desconegut"
-  my_data6b$NacionalitatAngles <- apply(my_data6b, 2, toupper)
-  # Add coordinates to the countries from the Dades sheet, using left_join
-  my_data6c <- my_data6b %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
-  
-  my_data6d <- my_data6c %>%
-    # filter(grepl("EUROPA", ContinentNacion.)) %>%
-    select(NacionalitatAngles,
-           Adult,
-           Menor,
-           desconegut,
-           lon,
-           lat
-    ) %>%
-    #    group_by(Nacionalitat_Angles) %>%
-    #    summarise_all(sum) %>%
-    ungroup()
-  
-  head(my_data6d)
-  
-  colors <- c("green", "lightgreen", "orange")
-  
-  leaflet.2017.agegroups <- basemap %>%
-    addMinicharts(
-      my_data6d$lon, my_data6d$lat,
-      type = "pie",
-      chartdata = my_data6d[, c("Adult", "Menor", "desconegut")], 
-      fillColor = "white",
-      colorPalette = colors, 
-      transitionTime = 0,
-      legend=TRUE,
-      legendPosition = "topright"
-    )
-
-    saveWidget(leaflet.2017.agegroups, file=file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"), selfcontained=TRUE) 
-
-    webshot(file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"),
-        file=file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"),
-        delay=0.5, selector = "#htmlwidget_container")
-
-  
-  # Pending-1
-  # =======================================================
-  # Test adding an easy interface to allow changing htmlwidget on the go with manipulatewidget
-  # See: https://github.com/rte-antares-rpackage/manipulateWidget
-  # =======================================================
-  # 
-  #
-  #   if (!require("manipulateWidget")) install.packages("manipulateWidget")
-
-```
-
-## Membres de les Unitats Familiars
-```{r Membres de les Unitats Familiars}
-# Plot Map Using rworldmap
-
-  my_mapped_data <- joinCountryData2Map(my_data, joinCode = "NAME", 
-                                     nameJoinColumn = "NacionalitatAngles")
-
-  # The par command only needs to be performed once in the session and just makes sure that all the available space in the window is used to display the map.
-  par(mai=c(0,0,0.2,0),xaxs="i",yaxs="i")
-
-  my_mapped_data$NMembresNucli <- as.numeric(my_mapped_data$NMembresNucli)
-  
-  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width=1200, height=600, units="px")
-  
-  worldmap.2017.familysize <- mapCountryData(my_mapped_data, 
-                 nameColumnToPlot = "NMembresNucli", 
-                 catMethod="pretty",
-                 colourPalette="heat", 
-                 mapTitle = "columnName", 
-                 oceanCol = "lightblue",
-                 missingCountryCol = "white")
-  
-  dev.off()
-
-  # Pending-2
-  # =======================================================
-  # Improve type of chart with the thematic maps package
-  # See: https://github.com/mtennekes/tmap
-  # =======================================================
-  # 
-  #
-  #   if (!require("tmap")) install.packages("tmap")
-
-
-  # =======================================================
-  # Add svgPanZoom capabilities to standard Plots
-  # See: https://github.com/timelyportfolio/svgPanZoom
-  # =======================================================
-  svgPanZoom(
-    svglite:::inlineSVG(
-      worldmap.2017.familysize <- mapCountryData(my_mapped_data, 
-                                                 nameColumnToPlot = "NMembresNucli", 
-                                                 catMethod="pretty",
-                                                 colourPalette="heat", 
-                                                 mapTitle = "columnName", 
-                                                 oceanCol = "lightblue",
-                                                 missingCountryCol = "white")
-    )
-  )
-  
-```
-
-
-### Resum de dades de N. de membres del Nucli
-
-```{r resum numero membres del nucli, echo=FALSE}
-
-  head(my_data)
-  table(my_data$NMembresNucli)
-  
-```
 
 
 ## Derivacions CUESB -> SAIER 2017
@@ -387,13 +228,231 @@ head(my_data5b)
       )
     )
 
-
+  # Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Nacionalitats per continents", style = "heading 2") %>% 
+  body_add_par(value = "Totals i per països", style = "heading 3") %>% 
+#  body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.gender.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("Pendent de fer", style = "Normal")
   
 ```
+
 ### Derivacions CUESB -> SAIER 2017: Nacionalitats Interactive Chart 2017
+
 ```{r Derivacions CUESB -> SAIER 2017: Nacionalitats Interactive Chart 2017}
   p2017.nacio.i=d3tree2( p2017.nacio ,  rootname = "Nacionalitats d'Usuaris Derivats del CUESB al SAIER 2017" )
   p2017.nacio.i
+  
+```
+
+
+## Gender of users. World map with pie charts integrated overtime
+
+```{r Gender of users}
+  
+  library(leaflet)
+  
+  tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+  
+  basemap <- leaflet(width = "100%", height = "400px") %>%
+    addTiles(tilesURL)
+  
+  # -------------------------------------------------------------
+  my_data5d <- count(my_data, NacionalitatAngles, HomeDona, wt = NULL, sort = FALSE)
+  my_data5d <- tidyr::spread(my_data5d, HomeDona, n)
+  colnames(my_data5d)[4] <- "Desconegut"
+  my_data5d$NacionalitatAngles <- apply(my_data5d, 2, toupper)
+  # Add coordinates to the countries from the Dades sheet, using left_join
+  my_data5e <- my_data5d %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
+  my_data5e <- my_data5e %>%
+    # filter(grepl("EUROPA", ContinentNacion.)) %>%
+    select(NacionalitatAngles,
+           Dona,
+           Home,
+           Desconegut,
+           lon,
+           lat
+    ) %>%
+    #    group_by(Nacionalitat_Angles) %>%
+    #    summarise_all(sum) %>%
+    ungroup()
+  
+  head(my_data5e)
+  
+  #We now add to the base map a pie chart for each country of origin
+  #  colors <- c("#4fc13c", "lightyellow", "#cccccc")
+  colors <- c("pink", "lightblue", "lightyellow")
+  
+  leaflet.2017.gender <- basemap %>%
+    addMinicharts(
+      my_data5e$lon, my_data5e$lat,
+      type = "pie",
+      chartdata = my_data5e[, c("Dona", "Home", "Desconegut")], 
+      fillColor = "white",
+      colorPalette = colors, 
+      transitionTime = 0,
+      legend=TRUE,
+      legendPosition = "topright"
+ #   ) %>% 
+#    addLegend("bottomright", title = "Gènere. 2017", pal=colors, values=my_data5e[, c("Dona", "Home", "Desconegut")], 
+#    labFormat = labelFormat(prefix = "$"),
+#    opacity = 1
+  )
+  
+  saveWidget(leaflet.2017.gender, file=file.path(getwd(), htmlpath, "2017.leaflet.gender.html"), selfcontained=TRUE) 
+  webshot(file.path(getwd(), htmlpath, "2017.leaflet.gender.html"),
+        file=file.path(getwd(), imgpath, "2017.leaflet.gender.png"),
+        delay=0.5, selector="#htmlwidget_container")
+  leaflet.2017.gender
+
+  # Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Gènere d'Usuaris derivats del SAIER al CUESB. 2017", style = "heading 2") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.gender.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("Blau: Homes; Rosa: Dones. Groc: Desconegut", style = "Normal")
+  
+```
+
+## Membres de les Unitats Familiars
+
+```{r Membres de les Unitats Familiars}
+# Plot Map Using rworldmap
+
+  my_mapped_data <- joinCountryData2Map(my_data, joinCode = "NAME", 
+                                     nameJoinColumn = "NacionalitatAngles")
+
+  # The par command only needs to be performed once in the session and just makes sure that all the available space in the window is used to display the map.
+  par(mai=c(0,0,0.2,0),xaxs="i",yaxs="i")
+
+  my_mapped_data$NMembresNucli <- as.numeric(my_mapped_data$NMembresNucli)
+  
+  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width=1200, height=600, units="px")
+  
+  worldmap.2017.familysize <- mapCountryData(my_mapped_data, 
+                 nameColumnToPlot = "NMembresNucli", 
+                 catMethod="pretty",
+                 colourPalette="heat", 
+                 mapTitle = "columnName", 
+                 oceanCol = "lightblue",
+                 missingCountryCol = "white")
+  
+  dev.off()
+
+  # Pending-2
+  # =======================================================
+  # Improve type of chart with the thematic maps package
+  # See: https://github.com/mtennekes/tmap
+  # =======================================================
+  # 
+  #
+  #   if (!require("tmap")) install.packages("tmap")
+
+
+  # =======================================================
+  # Add svgPanZoom capabilities to standard Plots
+  # See: https://github.com/timelyportfolio/svgPanZoom
+  # =======================================================
+  svgPanZoom(
+    svglite:::inlineSVG(
+      worldmap.2017.familysize <- mapCountryData(my_mapped_data, 
+                                                 nameColumnToPlot = "NMembresNucli", 
+                                                 catMethod="pretty",
+                                                 colourPalette="heat", 
+                                                 mapTitle = "columnName", 
+                                                 oceanCol = "lightblue",
+                                                 missingCountryCol = "white")
+    )
+  )
+  
+  # Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Nuclis familiars", style = "heading 2") %>% 
+  body_add_par(value = "D'on són les famílies més nombroses o els individus sols?", style = "heading 3") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_par("", style = "Normal") # blank paragraph
+
+  
+```
+
+## Age group of users. World map with pie charts
+
+```{r Age group of users}
+
+  # Map Age group of users in pie charts over the world map
+  # -------------------------------------------------------------
+  my_data6 <- count(my_data, NacionalitatAngles, GrupEdat, wt = NULL, sort = FALSE)
+  my_data6b <- tidyr::spread(my_data6, GrupEdat, n)
+  colnames(my_data6b)[4] <- "desconegut"
+  my_data6b$NacionalitatAngles <- apply(my_data6b, 2, toupper)
+  # Add coordinates to the countries from the Dades sheet, using left_join
+  my_data6c <- my_data6b %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
+  
+  my_data6d <- my_data6c %>%
+    # filter(grepl("EUROPA", ContinentNacion.)) %>%
+    select(NacionalitatAngles,
+           Adult,
+           Menor,
+           desconegut,
+           lon,
+           lat
+    ) %>%
+    #    group_by(Nacionalitat_Angles) %>%
+    #    summarise_all(sum) %>%
+    ungroup()
+  
+  head(my_data6d)
+  
+  colors <- c("green", "lightgreen", "orange")
+  
+  leaflet.2017.agegroups <- basemap %>%
+    addMinicharts(
+      my_data6d$lon, my_data6d$lat,
+      type = "pie",
+      chartdata = my_data6d[, c("Adult", "Menor", "desconegut")], 
+      fillColor = "white",
+      colorPalette = colors, 
+      transitionTime = 0,
+      legend=TRUE,
+      legendPosition = "topright"
+    )
+
+    saveWidget(leaflet.2017.agegroups, file=file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"), selfcontained=TRUE) 
+
+    webshot(file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"),
+        file=file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"),
+        delay=0.5, selector = "#htmlwidget_container")
+
+# Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_par(value = "Distribució d'adults i menors per països", style = "heading 3") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("Verd fosc: Adult | Verd clar: Menor | Taronja: Desconegut", style = "Normal")
+
+  # Pending-1
+  # =======================================================
+  # Test adding an easy interface to allow changing htmlwidget on the go with manipulatewidget
+  # See: https://github.com/rte-antares-rpackage/manipulateWidget
+  # =======================================================
+  # 
+  #
+  #   if (!require("manipulateWidget")) install.packages("manipulateWidget")
+
+```
+
+
+
+### Resum de dades de N. de membres del Nucli
+
+```{r resum numero membres del nucli, echo=FALSE}
+
+  head(my_data)
+  table(my_data$NMembresNucli)
   
 ```
 
@@ -403,7 +462,7 @@ head(my_data5b)
 
 # Create the pivot table and save html on disk
 #pt <- rpivotTable(my_data7c)
-pt.2017.SA <- rpivotTable(
+pt.2017.SA.t <- rpivotTable(
   data = my_data7c, 
   rows = c("MesDerivacioSAIER"), 
   cols=c("SituacioAdministrativa"), 
@@ -415,21 +474,73 @@ pt.2017.SA <- rpivotTable(
   exclusions = list( MesDerivacioSAIER = list( "2018-01")),
   rendererName = "Heatmap"
   )
-frameWidget(pt.2017.SA)
+frameWidget(pt.2017.SA.t)
 #getwd()
 #file.path(htmlpath, "2017.pt.SituacioAdministrativa.html")
-saveWidget(pt.2017.SA, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.html"), selfcontained=TRUE) 
-webshot(file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.html"),
-        file=file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.png"),
+saveWidget(pt.2017.SA.t, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.html"), selfcontained=TRUE) 
+webshot(file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.t.html"),
+        file=file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"),
         delay=0.5, selector=".pvtUi") # to get both the heatmap table and buttons of variables in rows and columns surrounding it
 #        delay=0.5, selector=".pvtRendererArea") # to get only the heatmap table with results
 
-pt.2017.SA
+pt.2017.SA.t
 
+# Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Situació Administrativa", style = "heading 2") %>% 
+  body_add_par(value = "Evolució mensual i Totals", style = "heading 3") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"), width = 6, height = 4, style = "centered") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("La intensitat del color vermell és proporcional a la suma de casos de cada tipus", style = "Normal")
 
+# Gràfic de barres ara
+# ----------------------------------------
+# Create the pivot table and save html on disk
+#pt <- rpivotTable(my_data7c)
+pt.2017.SA.g <- rpivotTable(
+  data = my_data7c, 
+  cols=c("SituacioAdministrativa"), 
+  vals = "n", 
+  aggregatorName = "Sum", 
+  width="1200px", 
+  height="800px",   
+#  inclusions = list( Perfil = list("NO CONSTA")),
+  exclusions = list( MesDerivacioSAIER = list( "2018-01")),
+  rendererName = "Bar Chart"
+  )
+frameWidget(pt.2017.SA.g)
+#getwd()
+#file.path(htmlpath, "2017.pt.SituacioAdministrativa.html")
+saveWidget(pt.2017.SA.g, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.g.html"), selfcontained=TRUE) 
+webshot(file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.g.html"),
+        file=file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"),
+        delay=0.5, selector=".pvtUi") # to get both the heatmap table and buttons of variables in rows and columns surrounding it
+#        delay=0.5, selector=".pvtRendererArea") # to get only the heatmap table with results
+
+pt.2017.SA.g
+
+# Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_par(value = "Gràfic de barres de Situacions Administratives", style = "heading 3") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"), width = 6, height = 4, style = "centered") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+
+#   # Denegats a un altre país Europeu
+#   my_barchart <- ms_barchart(data = browser_data, 
+#                              x = "browser", y = "value", group = "serie")
+#   
+#   # Afegir contingut a l'informe en Word
+# my_doc <- my_doc %>% 
+#   body_add_par(value = "Denegats a un altre País Europeu", style = "heading 3") %>% 
+#   body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"), width = 6, height = 4, style = "centered") %>% 
+#   body_add_par("", style = "Normal") %>% # blank paragraph
+  
 ```
 
-## Situació Administrativa vs. Perfil
+## Perfils
+
+### Situació Administrativa vs. Perfil
 
 ```{r Situació Administrativa vs. Perfil}
 
@@ -526,31 +637,19 @@ webshot(file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"),
         delay=0.5, selector="#htmlwidget_container")
 sankey.2017.sa.p
 
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Perfils", style = "heading 2") %>% 
+  body_add_par(value = "Casos segons relació entre Situació Administrativa i Perfil", style = "heading 3") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.sankey.sa.p.png"), width = 6, height = 4, style = "centered") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("NO CONSTA: No es disposa de dades", style = "Normal")
+
 ```
 
-## Esborrany d'informe en Word
+## Escriure informe en Word
 
 ```{r esborrany informe en word}
-require(officer)
-require(magrittr)
-
-my_doc <- read_docx() 
-# styles_info(my_doc)
-
-my_doc <- my_doc %>% 
-  body_add_par(value = "Table of content", style = "heading 1") %>% 
-  body_add_toc(level = 2) %>% 
-
-  body_add_break() %>% 
-  body_add_par(value = "Gènere d'Usuaris derivats del SAIER al CUESB. 2017", style = "heading 2") %>% 
-  body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.gender.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Blau: Homes; Rosa: Dones. Groc: Desconegut", style = "Normal") %>% 
-  
-  body_add_break() %>% 
-  body_add_par(value = "Taula XXX. 2017", style = "heading 2") %>% 
-  body_add_table(head(my_data5b), style = "table_template") %>%
-  body_add_break()
 
 print(my_doc, target=file.path(getwd(), docpath, "2017.Derivacions_CUESB_a_SAIER.docx"))
 invisible()
