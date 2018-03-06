@@ -1,7 +1,7 @@
 ---
 title: "SAIER Urgències"
 author: "Ajuntament de Barcelona - AAI"
-date: "27 novembre de 2017 - 27 febrer 2018"
+date: "Novembre de 2017 - Març 2018"
 output: html_notebook
 ---
 
@@ -85,7 +85,8 @@ my_data <- read_excel(my_file, sheet = "Dades")
 head(my_data)
 my_data <- my_data %>% 
 #  filter(ComunicacioDerivacio == "D" | ComunicacioDerivacio == "Derivació")
-  filter(ComunicacioDerivacio == "DERIVACIÓ")
+  filter(ComunicacioDerivacio == "DERIVACIÓ") %>%
+  filter(AnyDerivText == 2017)
 #colnames(my_data)
 
 
@@ -126,9 +127,9 @@ head(my_data5b)
 
 ```
 
-## Gender of immigrants. World map with pie charts integrated overtime
+## Gender of users. World map with pie charts integrated overtime
 
-```{r Gender of immigrants}
+```{r Gender of users}
   
   library(leaflet)
   
@@ -173,7 +174,11 @@ head(my_data5b)
       transitionTime = 0,
       legend=TRUE,
       legendPosition = "topright"
-    )
+ #   ) %>% 
+#    addLegend("bottomright", title = "Gènere. 2017", pal=colors, values=my_data5e[, c("Dona", "Home", "Desconegut")], 
+#    labFormat = labelFormat(prefix = "$"),
+#    opacity = 1
+  )
   
   saveWidget(leaflet.2017.gender, file=file.path(getwd(), htmlpath, "2017.leaflet.gender.html"), selfcontained=TRUE) 
   webshot(file.path(getwd(), htmlpath, "2017.leaflet.gender.html"),
@@ -183,8 +188,8 @@ head(my_data5b)
 
 ```
 
-## Age group of immigrants. World map with pie charts
-```{r Age group of immigrants}
+## Age group of users. World map with pie charts
+```{r Age group of users}
 
   # Map Age group of immigrants in pie charts over the world map
   # -------------------------------------------------------------
@@ -228,7 +233,7 @@ head(my_data5b)
 
     webshot(file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"),
         file=file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"),
-        delay=0.5, selector = "#htmlwidget_container"))
+        delay=0.5, selector = "#htmlwidget_container")
 
   
   # Pending-1
