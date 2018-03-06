@@ -46,12 +46,22 @@ if(!require(webshot)){ install.packages("webshot") }; require(webshot)
 # Install also phantomjs thorugh webshot as a required dependency (only once)
 #webshot::install_phantomjs(baseURL = "https://bitbucket.org/ariya/phantomjs/downloads/")
 
+# Libraries to allow adding svgPanZoom capabilities to standard Plots
+# See: https://github.com/timelyportfolio/svgPanZoom
+if (!require("svgPanZoom")) devtools::install_github("timelyportfolio/svgPanZoom"); library(svgPanZoom) # see install step above
+if (!require("svglite")) install.packages("svglite"); library(svglite)
+
 # =======================================================
 # Pending-0
 # =======================================================
 # Si volguessim convertir l'output en un document de Word, podríem emprar:
-## ReporteRs. 
+## ReporteRs (requereix rJava, i no es desenvoluparà més, perquè l'autor ha fet OfficeR després, que no repen de rJava). 
 ##   Veure: http://www.sthda.com/english/wiki/create-and-format-word-documents-using-r-software-and-reporters-package 
+##
+##  OfficeR (NO requereix rJava, i fet pel mateix autor que ReporteRs). 
+##   Veure: https://davidgohel.github.io/officer/ 
+if (!require("officer")) install.packages("officer"); library(officer)
+##
 ## o
 ##
 ## Pandoc
@@ -259,7 +269,7 @@ head(my_data5b)
 
   my_mapped_data$NMembresNucli <- as.numeric(my_mapped_data$NMembresNucli)
   
-  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width="1000", height="600")
+  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width=1200, height=600, units="px")
   
   worldmap.2017.familysize <- mapCountryData(my_mapped_data, 
                  nameColumnToPlot = "NMembresNucli", 
@@ -280,6 +290,23 @@ head(my_data5b)
   #
   #   if (!require("tmap")) install.packages("tmap")
 
+
+  # =======================================================
+  # Add svgPanZoom capabilities to standard Plots
+  # See: https://github.com/timelyportfolio/svgPanZoom
+  # =======================================================
+  svgPanZoom(
+    svglite:::inlineSVG(
+      worldmap.2017.familysize <- mapCountryData(my_mapped_data, 
+                                                 nameColumnToPlot = "NMembresNucli", 
+                                                 catMethod="pretty",
+                                                 colourPalette="heat", 
+                                                 mapTitle = "columnName", 
+                                                 oceanCol = "lightblue",
+                                                 missingCountryCol = "white")
+    )
+  )
+  
 ```
 
 
@@ -290,114 +317,6 @@ head(my_data5b)
   head(my_data)
   table(my_data$NMembresNucli)
   
-```
-
-
-## Nacionalitats SAIER per anys
-
-```{r Nacionalitats SAIER per anys - intro, echo=FALSE}
-  
-  # ---------------------------------------------------------
-  # Nacionalitats SAIER per anys
-  # ---------------------------------------------------------
-  # Dades a: K:\QUOTA\DIMM_COMU\Maria\NACIONALITATS REFUGI_tancament 2015-2016 a juny 2016-2017.xlsx > Full1 
-  #
-  # Full1 	CATEGORIA 	a des. 2015 	a des. 2016 	ANY 2016 vs ANY 2015 	% creix. Anual
-  # AFGANISTAN 	ÀSIA MERIDIONAL 	17 	35 	18 	51,43%
-  # ALBANIA 	EUROPA ORIENTAL 	8 	17 	9 	52,94% 
-  # ...
-  my_file2 <- file.path("K:\\QUOTA\\DIMM_COMU\\Maria", "NACIONALITATS REFUGI_tancament 2015-2016 a juny 2016-2017_v02.xlsx")
-
-  my_data10 <- read_excel(my_file2, sheet = "Full1", range="A5:AJ125", na="NA")
-  head(my_data10)
-  #colnames(my_data10)
-  
-```
-
-
-### Nacionalitats SAIER 2015 
-
-```{r Treemap 2015, echo=FALSE}
-
-  #md2 <- count(my_data10, CATEGORIA, NACIONALITAT, wt = NULL, sort = FALSE)
-  md10 <- my_data10
-  # basic treemaps
-  p2015=treemap(md10,
-            index=c("CATEGORIA","NACIONALITAT"),
-            vSize="a des. 2015",
-            type="index",
-            title="Nacionalitats d'Usuaris al SAIER 2015",
-            overlap.labels=1,
-            force.print.labels=TRUE,
-            aspRatio=2,
-            align.labels=c("center", "center")
-  )  
-  
-```
-
-
-### Nacionalitats SAIER 2016
-
-```{r Treemap 2016, echo=FALSE}
-  p2016=treemap(md10,
-                index=c("CATEGORIA","NACIONALITAT"),
-                vSize="a des. 2016",
-                type="index",
-                title="Nacionalitats d'Usuaris al SAIER 2016",
-                overlap.labels=1,
-                force.print.labels=TRUE,
-                aspRatio=2.5,
-                bg.labels=75,
-                align.labels=c("center", "center")
-  )            
-  # md10$"% creix. Anual"
-  # md10$"% 2016 vs 2015"
-  # md10$NACIONALITAT
-  # length(md10$NACIONALITAT)
-
-  p2016b=treemap(md10,
-                index=c("CATEGORIA","NACIONALITAT"),
-                vSize="a des. 2016",
-                title="Nacionalitats d'Usuaris al SAIER 2016",
-                title.legend="Mida proporcional al nombre; color segons % de canvi anual",
-#                type="dens",
-#                vColor="% 2016 vs 2015",
-                type="comp",
-                vColor="a des. 2015",
-                palette="RdYlBu",
-                overlap.labels=1,
-                aspRatio=2.5,
-                force.print.labels=TRUE,
-                align.labels=c("center", "center")
-  ) 
-  # To see all possible easy color palettes, run:
-  #RColorBrewer::display.brewer.all()
-  
-```
-
-
-### Nacionalitats Usuaris SAIER - Interactive Chart 2015
-```{r Nacionalitats Usuaris SAIER - Interactive Chart 2015}
-  # make it interactive ("rootname" becomes the title of the plot):
-  inter2015=d3tree2( p2015 ,  rootname = "Nacionalitats Usuaris SAIER - 2015" )
-  inter2015
-```
-
-
-### Nacionalitats Usuaris SAIER - Interactive Chart 2016
-```{r Nacionalitats Usuaris SAIER - Interactive Chart 2016}
-  inter2016=d3tree2( p2016 ,  rootname = "Nacionalitats Usuaris SAIER - 2016" )
-  inter2016
-  
-```
-
-
-### Nacionalitats Usuaris SAIER - Interactive Chart 2016 vs 2015
-```{r Nacionalitats Usuaris SAIER - Interactive Chart 2016 vs 2015}
-  inter2016b=d3tree2( p2016b ,  rootname = "Nacionalitats Usuaris SAIER - 2016 vs 2015" )
-  inter2016b
-  
-
 ```
 
 
@@ -429,7 +348,7 @@ head(my_data5b)
                 wt = NULL, sort = FALSE)
 
   # basic treemaps
-    png(filename=file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width="1000", height="600")
+    png(filename=file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width=1200, height=600, units="px")
     p2017.nacio=treemap(my_data7a,
                         index=c("ContinentNacio","NacionalitatAngles"),
                         vSize="n",
@@ -442,23 +361,24 @@ head(my_data5b)
     )  
     dev.off()
     
-  # Pending-3
   # =======================================================
-  # Test adding svgPanZoom capabilities to these treemaps
+  # Add svgPanZoom capabilities to standard Plots
   # See: https://github.com/timelyportfolio/svgPanZoom
   # =======================================================
-  # 
-  #
-  # devtools::install_github("timelyportfolio/svgPanZoom")
-  #library(svgPanZoom) # see install step above
-  #library(svglite)
-  #
-  #svgPanZoom(
-  #  svglite:::inlineSVG(
-  #    plot(1:10)
-  #  )
-  #)
-  #
+    svgPanZoom(
+      svglite:::inlineSVG(
+        treemap(my_data7a,
+                index=c("ContinentNacio","NacionalitatAngles"),
+                vSize="n",
+                type="index",
+                title="Nacionalitats d'Usuaris Derivats del CUESB al SAIER 2017",
+                overlap.labels=1,
+                force.print.labels=TRUE,
+                aspRatio=2,
+                align.labels=c("center", "center")
+        )
+      )
+    )
 
 
   
