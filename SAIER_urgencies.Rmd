@@ -61,6 +61,7 @@ if (!require("svglite")) install.packages("svglite"); library(svglite)
 ##  OfficeR (NO requereix rJava, i fet pel mateix autor que ReporteRs). 
 ##   Veure: https://davidgohel.github.io/officer/ 
 if (!require("officer")) install.packages("officer"); library(officer)
+if (!require("magrittr")) install.packages("magrittr"); library(magrittr) # Package `magrittr` makes officer usage easier.
 ##
 ## o
 ##
@@ -77,7 +78,7 @@ if (!require("officer")) install.packages("officer"); library(officer)
 #Paths
 htmlpath <- "html"
 imgpath <- "Grafics"
-
+docpath <- "Informes"
 # -----------
 # CUESB Data
 # -----------
@@ -357,6 +358,9 @@ head(my_data5b)
                         overlap.labels=1,
                         force.print.labels=TRUE,
                         aspRatio=2,
+                        fontsize.title = 20,
+                        fontsize.labels = 16,
+                        fontsize.legend = 18,
                         align.labels=c("center", "center")
     )  
     dev.off()
@@ -375,6 +379,9 @@ head(my_data5b)
                 overlap.labels=1,
                 force.print.labels=TRUE,
                 aspRatio=2,
+                fontsize.title = 20,
+                fontsize.labels = 16,
+                fontsize.legend = 18,
                 align.labels=c("center", "center")
         )
       )
@@ -521,3 +528,31 @@ sankey.2017.sa.p
 
 ```
 
+## Esborrany d'informe en Word
+
+```{r esborrany informe en word}
+require(officer)
+require(magrittr)
+
+my_doc <- read_docx() 
+# styles_info(my_doc)
+
+my_doc <- my_doc %>% 
+  body_add_par(value = "Table of content", style = "heading 1") %>% 
+  body_add_toc(level = 2) %>% 
+
+  body_add_break() %>% 
+  body_add_par(value = "Gènere d'Usuaris derivats del SAIER al CUESB. 2017", style = "heading 2") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.gender.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("Blau: Homes; Rosa: Dones. Groc: Desconegut", style = "Normal") %>% 
+  
+  body_add_break() %>% 
+  body_add_par(value = "Taula XXX. 2017", style = "heading 2") %>% 
+  body_add_table(head(my_data5b), style = "table_template") %>%
+  body_add_break()
+
+print(my_doc, target=file.path(getwd(), docpath, "2017.Derivacions_CUESB_a_SAIER.docx"))
+invisible()
+
+```
