@@ -34,6 +34,7 @@ if (!require("dplyr")) install.packages("dplyr"); library(dplyr)
   if (!require("treemap")) install.packages("treemap"); library(treemap)
   if (!require("devtools")) install.packages("devtools"); library(devtools)
   if (!require("d3treeR")) devtools::install_github("timelyportfolio/d3treeR"); library(d3treeR)
+  if(!require(networkD3)){ install.packages("networkD3") }; library(networkD3)
 
 # Add package widget frame so that we attempt to get responsive iframes produced by htmlwidgets such as theones from rpivotTable
 # See: https://github.com/bhaskarvk/widgetframe
@@ -117,8 +118,8 @@ my_doc <- read_docx(path=file.path(getwd(), docpath, "2017.Word_AAI_template.doc
 # styles_info(my_doc)
 
 my_doc <- my_doc %>% 
-  body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "Balloon Text") %>% 
-  body_add_par(value = "Table of content", style = "capitol") %>% 
+  body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "capitol") %>% 
+  body_add_par(value = "Table of contents", style = "Balloon Text") %>% 
   body_add_toc(level = 3) 
 
 
@@ -421,7 +422,7 @@ my_doc <- my_doc %>%
   body_add_break() %>% 
   body_add_par(value = "Nuclis familiars", style = "heading 2") %>% 
   body_add_par(value = "D'on són les famílies més nombroses o els individus sols?", style = "heading 3") %>% 
-  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 8, height = 4, style = "centered") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") # blank paragraph
 
   
@@ -594,8 +595,6 @@ my_doc <- my_doc %>%
 
 # Sample Sankey Diagram - http://christophergandrud.github.io/networkD3/#sankey
 # Through networkD3
-
-if(!require(networkD3)){ install.packages("networkD3") }
 require(networkD3)
 require(dplyr)
 require(htmlwidgets)
@@ -611,7 +610,7 @@ my_data8b <- my_data8
 
 my_data8b$SituacioAdministrativa <-  recode(my_data8$SituacioAdministrativa,
          "Nouvingut asil (han de fer la sol·licitud)"   = 0,
-         "Voluntat de fer sol·licitud asil"             = 1,
+         "Ciutadania Comunitària"                       = 1,
          "Sol·licitant de protecció internacional (PI)" = 2,
          "Denegat PI a Espanya"                         = 3,
          "Denegat PI a altre país UE"                   = 4,
@@ -637,7 +636,7 @@ my_data8b$Perfil <-  recode(my_data8$Perfil,
 
 nodeNames.SituacioAdministrativa <- c(
          "Nouvingut asil (han de fer la sol·licitud)",       # Node  0
-         "Voluntat de fer sol·licitud asil",                 # Node  1
+         "Ciutadania Comunitària",                           # Node  1
          "Sol·licitant de protecció internacional (PI)",     # Node  2
          "Denegat PI a Espanya",                             # Node  3
          "Denegat PI a altre país UE",                       # Node  4
@@ -670,7 +669,7 @@ links = my_data8b
  # The third number is the value of the node
 
 names(links) = c("source", "target", "value")
-sankey.2017.sa.p <- sankeyNetwork(Links = links, 
+sankey.2017.sa.plot <- sankeyNetwork(Links = links, 
               Nodes = nodes,
               Source = "source",
               Target = "target",
@@ -679,11 +678,11 @@ sankey.2017.sa.p <- sankeyNetwork(Links = links,
               fontSize= 16,
               nodeWidth = 30)
 
-saveWidget(sankey.2017.sa.p, file=file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"), selfcontained=TRUE) 
+saveWidget(sankey.2017.sa.plot, file=file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"), selfcontained=TRUE) 
 webshot(file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"),
         file=file.path(getwd(), imgpath, "2017.sankey.sa.p.png"),
         delay=0.5, selector="#htmlwidget_container")
-sankey.2017.sa.p
+sankey.2017.sa.plot
 
 my_doc <- my_doc %>% 
   body_add_break() %>% 
@@ -701,6 +700,14 @@ my_doc <- my_doc %>%
 
 print(my_doc, target=file.path(getwd(), docpath, "2017.Derivacions_CUESB_a_SAIER.docx"))
 invisible()
+
+```
+
+## Llistat de paquets emprats
+
+```{r session info}
+
+sessionInfo()
 
 ```
 
