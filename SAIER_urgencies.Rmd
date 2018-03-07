@@ -113,12 +113,12 @@ registerDoParallel(cl) # register the cluster
 require(officer)
 require(magrittr)
 
-my_doc <- read_docx(path=file.path(getwd(), docpath, "2017_MODEL en blanc_B_v02.docx") )
+my_doc <- read_docx(path=file.path(getwd(), docpath, "2017.Word_AAI_template.docx") )
 # styles_info(my_doc)
 
 my_doc <- my_doc %>% 
   body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "Balloon Text") %>% 
-  body_add_par(value = "Table of content", style = "table title") %>% 
+  body_add_par(value = "Table of content", style = "capitol") %>% 
   body_add_toc(level = 3) 
 
 
