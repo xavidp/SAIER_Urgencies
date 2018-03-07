@@ -51,6 +51,11 @@ if(!require(webshot)){ install.packages("webshot") }; require(webshot)
 if (!require("svgPanZoom")) devtools::install_github("timelyportfolio/svgPanZoom"); library(svgPanZoom) # see install step above
 if (!require("svglite")) install.packages("svglite"); library(svglite)
 
+# Libraries to allow runing processes in parallel where possible
+if (!require("parallel")) install.packages("parallel"); library(parallel)
+if (!require("doParallel")) install.packages("doParallel"); library(doParallel)
+if (!require("foreach")) install.packages("foreach"); library(foreach)
+
 # =======================================================
 # Pending-0
 # =======================================================
@@ -75,25 +80,51 @@ if (!require("mschart")) install.packages("mschart"); library(mschart)
 ##          https://davidgohel.github.io/officer/
 ```
 
+```{r paràmetres inicials}
+#Paths
+htmlpath <- "html"
+imgpath <- "Grafics"
+docpath <- "Informes"
+
+```
+
+```{r Codi per a la Paral·lelització eventual de la feina}
+ncores <- detectCores(logical = FALSE) # nombre de cores físics (no logics), en Windows
+# ncores
+# 4
+nCoresToUse <- 1 # default value, to be overriden by allcores -1 only when there is more than two cores in the machine
+if (ncores > 2) nCoresToUse <- ncores - 1 # all minus one (to keep computer responsive while computing also)
+# ThinkCentre-Computers at Ajuntament de Barcelona have 4 cores ! :-)
+cl <- makeCluster(nCoresToUse) # create a cluster with all cores indicated
+registerDoParallel(cl) # register the cluster
+# Remember to use "foreach"" package for loops (with %dopar%, see example below) to get performance improvements due to parallel execution of threads
+# and parLapply to get parallel apply on Windows also 
+# See https://stat.ethz.ch/R-manual/R-devel/library/parallel/doc/parallel.pdf
+
+## Example, collecting return values from the parallel execution of the loop in a matrix of 10 rows:
+# matrix<-foreach(i=1:10,.combine=rbind) %dopar% {
+#   i
+# }
+
+```
+
+
 ```{r Inici informe en word}
 require(officer)
 require(magrittr)
 
-my_doc <- read_docx() 
+my_doc <- read_docx(path=file.path(getwd(), docpath, "2017_MODEL en blanc_B_v02.docx") )
 # styles_info(my_doc)
 
 my_doc <- my_doc %>% 
-  body_add_par(value = "Table of content", style = "heading 1") %>% 
-  body_add_toc(level = 2) 
+  body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "Balloon Text") %>% 
+  body_add_par(value = "Table of content", style = "table title") %>% 
+  body_add_toc(level = 3) 
 
 
 ```
 
 ```{r Lectura i pre-processat dades, echo=FALSE}
-#Paths
-htmlpath <- "html"
-imgpath <- "Grafics"
-docpath <- "Informes"
 # -----------
 # CUESB Data
 # -----------
@@ -153,7 +184,15 @@ head(my_data5b)
 my_doc <- my_doc %>% 
   body_add_break() %>% 
   body_add_par(value = "Demo de Taula de dades d'Entrada. 2017", style = "heading 2") %>% 
-  body_add_table(head(my_data5b), style = "table_template")
+  body_add_table(head(my_data5b), style = "table_template") %>%
+  body_add_par(value = "Demo de Taula de dades d'Entrada. 2017", style = "table title")
+
+# Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Demo de Taula de dades d'Entrada. 2017", style = "heading 2") %>% 
+  body_add_table(head(my_data5b), style = "Table Professional") %>%
+  body_add_par(value = "Demo de Taula de dades d'Entrada. 2017", style = "table title") 
 
 
 
@@ -235,7 +274,16 @@ my_doc <- my_doc %>%
   body_add_par(value = "Totals i per països", style = "heading 3") %>% 
 #  body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.gender.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("Pendent de fer", style = "graphic title") %>%
   body_add_par("Pendent de fer", style = "Normal")
+  
+    # Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_par(value = "Representació gràfica", style = "heading 3") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("Treemap", style = "graphic title")
+
   
 ```
 
@@ -373,7 +421,7 @@ my_doc <- my_doc %>%
   body_add_break() %>% 
   body_add_par(value = "Nuclis familiars", style = "heading 2") %>% 
   body_add_par(value = "D'on són les famílies més nombroses o els individus sols?", style = "heading 3") %>% 
-  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 8, height = 4, style = "centered") %>% 
   body_add_par("", style = "Normal") # blank paragraph
 
   
@@ -477,11 +525,11 @@ pt.2017.SA.t <- rpivotTable(
 frameWidget(pt.2017.SA.t)
 #getwd()
 #file.path(htmlpath, "2017.pt.SituacioAdministrativa.html")
-saveWidget(pt.2017.SA.t, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.html"), selfcontained=TRUE) 
+saveWidget(pt.2017.SA.t, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.t.html"), selfcontained=TRUE) 
 webshot(file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.t.html"),
         file=file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"),
-        delay=0.5, selector=".pvtUi") # to get both the heatmap table and buttons of variables in rows and columns surrounding it
-#        delay=0.5, selector=".pvtRendererArea") # to get only the heatmap table with results
+#        delay=0.5, selector=".pvtUi") # to get both the heatmap table and buttons of variables in rows and columns surrounding it
+        delay=0.5, selector=".pvtRendererArea") # to get only the heatmap table with results
 
 pt.2017.SA.t
 
@@ -515,8 +563,8 @@ frameWidget(pt.2017.SA.g)
 saveWidget(pt.2017.SA.g, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.g.html"), selfcontained=TRUE) 
 webshot(file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.g.html"),
         file=file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"),
-        delay=0.5, selector=".pvtUi") # to get both the heatmap table and buttons of variables in rows and columns surrounding it
-#        delay=0.5, selector=".pvtRendererArea") # to get only the heatmap table with results
+#        delay=0.5, selector=".pvtUi") # to get both the heatmap table and buttons of variables in rows and columns surrounding it
+        delay=0.5, selector=".pvtRendererArea") # to get only the heatmap table with results
 
 pt.2017.SA.g
 
@@ -524,7 +572,7 @@ pt.2017.SA.g
 my_doc <- my_doc %>% 
   body_add_par(value = "Gràfic de barres de Situacions Administratives", style = "heading 3") %>% 
   body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"), width = 6, height = 4, style = "centered") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("", style = "Normal")  # blank paragraph
 
 #   # Denegats a un altre país Europeu
 #   my_barchart <- ms_barchart(data = browser_data, 
@@ -653,5 +701,11 @@ my_doc <- my_doc %>%
 
 print(my_doc, target=file.path(getwd(), docpath, "2017.Derivacions_CUESB_a_SAIER.docx"))
 invisible()
+
+```
+
+```{r Codi per finalitzar la Paral·lelització eventual de la feina}
+
+stopCluster(cl) # shut down the cluster
 
 ```
