@@ -117,7 +117,8 @@ registerDoParallel(cl) # register the cluster
 require(officer)
 require(magrittr)
 
-my_doc <- read_docx(path=file.path(getwd(), templatepath, "2017.Word_AAI_template.docx") )
+#my_doc <- read_docx(path=file.path(getwd(), templatepath, "2017.Word_AAI_template.docx") )
+my_doc <- read_docx()
 # styles_info(my_doc)
 
 my_doc <- my_doc %>% 
