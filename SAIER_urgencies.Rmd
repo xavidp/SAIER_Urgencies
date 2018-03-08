@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Urgències SAIER 2017
 
-Resultats destacats a partir de les dades de derivacions del CUESB al SAIER
+Resultats destacats a partir de les dades de derivacions del CUESB al SAIER.
 
 ```{r paquets, echo=FALSE}
 if (!require("pacman")) install.packages("pacman")
@@ -121,7 +121,7 @@ my_doc <- read_docx(path=file.path(getwd(), templatepath, "2017.Word_AAI_templat
 # styles_info(my_doc)
 
 my_doc <- my_doc %>% 
-  body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "capitol") %>% 
+  body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "heading 1") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Table of contents", style = "Balloon Text") %>% 
   body_add_toc(level = 3) 
@@ -241,6 +241,8 @@ my_doc <- my_doc %>%
                                                   x = "NacionalitatAngles", 
                                                   y = "n",
                                                   group = "ContinentNacio")
+# Afegir gràfic al word
+my_doc <- body_add_chart(my_doc, chart = my_barchart.2017.nacionalitats, style = "centered")
     
     
   # basic treemaps
@@ -608,6 +610,9 @@ my_doc <- my_doc %>%
 #   # Denegats a un altre país Europeu
 #   my_barchart <- ms_barchart(data = browser_data, 
 #                              x = "browser", y = "value", group = "serie")
+## Afegir gràfic al word
+#my_doc <- body_add_chart(my_doc, chart = my_barchart, style = "centered")
+
 #   
 #   # Afegir contingut a l'informe en Word
 # my_doc <- my_doc %>% 
