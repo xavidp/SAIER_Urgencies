@@ -31,7 +31,7 @@ if (!require("dplyr")) install.packages("dplyr"); library(dplyr)
 
   
   # More libraries
-  if (!require("ggplot")) install.packages("ggplot"); library(ggplot)
+  if (!require("ggplot2")) install.packages("ggplot2"); library(ggplot2)
   if (!require("plotly")) install.packages("plotly"); library(plotly)
   if (!require("treemap")) install.packages("treemap"); library(treemap)
   if (!require("devtools")) install.packages("devtools"); library(devtools)
@@ -267,13 +267,15 @@ my_doc <- my_doc %>%
 # )
 
 # Basic barplot with ggplot and ggplotly
-png(filename=file.path(getwd(), imgpath, "2017.barchart.nacionality.png"), width=1200, height=600, units="px")
-
 ggplot.2017.nacionalitat <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, y=n)) +
   geom_bar(stat="identity") +
   geom_text(aes(label=n), vjust=1.6, color="white", size=3.5) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
-dev.off()
+ggsave("2017.barchart.nacionality.png",
+       plot = last_plot(),
+       path=file.path(getwd(), imgpath) 
+       )
+unlink("2017.barchart.nacionality.png")
 
 ggplot.2017.nacionalitat
 ggplotly(ggplotly.2017.nacionalitat = ggplot2::last_plot(),
