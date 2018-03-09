@@ -126,7 +126,7 @@ my_doc <- read_docx(path=file.path(getwd(), templatepath, "2017.Word_AAI_templat
 # styles_info(my_doc)
 
 my_doc <- my_doc %>% 
-  body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "heading") %>% 
+  body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "Title") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Table of contents", style = "Balloon Text") %>% 
   body_add_toc(level = 3) 
