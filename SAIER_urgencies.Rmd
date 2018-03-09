@@ -31,10 +31,12 @@ if (!require("dplyr")) install.packages("dplyr"); library(dplyr)
 
   
   # More libraries
-  if (!require("ggplot2")) install.packages("ggplot2"); library(ggplot2)
+  if (!require("devtools")) install.packages("devtools"); library(devtools)
+  ##if (!require("ggplot2")) install.packages("ggplot2"); library(ggplot2)
+  ## Or install the dev version to take the most of ggplotly() function
+  if (!require("ggplot2")) install.packages("ggplot2");  devtools::install_github('hadley/ggplot2')
   if (!require("plotly")) install.packages("plotly"); library(plotly)
   if (!require("treemap")) install.packages("treemap"); library(treemap)
-  if (!require("devtools")) install.packages("devtools"); library(devtools)
   if (!require("d3treeR")) devtools::install_github("timelyportfolio/d3treeR"); library(d3treeR)
   if (!require("networkD3")) install.packages("networkD3"); library(networkD3)
 
@@ -119,12 +121,12 @@ registerDoParallel(cl) # register the cluster
 require(officer)
 require(magrittr)
 
-#my_doc <- read_docx(path=file.path(getwd(), templatepath, "2017.Word_AAI_template.docx") )
-my_doc <- read_docx()
+my_doc <- read_docx(path=file.path(getwd(), templatepath, "2017.Word_AAI_template_v02.docx") )
+#my_doc <- read_docx()
 # styles_info(my_doc)
 
 my_doc <- my_doc %>% 
-  body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "heading 1") %>% 
+  body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "heading") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Table of contents", style = "Balloon Text") %>% 
   body_add_toc(level = 3) 
@@ -272,15 +274,15 @@ ggplot.2017.nacionalitat <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, y=n
   geom_text(aes(label=n), vjust=1.6, color="white", size=3.5) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
 ggsave("2017.barchart.nacionality.png",
-       plot = last_plot(),
+       plot = ggplot.2017.nacionalitat,
        path=file.path(getwd(), imgpath) 
        )
-unlink("2017.barchart.nacionality.png")
 
 ggplot.2017.nacionalitat
-ggplotly(ggplotly.2017.nacionalitat = ggplot2::last_plot(),
+ggplotly(ggplotly.2017.nacionalitat = ggplot.2017.nacionalitat,
          tooltip = "all",
          dynamicTicks = FALSE)
+htmlwidgets::saveWidget(ggplotly.2017.nacionalitat, file=file.path(getwd(), htmlpath, "2017.ggplotly.nacionalitat.html"), selfcontained=TRUE) 
 
   # basic treemaps
     png(filename=file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width=1200, height=600, units="px")
