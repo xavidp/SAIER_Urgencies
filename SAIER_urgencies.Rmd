@@ -31,6 +31,8 @@ if (!require("dplyr")) install.packages("dplyr"); library(dplyr)
 
   
   # More libraries
+  if (!require("ggplot")) install.packages("ggplot"); library(ggplot)
+  if (!require("plotly")) install.packages("plotly"); library(plotly)
   if (!require("treemap")) install.packages("treemap"); library(treemap)
   if (!require("devtools")) install.packages("devtools"); library(devtools)
   if (!require("d3treeR")) devtools::install_github("timelyportfolio/d3treeR"); library(d3treeR)
@@ -85,10 +87,10 @@ if (!require("mschart")) install.packages("mschart"); library(mschart)
 
 ```{r paràmetres inicials}
 #Paths
-htmlpath      <- "Html"
-imgpath       <- "Grafics"
-templatepath  <- "Plantilles"
-docpath       <- "Informes"
+htmlpath      <- "Html"; dir.create(htmlpath, recursive = TRUE, showWarnings = FALSE)
+imgpath       <- "Grafics"; dir.create(imgpath, recursive = TRUE, showWarnings = FALSE)
+templatepath  <- "Plantilles"; dir.create(templatepath, recursive = TRUE, showWarnings = FALSE)
+docpath       <- "Informes"; dir.create(docpath, recursive = TRUE, showWarnings = FALSE)
 
 ```
 
@@ -237,15 +239,47 @@ my_doc <- my_doc %>%
   body_add_par("Pendent de fer", style = "graphic title") %>%
   body_add_par("Pendent de fer", style = "Normal")
 
-    # Create a MS Excel Bar chart 
-    my_barchart.2017.nacionalitats <- ms_barchart(data = my_data7a,
-                                                  x = "NacionalitatAngles", 
-                                                  y = "n",
-                                                  group = "ContinentNacio")
-# Afegir gràfic al word
-my_doc <- body_add_chart(my_doc, chart = my_barchart.2017.nacionalitats, style = "centered")
-    
-    
+    # # Create a MS Excel Bar chart - Commented out at is produces a defective docx as of March 2018
+    # my_barchart.2017.nacionalitats <- ms_barchart(data = my_data7a,
+    #                                               x = "NacionalitatAngles", 
+    #                                               y = "n",
+    #                                               group = "ContinentNacio")
+    # # Afegir gràfic al word
+    # my_doc2 <- read_docx()
+    # my_doc2 <- body_add_chart(my_doc2, chart = my_barchart.2017.nacionalitats, style = "centered")
+    # print(my_doc2, target=file.path(getwd(), docpath, "2017.MSCharts.docx"))
+
+# #Fer diagrama de barres equivalent amb plotly
+# my_data %>% count(NacionalitatAngles) %>%
+#   plot_ly(x = ~NacionalitatAngles, y = ~n)
+# # Error message:
+# # cannot open file 'E:/PortableApps/DropboxPortableAHK/Dropbox/Compartida_AjBCN/Codi/SAIER_Urgencies/.Rproj.user/shared/notebooks/6F6AE320-SAIER_urgencies/1/19E34056D93BB68C/cim9y85b91xdt_t\_rs_html_deps_1e647641ec9.json': No such file or directoryError in file(file, ifelse(append, "a", "w")) : 
+# #  cannot open the connection
+# 
+# #plotly.2017.nacionalitat <- my_data %>% count(NacionalitatAngles, ContinentNacio) %>%
+# #  plot_ly(x = ~NacionalitatAngles, y = ~n, color = ~ContinentNacio)
+# #plotly.2017.nacionalitat %>% offline(height=600)
+# plotly.2017.nacionalitat 
+# 
+# # Save plotly chart as htmlwidget to disk
+# htmlwidgets::saveWidget(as_widget(plotly.2017.nacionalitat),
+#                         file.path(getwd(), htmlpath, "2017.plotly.nacionalitat.barchart.html")
+# )
+
+# Basic barplot with ggplot and ggplotly
+png(filename=file.path(getwd(), imgpath, "2017.barchart.nacionality.png"), width=1200, height=600, units="px")
+
+ggplot.2017.nacionalitat <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, y=n)) +
+  geom_bar(stat="identity") +
+  geom_text(aes(label=n), vjust=1.6, color="white", size=3.5) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
+dev.off()
+
+ggplot.2017.nacionalitat
+ggplotly(ggplotly.2017.nacionalitat = ggplot2::last_plot(),
+         tooltip = "all",
+         dynamicTicks = FALSE)
+
   # basic treemaps
     png(filename=file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width=1200, height=600, units="px")
     p2017.nacio=treemap(my_data7b,
