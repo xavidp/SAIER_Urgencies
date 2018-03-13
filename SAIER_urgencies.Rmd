@@ -39,7 +39,7 @@ if (!require("dplyr")) install.packages("dplyr"); library(dplyr)
   if (!require("devtools")) install.packages("devtools"); library(devtools)
   ##if (!require("ggplot2")) install.packages("ggplot2"); library(ggplot2)
   ## Or install the dev version to take the most of ggplotly() function
-  if (!require("ggplot2")) install.packages("ggplot2");  devtools::install_github('hadley/ggplot2')
+  if (!require("ggplot2")) devtools::install_github('hadley/ggplot2'); library(ggplot2)
   # See awesome top 50 ggplot chart list at: http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html
   if (!require("plotly")) install.packages("plotly"); library(plotly)
   if (!require("treemap")) install.packages("treemap"); library(treemap)
