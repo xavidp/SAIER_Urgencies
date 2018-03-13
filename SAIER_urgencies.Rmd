@@ -169,12 +169,12 @@ geodata <- read_excel(my_file, sheet = "PaisesContinentes")
 my_data4 <- count(my_data, NacionalitatAngles, MesDerivacioSAIER, GrupEdat, HomeDona, wt = NULL, sort = FALSE)
 #colnames(my_data4)
 my_data4$NacionalitatAngles <- apply(my_data4, 2, toupper)
-head(my_data4)
+#head(my_data4)
 #dim(my_data4)
 
 #colnames(geodata)[7] <- "NacionalitatAngles"
 #colnames(geodata)
-head(geodata)
+#head(geodata)
 #dim(geodata)
 
 # Add coordinates to the countries from the Dades sheet, using left_join
@@ -196,14 +196,6 @@ my_data5b <- my_data5 %>%
 
 head(my_data5b)
 
-# Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Demo de Taula de dades d'Entrada. 2017", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_table(head(my_data5b), style = "table_template") %>%
-  body_add_par(value = "Demo de Taula de dades d'Entrada. 2017", style = "table title")
-
 
 ```
 
@@ -221,6 +213,13 @@ my_doc <- my_doc %>%
                 wt = NULL, sort = FALSE) %>%
           filter(!is.na(NacionalitatAngles))
 
+    my_data7a.top10 <-  my_data %>% 
+          count(Nacionalitat, 
+                wt = NULL, sort = TRUE) %>%
+          filter(!is.na(Nacionalitat)) %>%
+          filter(Nacionalitat != "NO CONSTA") %>%
+          slice(1:10)
+
     my_data7b <- my_data %>% 
           count(NacionalitatAngles, 
                 ContinentNacio,
@@ -235,6 +234,16 @@ my_doc <- my_doc %>%
                 wt = NULL, sort = FALSE) %>%
           filter(!is.na(ProcedenciaAngles))
 
+
+# Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Nacionalitats per continents", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par(value = "10 Nacionalitats més freqüents", style = "heading 3") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_table(my_data7a.top10, style = "table_template") %>%
+  body_add_par(value = "Nacionalitats més freqüents en 2017", style = "table title")
 
     # # Create a MS Excel Bar chart - Commented out at is produces a defective docx as of March 2018
     # my_barchart.2017.nacionalitats <- ms_barchart(data = my_data7a,
@@ -278,9 +287,6 @@ ggplot.2017.nacionalitat
 
   # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Nacionalitats per continents", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Totals i per països", style = "heading 3") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
@@ -288,7 +294,7 @@ my_doc <- my_doc %>%
 
 
 # Convertir a versió plotly del gràfic de ggplot
-ggplotly(ggplotly.2017.nacionalitat = ggplot.2017.nacionalitat)
+ggplotly.2017.nacionalitat <- ggplotly(p = ggplot.2017.nacionalitat)
 htmlwidgets::saveWidget(ggplotly.2017.nacionalitat, file=file.path(getwd(), htmlpath, "2017.ggplotly.nacionalitat.html"), selfcontained=TRUE) 
 ggplotly.2017.nacionalitat
 
