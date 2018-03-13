@@ -22,7 +22,7 @@ checkpoint("2018-03-01") # Keep R packages from this date for reproducibility
 if (!require("pacman")) install.packages("pacman")
 #pacman::p_load_gh("trinker/textreadr")
 pacman::p_load(leaflet.minicharts); library(leaflet.minicharts)
-
+library(leaflet)
 #devtools::install_github("rstudio/crosstalk")
 #devtools::install_github("rstudio/leaflet")
 #devtools::install_github("jcheng5/d3scatter")
