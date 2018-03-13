@@ -40,6 +40,7 @@ if (!require("dplyr")) install.packages("dplyr"); library(dplyr)
   ##if (!require("ggplot2")) install.packages("ggplot2"); library(ggplot2)
   ## Or install the dev version to take the most of ggplotly() function
   if (!require("ggplot2")) install.packages("ggplot2");  devtools::install_github('hadley/ggplot2')
+  # See awesome top 50 ggplot chart list at: http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html
   if (!require("plotly")) install.packages("plotly"); library(plotly)
   if (!require("treemap")) install.packages("treemap"); library(treemap)
   if (!require("d3treeR")) devtools::install_github("timelyportfolio/d3treeR"); library(d3treeR)
@@ -234,15 +235,6 @@ my_doc <- my_doc %>%
                 wt = NULL, sort = FALSE) %>%
           filter(!is.na(ProcedenciaAngles))
 
-  # Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Nacionalitats per continents", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Totals i per països", style = "heading 3") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_par("", style = "Normal") # blank paragraph
 
     # # Create a MS Excel Bar chart - Commented out at is produces a defective docx as of March 2018
     # my_barchart.2017.nacionalitats <- ms_barchart(data = my_data7a,
@@ -272,42 +264,56 @@ my_doc <- my_doc %>%
 # )
 
 # Basic barplot with ggplot and ggplotly
-ggplot.2017.nacionalitat <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, y=n)) +
+ggplot.2017.nacionalitat <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, color=ContinentNacio, fill=ContinentNacio, y=n)) +
   geom_bar(stat="identity") +
-  geom_text(aes(label=n), vjust=1.6, color="white", size=3.5) +
+  geom_text(aes(label=n), vjust=1.6, color="white", size=4.5) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
 ggsave("2017.barchart.nacionality.png",
        plot = ggplot.2017.nacionalitat,
+       width = 30, height = 10, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
-
-
-# Faceting
-ggplot.2017.nacionalitat.faceted <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, color=ContinentNacio, fill=ContinentNacio, y=n)) +
-  geom_bar(stat="identity") +
-  geom_text(aes(label=n), vjust=1.6, color="white", size=3.5) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) +
-  facet_wrap(~ContinentNacio)
-
-ggsave("2017.barchart.nacionality.faceted.png",
-       plot = ggplot.2017.nacionalitat.faceted,
-       path=file.path(getwd(), imgpath) 
-       )
-# Afegir gràfic al word
-my_doc <- my_doc %>% 
-  body_add_par(value = "Faceted bar chart", style = "heading 3") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacionality.faceted.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-
-
 # Mostra-ho en pantalla també
 ggplot.2017.nacionalitat
+
+  # Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Nacionalitats per continents", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par(value = "Totals i per països", style = "heading 3") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_par("", style = "Normal") # blank paragraph
+
+
 # Convertir a versió plotly del gràfic de ggplot
-ggplotly(ggplotly.2017.nacionalitat = ggplot.2017.nacionalitat,
-         tooltip = "all",
-         dynamicTicks = FALSE)
+ggplotly(ggplotly.2017.nacionalitat = ggplot.2017.nacionalitat)
 htmlwidgets::saveWidget(ggplotly.2017.nacionalitat, file=file.path(getwd(), htmlpath, "2017.ggplotly.nacionalitat.html"), selfcontained=TRUE) 
+ggplotly.2017.nacionalitat
+
+# # Faceting also --------------------------------------
+# ggplot.2017.nacionalitat.faceted <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, color=ContinentNacio, fill=ContinentNacio, y=n)) +
+#   geom_bar(stat="identity") +
+#   geom_text(aes(label=n), vjust=1.6, color="white", size=2.5) +
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) +
+#   facet_wrap(~ContinentNacio)
+# 
+# ggsave("2017.barchart.nacionality.faceted.png",
+#        plot = ggplot.2017.nacionalitat.faceted,
+#        width = 40, height = 10, units = "cm", scale=2,
+#        path=file.path(getwd(), imgpath) 
+#        )
+# # Afegir gràfic al word
+# my_doc <- my_doc %>% 
+#   body_add_par(value = "Faceted bar chart", style = "heading 3") %>% 
+#   body_add_par("", style = "Normal") %>% # blank paragraph
+#   body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacionality.faceted.png"), width = 6, height = 3, style = "centered") %>% 
+#   body_add_par("", style = "Normal") # blank paragraph
+# 
+# 
+# # Mostra-ho en pantalla també
+# ggplot.2017.nacionalitat.faceted
 
   # basic treemaps
     png(filename=file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width=1200, height=600, units="px")
