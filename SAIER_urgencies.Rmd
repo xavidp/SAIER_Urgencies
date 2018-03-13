@@ -21,8 +21,8 @@ checkpoint("2018-03-01") # Keep R packages from this date for reproducibility
 
 if (!require("pacman")) install.packages("pacman")
 #pacman::p_load_gh("trinker/textreadr")
+
 pacman::p_load(leaflet.minicharts); library(leaflet.minicharts)
-library(leaflet)
 #devtools::install_github("rstudio/crosstalk")
 #devtools::install_github("rstudio/leaflet")
 #devtools::install_github("jcheng5/d3scatter")
@@ -52,6 +52,7 @@ if(!require(widgetframe)){ install.packages("widgetframe") }; require(widgetfram
 if(!require(htmlwidgets)){ install.packages("htmlwidgets") }; require(htmlwidgets) 
 if(!require(rpivotTable)){ install.packages("rpivotTable") }; require(rpivotTable)
 if(!require(rvest)){ install.packages("rvest") }; require(rvest)
+if(!require(magick)){ install.packages("magick") }; require(magick) # See: https://cran.r-project.org/web/packages/magick/vignettes/intro.html
 
 # Add webshot to allos making screenshots from htmlwidgets for printed versions of reports
 if(!require(webshot)){ install.packages("webshot") }; require(webshot)
@@ -127,14 +128,14 @@ registerDoParallel(cl) # register the cluster
 require(officer)
 require(magrittr)
 
-my_doc <- read_docx(path=file.path(getwd(), templatepath, "2017.Word_AAI_template_v02.docx") )
+my_doc <- read_docx(path=file.path(getwd(), templatepath, "2017.Word_AAI_template_v03.docx") )
 #my_doc <- read_docx()
 # styles_info(my_doc)
 
 my_doc <- my_doc %>% 
   body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "Title") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Table of contents", style = "Balloon Text") %>% 
+  body_add_par(value = "Continguts", style = "Normal") %>% 
   body_add_toc(level = 3) 
 
 
@@ -238,9 +239,9 @@ head(my_data5b)
 # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
   body_add_break() %>% 
-  body_add_par(value = "Nacionalitats per continents", style = "heading 2") %>% 
+  body_add_par(value = "Nacionalitats per continents", style = "heading 1") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "10 Nacionalitats més freqüents", style = "heading 3") %>% 
+  body_add_par(value = "10 Nacionalitats més freqüents", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_table(my_data7a.top10, style = "table_template") %>%
   body_add_par(value = "Nacionalitats més freqüents en 2017", style = "table title")
@@ -287,7 +288,7 @@ ggplot.2017.nacionalitat
 
   # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
-  body_add_par(value = "Totals i per països", style = "heading 3") %>% 
+  body_add_par(value = "Totals i per països", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") # blank paragraph
@@ -312,7 +313,7 @@ ggplotly.2017.nacionalitat
 #        )
 # # Afegir gràfic al word
 # my_doc <- my_doc %>% 
-#   body_add_par(value = "Faceted bar chart", style = "heading 3") %>% 
+#   body_add_par(value = "Faceted bar chart", style = "heading 2") %>% 
 #   body_add_par("", style = "Normal") %>% # blank paragraph
 #   body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacionality.faceted.png"), width = 6, height = 3, style = "centered") %>% 
 #   body_add_par("", style = "Normal") # blank paragraph
@@ -362,7 +363,7 @@ ggplotly.2017.nacionalitat
 
     # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
-  body_add_par(value = "Representació gràfica", style = "heading 3") %>% 
+  body_add_par(value = "Representació gràfica", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
@@ -384,7 +385,7 @@ my_doc <- my_doc %>%
 
 ```{r Gender of users}
   
-#  library(leaflet)
+  library(leaflet)
   
   tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
   
@@ -442,11 +443,11 @@ my_doc <- my_doc %>%
   # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
   body_add_break() %>% 
-  body_add_par(value = "Gènere d'Usuaris derivats del SAIER al CUESB. 2017", style = "heading 2") %>% 
+  body_add_par(value = "Gènere", style = "heading 1") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.gender.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Blau: Homes; Rosa: Dones. Groc: Desconegut", style = "Normal")
+  body_add_par("Blau: Homes; Rosa: Dones. Groc: Desconegut", style = "Balloon Text")
   
 ```
 
@@ -463,7 +464,8 @@ my_doc <- my_doc %>%
 
   my_mapped_data$NMembresNucli <- as.numeric(my_mapped_data$NMembresNucli)
   
-  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width=1200, height=600, units="px")
+#  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width=1200, height=600, units="px")
+  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"))
   
   worldmap.2017.familysize <- mapCountryData(my_mapped_data, 
                  nameColumnToPlot = "NMembresNucli", 
@@ -501,13 +503,22 @@ my_doc <- my_doc %>%
     )
   )
   
+  # Redimensionar mantenint proporcions amb imagemagick
+  my_image <- image_read(file.path(getwd(), imgpath, "2017.worldmap.familysize.png"))
+  image_info(my_image)
+  my_image <- image_trim(my_image)
+  image_info(my_image)
+  my_image_scaled <- image_scale(my_image, "2000") # width to 2000px and height proportional to keep aspect ratio
+  image_write(my_image_scaled, path = file.path(getwd(), imgpath, "2017.worldmap.familysize_2000px.png"))
+              
   # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
   body_add_break() %>% 
-  body_add_par(value = "Nuclis familiars", style = "heading 2") %>% 
+  body_add_par(value = "Nuclis familiars", style = "heading 1") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "D'on són les famílies més nombroses o els individus sols?", style = "heading 3") %>% 
-  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_par(value = "D'on són les famílies més nombroses o els individus sols?", style = "heading 2") %>% 
+#  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), style = "centered") %>% 
   body_add_par("", style = "Normal") # blank paragraph
 
   
@@ -563,7 +574,7 @@ my_doc <- my_doc %>%
 
 # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
-  body_add_par(value = "Distribució d'adults i menors per països", style = "heading 3") %>% 
+  body_add_par(value = "Distribució d'adults i menors per països", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
@@ -642,9 +653,9 @@ pt.2017.SA.t
 # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
   body_add_break() %>% 
-  body_add_par(value = "Situació Administrativa", style = "heading 2") %>% 
+  body_add_par(value = "Situació Administrativa", style = "heading 1") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Evolució mensual i Totals", style = "heading 3") %>% 
+  body_add_par(value = "Evolució mensual i Totals", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"), width = 6, height = 4, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
@@ -678,7 +689,7 @@ pt.2017.SA.g
 
 # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
-  body_add_par(value = "Gràfic de barres de Situacions Administratives", style = "heading 3") %>% 
+  body_add_par(value = "Gràfic de barres de Situacions Administratives", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"), width = 6, height = 4, style = "centered") %>% 
   body_add_par("", style = "Normal")  # blank paragraph
@@ -692,7 +703,7 @@ my_doc <- my_doc %>%
 #   
 #   # Afegir contingut a l'informe en Word
 # my_doc <- my_doc %>% 
-#   body_add_par(value = "Denegats a un altre País Europeu", style = "heading 3") %>% 
+#   body_add_par(value = "Denegats a un altre País Europeu", style = "heading 2") %>% 
 #   body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"), width = 6, height = 4, style = "centered") %>% 
 #   body_add_par("", style = "Normal") %>% # blank paragraph
   
@@ -797,13 +808,13 @@ sankey.2017.sa.plot
 
 my_doc <- my_doc %>% 
   body_add_break() %>% 
-  body_add_par(value = "Perfils", style = "heading 2") %>% 
+  body_add_par(value = "Perfils", style = "heading 1") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Casos segons relació entre Situació Administrativa i Perfil", style = "heading 3") %>% 
+  body_add_par(value = "Casos segons relació entre Situació Administrativa i Perfil", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_img(src = file.path(getwd(), imgpath, "2017.sankey.sa.p.png"), width = 6, height = 4, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("NO CONSTA: No es disposa de dades", style = "Normal")
+  body_add_par("NO CONSTA: No es disposa de dades", style = "Balloon Text")
 
 ```
 
@@ -811,7 +822,15 @@ my_doc <- my_doc %>%
 
 ```{r esborrany informe en word}
 
-print(my_doc, target=file.path(getwd(), docpath, "2017.Derivacions_CUESB_a_SAIER.docx"))
+print(my_doc, target=file.path(getwd(),
+                               docpath,
+                               paste0("2017.Derivacions_CUESB_a_SAIER_v", 
+                                      format(Sys.Date(), 
+                                             format="%y%m%d"
+                                             ),
+                                      ".docx")
+                               )
+      )
 invisible()
 
 ```
