@@ -14,6 +14,11 @@ knitr::opts_chunk$set(echo = TRUE)
 Resultats destacats a partir de les dades de derivacions del CUESB al SAIER.
 
 ```{r paquets, echo=FALSE}
+if (!require("checkpoint")) install.packages("checkpoint"); library(checkpoint)
+checkpoint("2018-03-01") # Keep R packages from this date for reproducibility
+# https://www.r-bloggers.com/updated-checkpoint-package-faster-reproducibility-with-more-feedback/
+# https://www.r-bloggers.com/new-features-in-the-checkpoint-package-version-0-4-0/
+
 if (!require("pacman")) install.packages("pacman")
 #pacman::p_load_gh("trinker/textreadr")
 pacman::p_load(leaflet.minicharts); library(leaflet.minicharts)
@@ -236,10 +241,8 @@ my_doc <- my_doc %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Totals i per països", style = "heading 3") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-#  body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.gender.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Pendent de fer", style = "graphic title") %>%
-  body_add_par("Pendent de fer", style = "Normal")
+  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_par("", style = "Normal") # blank paragraph
 
     # # Create a MS Excel Bar chart - Commented out at is produces a defective docx as of March 2018
     # my_barchart.2017.nacionalitats <- ms_barchart(data = my_data7a,
@@ -278,7 +281,29 @@ ggsave("2017.barchart.nacionality.png",
        path=file.path(getwd(), imgpath) 
        )
 
+
+# Faceting
+ggplot.2017.nacionalitat.faceted <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, color=ContinentNacio, fill=ContinentNacio, y=n)) +
+  geom_bar(stat="identity") +
+  geom_text(aes(label=n), vjust=1.6, color="white", size=3.5) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) +
+  facet_wrap(~ContinentNacio)
+
+ggsave("2017.barchart.nacionality.faceted.png",
+       plot = ggplot.2017.nacionalitat.faceted,
+       path=file.path(getwd(), imgpath) 
+       )
+# Afegir gràfic al word
+my_doc <- my_doc %>% 
+  body_add_par(value = "Faceted bar chart", style = "heading 3") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacionality.faceted.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+
+
+# Mostra-ho en pantalla també
 ggplot.2017.nacionalitat
+# Convertir a versió plotly del gràfic de ggplot
 ggplotly(ggplotly.2017.nacionalitat = ggplot.2017.nacionalitat,
          tooltip = "all",
          dynamicTicks = FALSE)
