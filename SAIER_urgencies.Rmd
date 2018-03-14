@@ -53,6 +53,8 @@ if(!require(htmlwidgets)){ install.packages("htmlwidgets") }; require(htmlwidget
 if(!require(rpivotTable)){ install.packages("rpivotTable") }; require(rpivotTable)
 if(!require(rvest)){ install.packages("rvest") }; require(rvest)
 if(!require(magick)){ install.packages("magick") }; require(magick) # See: https://cran.r-project.org/web/packages/magick/vignettes/intro.html
+if(!require(svglite)){ install.packages("svglite") }; require(svglite) # See: https://www.opencpu.org/posts/svg-release/
+if(!require(rsvg)){ install.packages("rsvg") }; require(rsvg) # See: https://www.opencpu.org/posts/svg-release/
 
 # Add webshot to allos making screenshots from htmlwidgets for printed versions of reports
 if(!require(webshot)){ install.packages("webshot") }; require(webshot)
@@ -385,6 +387,7 @@ my_doc <- my_doc %>%
 
 ```{r Gender of users}
   
+  library(leaflet.minicharts)
   library(leaflet)
   
   tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
@@ -465,7 +468,10 @@ my_doc <- my_doc %>%
   my_mapped_data$NMembresNucli <- as.numeric(my_mapped_data$NMembresNucli)
   
 #  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width=1200, height=600, units="px")
-  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"))
+#  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"))
+  # Plot as svg
+  svglite(file.path(getwd(), imgpath, "2017.worldmap.familysize.svg"), width = 10, height = 7)
+
   
   worldmap.2017.familysize <- mapCountryData(my_mapped_data, 
                  nameColumnToPlot = "NMembresNucli", 
@@ -477,6 +483,11 @@ my_doc <- my_doc %>%
   
   dev.off()
 
+  # Redo as png
+  png(file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width=1200, height=600, units="px")
+  worldmap.2017.familysize
+  dev.off()
+  
   # Pending-2
   # =======================================================
   # Improve type of chart with the thematic maps package
@@ -503,12 +514,28 @@ my_doc <- my_doc %>%
     )
   )
   
+  # render it into a bitmap array
+  bitmap <- rsvg(file.path(getwd(), imgpath, "2017.worldmap.familysize.svg"))
+  dim(bitmap)
+  ## [1] 504 720   4
+
+  # write to format
+  png::writePNG(bitmap, 
+                file.path(getwd(), imgpath, "2017.worldmap.familysize_writepng.png"),
+                dpi = 144)
+  rsvg_png(file.path(getwd(), imgpath, "2017.worldmap.familysize.svg"),
+           file.path(getwd(), imgpath, "2017.worldmap.familysize_rsvg.png"))
+
+
   # Redimensionar mantenint proporcions amb imagemagick
   my_image <- image_read(file.path(getwd(), imgpath, "2017.worldmap.familysize.png"))
   image_info(my_image)
-  my_image <- image_trim(my_image)
-  image_info(my_image)
-  my_image_scaled <- image_scale(my_image, "2000") # width to 2000px and height proportional to keep aspect ratio
+  # Trim image
+  my_image_trimmed <- image_trim(my_image)
+  image_info(my_image_trimmed)
+  image_write(my_image_trimmed, path = file.path(getwd(), imgpath, "2017.worldmap.familysize_trimmed.png"))
+  # Re-scale image
+  my_image_scaled <- image_scale(my_image_trimmed, "2000") # width to 2000px and height proportional to keep aspect ratio
   image_write(my_image_scaled, path = file.path(getwd(), imgpath, "2017.worldmap.familysize_2000px.png"))
               
   # Afegir contingut a l'informe en Word
@@ -518,7 +545,7 @@ my_doc <- my_doc %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "D'on són les famílies més nombroses o els individus sols?", style = "heading 2") %>% 
 #  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), style = "centered") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") # blank paragraph
 
   
