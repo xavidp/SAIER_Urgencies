@@ -470,22 +470,28 @@ my_doc <- my_doc %>%
 #  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width=1200, height=600, units="px")
 #  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"))
   # Plot as svg
-  svglite(file.path(getwd(), imgpath, "2017.worldmap.familysize.svg"), width = 10, height = 7)
+  svglite(file.path(getwd(), imgpath, "2017.worldmap.familysize.svg"), width = 12, height = 6)
 
   
   worldmap.2017.familysize <- mapCountryData(my_mapped_data, 
                  nameColumnToPlot = "NMembresNucli", 
                  catMethod="pretty",
                  colourPalette="heat", 
-                 mapTitle = "columnName", 
+                 mapTitle = "", 
                  oceanCol = "lightblue",
                  missingCountryCol = "white")
   
   dev.off()
 
   # Redo as png
-  png(file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width=1200, height=600, units="px")
-  worldmap.2017.familysize
+  png(file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width=1200, height=700, units="px")
+  worldmap.2017.familysize <- mapCountryData(my_mapped_data, 
+                 nameColumnToPlot = "NMembresNucli", 
+                 catMethod="pretty",
+                 colourPalette="heat", 
+                 mapTitle = "", 
+                 oceanCol = "lightblue",
+                 missingCountryCol = "white")
   dev.off()
   
   # Pending-2
@@ -508,7 +514,7 @@ my_doc <- my_doc %>%
                                                  nameColumnToPlot = "NMembresNucli", 
                                                  catMethod="pretty",
                                                  colourPalette="heat", 
-                                                 mapTitle = "columnName", 
+                                                 mapTitle = "Número de Membres de la Unitat Familiar", 
                                                  oceanCol = "lightblue",
                                                  missingCountryCol = "white")
     )
@@ -524,7 +530,8 @@ my_doc <- my_doc %>%
                 file.path(getwd(), imgpath, "2017.worldmap.familysize_writepng.png"),
                 dpi = 144)
   rsvg_png(file.path(getwd(), imgpath, "2017.worldmap.familysize.svg"),
-           file.path(getwd(), imgpath, "2017.worldmap.familysize_rsvg.png"))
+           file.path(getwd(), imgpath, "2017.worldmap.familysize_rsvg.png"),
+           width = 1600) # If you only set width OR height, the image will be scaled keeping aspect ratio
 
 
   # Redimensionar mantenint proporcions amb imagemagick
@@ -545,7 +552,7 @@ my_doc <- my_doc %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "D'on són les famílies més nombroses o els individus sols?", style = "heading 2") %>% 
 #  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize_2000px.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") # blank paragraph
 
   
