@@ -243,10 +243,10 @@ my_doc <- my_doc %>%
   body_add_break() %>% 
   body_add_par(value = "Nacionalitats per continents", style = "heading 1") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "10 Nacionalitats més freqüents", style = "heading 2") %>% 
+  body_add_par(value = "Nacionalitats més freqüents", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_table(my_data7a.top10, style = "table_template") %>%
-  body_add_par(value = "Nacionalitats més freqüents en 2017", style = "table title")
+  body_add_par(value = "10 Nacionalitats més freqüents en 2017", style = "table title")
 
     # # Create a MS Excel Bar chart - Commented out at is produces a defective docx as of March 2018
     # my_barchart.2017.nacionalitats <- ms_barchart(data = my_data7a,
@@ -278,7 +278,7 @@ my_doc <- my_doc %>%
 # Basic barplot with ggplot and ggplotly
 ggplot.2017.nacionalitat <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, color=ContinentNacio, fill=ContinentNacio, y=n)) +
   geom_bar(stat="identity") +
-  geom_text(aes(label=n), vjust=1.6, color="white", size=4.5) +
+  geom_text(aes(label=n), vjust=1.6, color="white", size=6.5) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
 ggsave("2017.barchart.nacionality.png",
        plot = ggplot.2017.nacionalitat,
@@ -365,11 +365,12 @@ ggplotly.2017.nacionalitat
 
     # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
-  body_add_par(value = "Representació gràfica", style = "heading 2") %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Gràfic alternatiu", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Treemap", style = "graphic title")
+  body_add_par("Mida de l'àrea proporcional al nombre", style = "Balloon Text")
 
   
 ```
@@ -551,6 +552,7 @@ my_doc <- my_doc %>%
   body_add_par(value = "Nuclis familiars", style = "heading 1") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "D'on són les famílies més nombroses o els individus sols?", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
 #  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize_2000px.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") # blank paragraph
@@ -612,7 +614,7 @@ my_doc <- my_doc %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Verd fosc: Adult | Verd clar: Menor | Taronja: Desconegut", style = "Normal")
+  body_add_par("Verd fosc: Adult | Verd clar: Menor | Taronja: Desconegut", style = "Balloon Text")
 
   # Pending-1
   # =======================================================
@@ -691,9 +693,9 @@ my_doc <- my_doc %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Evolució mensual i Totals", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"), width = 6, height = 4, style = "centered") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"), width = 5, height = 4, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("La intensitat del color vermell és proporcional a la suma de casos de cada tipus", style = "Normal")
+  body_add_par("La intensitat del color vermell és proporcional a la suma de casos de cada tipus", style = "Balloon Text")
 
 # Gràfic de barres ara
 # ----------------------------------------
