@@ -279,7 +279,17 @@ my_doc <- my_doc %>%
 ggplot.2017.nacionalitat <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, color=ContinentNacio, fill=ContinentNacio, y=n)) +
   geom_bar(stat="identity") +
   geom_text(aes(label=n), vjust=1.6, color="white", size=6.5) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
+  labs(x="Nacionality", y="N") + 
+  #scale_fill_discrete(name="Continents") + # Legend Title
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5, size=14),
+        axis.text.y = element_text(size=14),
+        axis.title.x = element_text(size=14),
+        axis.title.y = element_text(angle = 90, size=14),
+        legend.position = "top",
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14)
+        )
+
 ggsave("2017.barchart.nacionality.png",
        plot = ggplot.2017.nacionalitat,
        width = 30, height = 10, units = "cm", scale=2,
