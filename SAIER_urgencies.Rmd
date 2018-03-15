@@ -394,78 +394,25 @@ my_doc <- my_doc %>%
 ```
 
 
-## Gender of users. World map with pie charts integrated overtime
+### Evolució Mensual
 
-```{r Gender of users}
-  
-  library(leaflet.minicharts)
-  library(leaflet)
-  
-  tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-  
-  basemap <- leaflet(width = "100%", height = "400px") %>%
-    addTiles(tilesURL)
-  
-  # -------------------------------------------------------------
-  my_data5d <- count(my_data, NacionalitatAngles, HomeDona, wt = NULL, sort = FALSE)
-  my_data5d <- tidyr::spread(my_data5d, HomeDona, n)
-  colnames(my_data5d)[4] <- "Desconegut"
-  my_data5d$NacionalitatAngles <- apply(my_data5d, 2, toupper)
-  # Add coordinates to the countries from the Dades sheet, using left_join
-  my_data5e <- my_data5d %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
-  my_data5e <- my_data5e %>%
-    # filter(grepl("EUROPA", ContinentNacion.)) %>%
-    select(NacionalitatAngles,
-           Dona,
-           Home,
-           Desconegut,
-           lon,
-           lat
-    ) %>%
-    #    group_by(Nacionalitat_Angles) %>%
-    #    summarise_all(sum) %>%
-    ungroup()
-  
-  head(my_data5e)
-  
-  #We now add to the base map a pie chart for each country of origin
-  #  colors <- c("#4fc13c", "lightyellow", "#cccccc")
-  colors <- c("pink", "lightblue", "lightyellow")
-  
-  leaflet.2017.gender <- basemap %>%
-    addMinicharts(
-      my_data5e$lon, my_data5e$lat,
-      type = "pie",
-      chartdata = my_data5e[, c("Dona", "Home", "Desconegut")], 
-      fillColor = "white",
-      colorPalette = colors, 
-      transitionTime = 0,
-      legend=TRUE,
-      legendPosition = "topright"
- #   ) %>% 
-#    addLegend("bottomright", title = "Gènere. 2017", pal=colors, values=my_data5e[, c("Dona", "Home", "Desconegut")], 
-#    labFormat = labelFormat(prefix = "$"),
-#    opacity = 1
-  )
-  
-  saveWidget(leaflet.2017.gender, file=file.path(getwd(), htmlpath, "2017.leaflet.gender.html"), selfcontained=TRUE) 
-  webshot(file.path(getwd(), htmlpath, "2017.leaflet.gender.html"),
-        file=file.path(getwd(), imgpath, "2017.leaflet.gender.png"),
-        delay=0.5, selector="#htmlwidget_container")
-  leaflet.2017.gender
+```{r Evolució Mensual}
 
-  # Afegir contingut a l'informe en Word
+# ggplot2 chart
+  
+    # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Gènere", style = "heading 1") %>% 
+  body_add_par(value = "Evolució mensual", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.gender.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Blau: Homes; Rosa: Dones. Groc: Desconegut", style = "Balloon Text")
-  
+  body_add_par("Evolució mensual de les derivacions d'usuaris del CUESB al SAIER", style = "Balloon Text")
+
+
 ```
 
-## Membres de les Unitats Familiars
+
+## Nuclis familiars
 
 ```{r Membres de les Unitats Familiars}
 # Plot Map Using rworldmap
@@ -570,7 +517,7 @@ my_doc <- my_doc %>%
   
 ```
 
-## Age group of users. World map with pie charts
+### Age group of users. World map with pie charts
 
 ```{r Age group of users}
 
@@ -639,18 +586,119 @@ my_doc <- my_doc %>%
 
 
 
-### Resum de dades de N. de membres del Nucli
+### Orígens dels menors
 
-```{r resum numero membres del nucli, echo=FALSE}
+```{r Orígens dels menors}
 
-  head(my_data)
-  table(my_data$NMembresNucli)
+# ggplot2 chart
+  
+    # Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_par(value = "Orígens dels menors", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("Nacionalitats dels menors en casos de derivacions d'usuaris del CUESB al SAIER", style = "Balloon Text")
+
+
+```
+
+
+## Genere
+
+```{r Gender of users}
+  
+  library(leaflet.minicharts)
+  library(leaflet)
+  
+  tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+  
+  basemap <- leaflet(width = "100%", height = "400px") %>%
+    addTiles(tilesURL)
+  
+  # -------------------------------------------------------------
+  my_data5d <- count(my_data, NacionalitatAngles, HomeDona, wt = NULL, sort = FALSE)
+  my_data5d <- tidyr::spread(my_data5d, HomeDona, n)
+  colnames(my_data5d)[4] <- "Desconegut"
+  my_data5d$NacionalitatAngles <- apply(my_data5d, 2, toupper)
+  # Add coordinates to the countries from the Dades sheet, using left_join
+  my_data5e <- my_data5d %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
+  my_data5e <- my_data5e %>%
+    # filter(grepl("EUROPA", ContinentNacion.)) %>%
+    select(NacionalitatAngles,
+           Dona,
+           Home,
+           Desconegut,
+           lon,
+           lat
+    ) %>%
+    #    group_by(Nacionalitat_Angles) %>%
+    #    summarise_all(sum) %>%
+    ungroup()
+  
+  head(my_data5e)
+  
+  #We now add to the base map a pie chart for each country of origin
+  #  colors <- c("#4fc13c", "lightyellow", "#cccccc")
+  colors <- c("pink", "lightblue", "lightyellow")
+  
+  leaflet.2017.gender <- basemap %>%
+    addMinicharts(
+      my_data5e$lon, my_data5e$lat,
+      type = "pie",
+      chartdata = my_data5e[, c("Dona", "Home", "Desconegut")], 
+      fillColor = "white",
+      colorPalette = colors, 
+      transitionTime = 0,
+      legend=TRUE,
+      legendPosition = "topright"
+ #   ) %>% 
+#    addLegend("bottomright", title = "Gènere. 2017", pal=colors, values=my_data5e[, c("Dona", "Home", "Desconegut")], 
+#    labFormat = labelFormat(prefix = "$"),
+#    opacity = 1
+  )
+  
+  saveWidget(leaflet.2017.gender, file=file.path(getwd(), htmlpath, "2017.leaflet.gender.html"), selfcontained=TRUE) 
+  webshot(file.path(getwd(), htmlpath, "2017.leaflet.gender.html"),
+        file=file.path(getwd(), imgpath, "2017.leaflet.gender.png"),
+        delay=0.5, selector="#htmlwidget_container")
+  leaflet.2017.gender
+
+  # Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Gènere", style = "heading 1") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.gender.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("Blau: Homes; Rosa: Dones. Groc: Desconegut", style = "Balloon Text")
   
 ```
 
-## Immigrants vs Refugiats Atesos
 
-```{r Immigrants vs Refugiats atesos, echo=FALSE}
+## Situació Administrativa
+
+### Resum
+
+```{r Resum}
+
+# ggplot2 chart
+  
+    # Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Situació Administrativa", style = "heading 1") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par(value = "Resum", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+
+
+```
+
+### Evolució mensual i Totals
+
+```{r Evolució mensual i Totals, echo=FALSE}
 
 
 my_data7d <- my_data %>% 
@@ -698,14 +746,18 @@ pt.2017.SA.t
 
 # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Situació Administrativa", style = "heading 1") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Evolució mensual i Totals", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"), width = 5, height = 4, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par("La intensitat del color vermell és proporcional a la suma de casos de cada tipus", style = "Balloon Text")
+
+```
+
+### Gràfic de barres de Situacions Administratives
+
+```{r Gràfic de barres de Situacions Administratives, echo=FALSE}
 
 # Gràfic de barres ara
 # ----------------------------------------
@@ -739,6 +791,11 @@ my_doc <- my_doc %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"), width = 6, height = 4, style = "centered") %>% 
   body_add_par("", style = "Normal")  # blank paragraph
+```
+
+### Denegats a un altre País Europeu
+
+```{r Denegats a un altre País Europeu, echo=FALSE}
 
 #   # Denegats a un altre país Europeu
 #   my_barchart <- ms_barchart(data = browser_data, 
@@ -746,16 +803,49 @@ my_doc <- my_doc %>%
 ## Afegir gràfic al word
 #my_doc <- body_add_chart(my_doc, chart = my_barchart, style = "centered")
 
-#   
-#   # Afegir contingut a l'informe en Word
-# my_doc <- my_doc %>% 
-#   body_add_par(value = "Denegats a un altre País Europeu", style = "heading 2") %>% 
-#   body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"), width = 6, height = 4, style = "centered") %>% 
-#   body_add_par("", style = "Normal") %>% # blank paragraph
+   
+   # Afegir contingut a l'informe en Word
+ my_doc <- my_doc %>% 
+   body_add_par(value = "Denegats a un altre País Europeu", style = "heading 2") %>% 
+   body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"), width = 6, height = 4, style = "centered") %>% 
+   body_add_par("", style = "Normal") %>% # blank paragraph
   
 ```
 
 ## Perfils
+
+### Resum
+
+```{r Resum Perfils}
+
+# ggplot2 chart
+  
+    # Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Perfils", style = "heading 1") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par(value = "Resum", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+
+
+```
+### Decretada Majoria d'Edat
+
+```{r Decretada Majoria d'Edat}
+
+# ggplot2 chart
+  
+    # Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Decretada Majoria d'Edat", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+
+
+```
 
 ### Situació Administrativa vs. Perfil
 
@@ -861,6 +951,60 @@ my_doc <- my_doc %>%
   body_add_img(src = file.path(getwd(), imgpath, "2017.sankey.sa.p.png"), width = 6, height = 4, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par("NO CONSTA: No es disposa de dades", style = "Balloon Text")
+
+```
+## Origen Derivació a CUESB
+
+### Resum
+
+```{r Resum Origen Derivacions}
+
+# ggplot2 chart
+  
+    # Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Origen Derivació a CUESB", style = "heading 1") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par(value = "Resum", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+
+
+```
+### Evolució mensual de les derivacions del SAIER al CUESB
+
+```{r Evolució mensual de les derivacions del SAIER al CUESB}
+
+# ggplot2 chart
+  
+    # Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Evolució mensual de les derivacions del SAIER al CUESB", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+
+
+```
+
+## Recurrència
+
+### Percentatge de casos en que l'usuari torna una 2a vegada o més
+
+```{r Recurrència}
+
+# ggplot2 chart
+  
+    # Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Recurrència", style = "heading 1") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par(value = "Percentatge de casos en que l'usuari torna una 2a vegada o més", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+
 
 ```
 
