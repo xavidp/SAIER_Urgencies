@@ -2,7 +2,8 @@
 title: "SAIER Urgències"
 author: "Ajuntament de Barcelona - AAI"
 date: "Novembre de 2017 - Març 2018"
-output: html_notebook
+output:
+  html_notebook: default
 ---
 
 ```{r setup, include=FALSE}
@@ -210,11 +211,6 @@ head(my_data5b)
 
 ```{r Derivacions CUESB -> SAIER 2017}
 
-    my_data7a <- my_data %>% 
-          count(NacionalitatAngles, 
-                ContinentNacio,
-                wt = NULL, sort = FALSE) %>%
-          filter(!is.na(NacionalitatAngles))
 
     my_data7a.top10 <-  my_data %>% 
           count(Nacionalitat, 
@@ -222,20 +218,6 @@ head(my_data5b)
           filter(!is.na(Nacionalitat)) %>%
           filter(Nacionalitat != "NO CONSTA") %>%
           slice(1:10)
-
-    my_data7b <- my_data %>% 
-          count(NacionalitatAngles, 
-                ContinentNacio,
-                MesDerivacioSAIER,
-                wt = NULL, sort = FALSE) %>%
-          filter(!is.na(NacionalitatAngles))
-
-    my_data7c <- my_data %>% 
-          count(ProcedenciaAngles,
-                ContinentProced,
-                MesDerivacioSAIER,
-                wt = NULL, sort = FALSE) %>%
-          filter(!is.na(ProcedenciaAngles))
 
 
 # Afegir contingut a l'informe en Word
@@ -248,6 +230,11 @@ my_doc <- my_doc %>%
   body_add_table(my_data7a.top10, style = "table_template") %>%
   body_add_par(value = "10 Nacionalitats més freqüents en 2017", style = "table title")
 
+```
+
+```{r MSCHart i Plotly Proves fallides}
+
+# Get the data selected
     # # Create a MS Excel Bar chart - Commented out at is produces a defective docx as of March 2018
     # my_barchart.2017.nacionalitats <- ms_barchart(data = my_data7a,
     #                                               x = "NacionalitatAngles", 
@@ -274,6 +261,20 @@ my_doc <- my_doc %>%
 # htmlwidgets::saveWidget(as_widget(plotly.2017.nacionalitat),
 #                         file.path(getwd(), htmlpath, "2017.plotly.nacionalitat.barchart.html")
 # )
+
+```
+
+
+```{r Derivacions ggplot2 chart}
+
+# Get the data selected
+my_data7a <- my_data %>% 
+  count(NacionalitatAngles,
+        ContinentNacio,
+        wt = NULL,
+        sort = FALSE) %>%
+  filter(!is.na(NacionalitatAngles)
+         )
 
 # Basic barplot with ggplot and ggplotly
 ggplot.2017.nacionalitat <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, color=ContinentNacio, fill=ContinentNacio, y=n)) +
@@ -305,12 +306,6 @@ my_doc <- my_doc %>%
   body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") # blank paragraph
 
-
-# Convertir a versió plotly del gràfic de ggplot
-ggplotly.2017.nacionalitat <- ggplotly(p = ggplot.2017.nacionalitat)
-htmlwidgets::saveWidget(ggplotly.2017.nacionalitat, file=file.path(getwd(), htmlpath, "2017.ggplotly.nacionalitat.html"), selfcontained=TRUE) 
-ggplotly.2017.nacionalitat
-
 # # Faceting also --------------------------------------
 # ggplot.2017.nacionalitat.faceted <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, color=ContinentNacio, fill=ContinentNacio, y=n)) +
 #   geom_bar(stat="identity") +
@@ -334,6 +329,31 @@ ggplotly.2017.nacionalitat
 # # Mostra-ho en pantalla també
 # ggplot.2017.nacionalitat.faceted
 
+```
+
+
+```{r Versió ggplotly a partir del ggplot chart}
+
+# Convertir a versió plotly del gràfic de ggplot
+ggplotly.2017.nacionalitat <- ggplotly(p = ggplot.2017.nacionalitat)
+htmlwidgets::saveWidget(ggplotly.2017.nacionalitat, file=file.path(getwd(), htmlpath, "2017.ggplotly.nacionalitat.html"), selfcontained=TRUE) 
+ggplotly.2017.nacionalitat
+
+
+```
+
+### Gràfic alternatiu (treemap)
+
+```{r Gràfic alternatiu (treemap)}
+
+# Get the data selected
+my_data7b <- my_data %>% 
+  count(NacionalitatAngles, 
+        ContinentNacio,
+        MesDerivacioSAIER,
+        wt = NULL, sort = FALSE) %>%
+  filter(!is.na(NacionalitatAngles))
+
   # basic treemaps
     png(filename=file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width=1200, height=600, units="px")
     p2017.nacio=treemap(my_data7b,
@@ -351,6 +371,21 @@ ggplotly.2017.nacionalitat
     )  
     dev.off()
     
+# Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Gràfic alternatiu", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("Mida de l'àrea proporcional al nombre", style = "Balloon Text")
+
+  
+    
+```
+
+
+```{r Afegir svgPanZoom a gràfic R estàndard}
   # =======================================================
   # Add svgPanZoom capabilities to standard Plots
   # See: https://github.com/timelyportfolio/svgPanZoom
@@ -373,16 +408,7 @@ ggplotly.2017.nacionalitat
       )
     )
 
-    # Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Gràfic alternatiu", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Mida de l'àrea proporcional al nombre", style = "Balloon Text")
 
-  
 ```
 
 ### Derivacions CUESB -> SAIER 2017: Nacionalitats Interactive Chart 2017
@@ -393,6 +419,20 @@ my_doc <- my_doc %>%
   
 ```
 
+### Flows (Nacionality vs Origin before entering Spain-Catalonia-Barcelona)
+
+```{r Flows}
+
+# Get the data selected
+# my_data7c is the small dataset to plot arrows from origin to destination when coming into Barcelona. Unused as of March 2018 (too many arrows plotted for a whole year, and therefore, since it was not a "must have", I commented it out a while ago and the corresponding code was not migrated from the R file to this Rmd)
+my_data7c <- my_data %>% 
+  count(ProcedenciaAngles,
+        ContinentProced,
+        MesDerivacioSAIER,
+        wt = NULL, sort = FALSE) %>%
+  filter(!is.na(ProcedenciaAngles))
+  
+```
 
 ### Evolució Mensual
 
@@ -833,7 +873,7 @@ my_doc <- my_doc %>%
 ```
 ### Decretada Majoria d'Edat
 
-```{r Decretada Majoria d'Edat}
+```{r Decretada Majoria Edat}
 
 # ggplot2 chart
   
