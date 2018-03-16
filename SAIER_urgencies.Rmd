@@ -285,13 +285,14 @@ my_data7a <- my_data %>%
 # Basic barplot with ggplot and ggplotly
 ggplot.2017.nacionalitat <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, color=Continent, fill=Continent, y=n)) +
   geom_bar(stat="identity") +
-  geom_text(aes(label=n), vjust=1.6, color="white", size=6.5) +
+#  geom_text(aes(label=n), vjust=1.6, color="white", size=6.5) +
+  geom_text(aes(label=n), vjust=-0.2, color="blue", size=6.5) +
   labs(x="Nacionality", y="N") + 
   #scale_fill_discrete(name="Continents") + # Legend Title
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5, size=14),
         axis.text.y = element_text(size=14),
         axis.title.x = element_text(size=14),
-        axis.title.y = element_text(angle = 90, size=14),
+        axis.title.y = element_text(angle = 90, hjust = 0.5, vjust=0.5, size=14),
         legend.position = "top",
         legend.title = element_text(size=16),
         legend.text = element_text(size=14)
@@ -420,9 +421,10 @@ my_doc <- my_doc %>%
 ### Derivacions CUESB -> SAIER 2017: Nacionalitats Interactive Chart 2017
 
 ```{r Derivacions CUESB -> SAIER 2017: Nacionalitats Interactive Chart 2017}
-  p2017.nacio.i=d3tree2( p2017.nacio ,  rootname = "Nacionalitats d'Usuaris Derivats del CUESB al SAIER 2017" )
-  p2017.nacio.i
-  
+p2017.nacio.i=d3tree2( p2017.nacio ,  rootname = "Nacionalitats d'Usuaris Derivats del CUESB al SAIER 2017" )
+htmlwidgets::saveWidget(p2017.nacio.i, file=file.path(getwd(), htmlpath, "2017.d2tree2.nacionalitat.html"), selfcontained=TRUE) 
+p2017.nacio.i
+
 ```
 
 ### Flows (Nacionality vs Origin before entering Spain-Catalonia-Barcelona)
@@ -460,13 +462,13 @@ my_data7d <- my_data %>%
 # Basic barplot with ggplot
 ggplot.2017.n.mes <- ggplot(data=my_data7d, aes(x=MesDerivacioSAIER, y=n)) +
   geom_bar(stat="identity") +
-  #geom_text(aes(label=n), vjust=1.6, color="white", size=3.5) +
+  geom_text(aes(label=n), vjust=-0.2, color="blue", size=6.5) +
   labs(x="Mes de Derivació al SAIER", y="N") + 
   #scale_fill_discrete(name="Continents") + # Legend Title
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5, size=14),
         axis.text.y = element_text(size=14),
         axis.title.x = element_text(size=14),
-        axis.title.y = element_text(angle = 0, size=14),
+        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
         legend.position = "none",
         legend.title = element_text(size=16),
         legend.text = element_text(size=14)
@@ -485,7 +487,7 @@ my_doc <- my_doc %>%
   body_add_break() %>% 
   body_add_par(value = "Evolució mensual", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.n.mes.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.n.mes.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par("Evolució mensual de les derivacions d'usuaris del CUESB al SAIER", style = "Balloon Text")
 
@@ -689,13 +691,14 @@ my_data7e <- my_data %>%
 ggplot.2017.nacio.menors <- ggplot(data=my_data7e, aes(x=Nacionalitat, color=Continent, fill=Continent, y=n)) +
   geom_bar(stat="identity") +
   #scale_x_discrete(breaks = NULL) +
+  geom_text(aes(label=n), vjust=-0.2, color="blue", size=6.5) +
   #geom_text(aes(label=n), vjust=1.6, color="white", size=3.5) +
   labs(x="Nacionalitat dels Menors", y="N") + 
   #scale_fill_discrete(name="Continents") + # Legend Title
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5, size=14),
         axis.text.y = element_text(size=14),
         axis.title.x = element_text(size=14),
-        axis.title.y = element_text(angle = 0, size=14),
+        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
         legend.position = "top",
         legend.title = element_text(size=16),
         legend.text = element_text(size=14)
@@ -820,42 +823,6 @@ my_doc <- my_doc %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_table(my_data7f.t, style = "table_template")
 
-## First look at a quick and dirty version of the future ggplot2 chart (prior to customizations)
-#qplot(data=my_data7f, x=SituacioAdministrativa, geom="identity") 
-
-# Basic barplot with ggplot
-ggplot.2017.sa <- ggplot(data=my_data7f, aes(x=SituacioAdministrativa, y=n)) +
-  geom_bar(stat="identity") +
-  #scale_x_discrete(breaks = NULL) +
-  scale_x_discrete(labels = function(x) str_wrap(x, width = 10))
-  #geom_text(aes(label=n), vjust=1.6, color="white", size=3.5) +
-  labs(x="Situació Administrativa", y="N") + 
-  theme(axis.text.x = element_text(angle = 0, hjust = 1, vjust=0.5, size=14),
-        axis.text.y = element_text(size=14),
-        axis.title.x = element_text(size=14),
-        axis.title.y = element_text(angle = 0, size=14),
-        legend.position = "top",
-        legend.title = element_text(size=16),
-        legend.text = element_text(size=14)
-        )
-
-ggsave("2017.barchart.sa.png",
-       plot = ggplot.2017.sa,
-       width = 15, height = 8, units = "cm", scale=2,
-       path=file.path(getwd(), imgpath) 
-       )
-# Mostra-ho en pantalla també
-ggplot.2017.sa
-
-    # Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Situació Administrativa", style = "heading 1") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Resum", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.sa.png"), width = 6, height = 3, style = "centered") %>% 
-
 
 ```
 
@@ -924,54 +891,128 @@ my_doc <- my_doc %>%
 
 # Gràfic de barres ara
 # ----------------------------------------
+
+# Option 1) Preliminary work to get the Chart done quick and dirty with rpivotTables
+# .........................................................
 # Create the pivot table and save html on disk
 #pt <- rpivotTable(my_data7d)
-pt.2017.SA.g <- rpivotTable(
-  data = my_data7d, 
-  cols=c("SituacioAdministrativa"), 
-  vals = "n", 
-  aggregatorName = "Sum", 
-  width="1200px", 
-  height="800px",   
-#  inclusions = list( Perfil = list("NO CONSTA")),
-  exclusions = list( MesDerivacioSAIER = list( "2018-01")),
-  rendererName = "Bar Chart"
-  )
-frameWidget(pt.2017.SA.g)
-#getwd()
-#file.path(htmlpath, "2017.pt.SituacioAdministrativa.html")
-saveWidget(pt.2017.SA.g, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.g.html"), selfcontained=TRUE) 
-webshot(file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.g.html"),
-        file=file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"),
-#        delay=0.5, selector=".pvtUi") # to get both the heatmap table and buttons of variables in rows and columns surrounding it
-        delay=0.5, selector=".pvtRendererArea") # to get only the heatmap table with results
+# pt.2017.SA.g <- rpivotTable(
+#   data = my_data7d, 
+#   cols=c("SituacioAdministrativa"), 
+#   vals = "n", 
+#   aggregatorName = "Sum", 
+#   width="1200px", 
+#   height="800px",   
+# #  inclusions = list( Perfil = list("NO CONSTA")),
+#   exclusions = list( MesDerivacioSAIER = list( "2018-01")),
+#   rendererName = "Bar Chart"
+#   )
+# frameWidget(pt.2017.SA.g)
+# #getwd()
+# #file.path(htmlpath, "2017.pt.SituacioAdministrativa.html")
+# saveWidget(pt.2017.SA.g, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.g.html"), selfcontained=TRUE) 
+# webshot(file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.g.html"),
+#         file=file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"),
+# #        delay=0.5, selector=".pvtUi") # to get both the heatmap table and buttons of variables in rows and columns surrounding it
+#         delay=0.5, selector=".pvtRendererArea") # to get only the heatmap table with results
+# 
+# pt.2017.SA.g
+#
+# # Afegir contingut a l'informe en Word
+# my_doc <- my_doc %>% 
+#   body_add_par(value = "Gràfic de barres de Situacions Administratives", style = "heading 2") %>% 
+#   body_add_par("", style = "Normal") %>% # blank paragraph
+#   body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"), width = 6, height = 4, style = "centered") %>% 
+#   body_add_par("", style = "Normal")  # blank paragraph
 
-pt.2017.SA.g
+# Option 2) Make the chart with ggplot2
+# .........................................................
+## First look at a quick and dirty version of the future ggplot2 chart (prior to customizations)
+#qplot(data=my_data7f, x=SituacioAdministrativa, geom="identity") 
 
-# Afegir contingut a l'informe en Word
+# Basic barplot with ggplot
+ggplot.2017.sa <- ggplot(data=my_data7f, aes(x=SituacioAdministrativa, y=n)) +
+  geom_bar(stat="identity") +
+  #scale_x_discrete(breaks = NULL) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  geom_text(aes(label=n), vjust=-0.2, color="blue", size=6.5) +
+  labs(x="Situació Administrativa", y="N") + 
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
+        axis.text.y = element_text(size=14),
+        axis.title.x = element_text(size=14),
+        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
+        legend.position = "top",
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14)
+        )
+
+ggsave("2017.barchart.sa.png",
+       plot = ggplot.2017.sa,
+       width = 15, height = 8, units = "cm", scale=2,
+       path=file.path(getwd(), imgpath) 
+       )
+# Mostra-ho en pantalla també
+ggplot.2017.sa
+
+    # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
-  body_add_par(value = "Gràfic de barres de Situacions Administratives", style = "heading 2") %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Situació Administrativa", style = "heading 1") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"), width = 6, height = 4, style = "centered") %>% 
-  body_add_par("", style = "Normal")  # blank paragraph
+  body_add_par(value = "Resum", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.sa.png"), width = 6, height = 3, style = "centered") %>% 
+
+
 ```
 
 ### Denegats a un altre País Europeu
 
 ```{r Denegats a un altre País Europeu, echo=FALSE}
 
-#   # Denegats a un altre país Europeu
-#   my_barchart <- ms_barchart(data = browser_data, 
-#                              x = "browser", y = "value", group = "serie")
-## Afegir gràfic al word
-#my_doc <- body_add_chart(my_doc, chart = my_barchart, style = "centered")
+# ggplot2 chart
+# Get the data selected
+my_data7g <- my_data %>% 
+  count(SituacioAdministrativa,
+        PaisTramitSituacioAdministrativa,
+        wt = NULL,
+        sort = FALSE) %>%
+  filter(!is.na(SituacioAdministrativa)) %>%
+  filter(SituacioAdministrativa == "Denegat PI a altre país UE")
 
-   
+## First look at a quick and dirty version of the future ggplot2 chart (prior to customizations)
+#qplot(data=my_data7g, x=PaisTramitSituacioAdministrativa, geom="bar") 
+
+# Basic barplot with ggplot
+ggplot.2017.pais.tramit.ue <- ggplot(data=my_data7g, aes(x=PaisTramitSituacioAdministrativa, y=n)) +
+  geom_bar(stat="identity") +
+  #scale_x_discrete(breaks = NULL) +
+  geom_text(aes(label=n), vjust=1.3, color="white", size=6.5) +
+  #geom_text(aes(label=n), vjust=1.6, color="white", size=3.5) +
+  labs(x="Denegada la Protecció Internacional a un altre País de la UEB", y="N") + 
+  #scale_fill_discrete(name="Continents") + # Legend Title
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
+        axis.text.y = element_text(size=14),
+        axis.title.x = element_text(size=14),
+        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
+        legend.position = "top",
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14)
+        )
+
+ggsave("2017.barchart.pais.tramit.ue.png",
+       plot = ggplot.2017.pais.tramit.ue,
+       width = 15, height = 8, units = "cm", scale=2,
+       path=file.path(getwd(), imgpath) 
+       )
+# Mostra-ho en pantalla també
+ggplot.2017.pais.tramit.ue
+
    # Afegir contingut a l'informe en Word
  my_doc <- my_doc %>% 
    body_add_par(value = "Denegats a un altre País Europeu", style = "heading 2") %>% 
-   body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"), width = 6, height = 4, style = "centered") %>% 
-   body_add_par("", style = "Normal") %>% # blank paragraph
+   body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.pais.tramit.ue.png"), width = 6, height = 4, style = "centered") %>% 
+   body_add_par("", style = "Normal")  # blank paragraph
   
 ```
 
@@ -982,30 +1023,138 @@ my_doc <- my_doc %>%
 ```{r Resum Perfils}
 
 # ggplot2 chart
-  
-    # Afegir contingut a l'informe en Word
+# Get the data selected
+my_data7h <- my_data %>% 
+  count(Perfil,
+        wt = NULL,
+        sort = FALSE) %>%
+  filter(!is.na(Perfil)) 
+# Afegir fila a sota amb totals
+my_data7h.t <- rbind(my_data7h,
+      c("*** TOTALS ***", margin.table(as.matrix(my_data7h$n), 2))
+)
+
+# Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
   body_add_break() %>% 
   body_add_par(value = "Perfils", style = "heading 1") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Resum", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_table(my_data7h.t, style = "table_template")
 
 
 ```
+
+### Gràfic de barres de Perfils
+
+```{r Gràfic de barres de Perfils, echo=FALSE}
+
+# Gràfic de barres ara
+# ----------------------------------------
+## First look at a quick and dirty version of the future ggplot2 chart (prior to customizations)
+#qplot(data=my_data7h, x=Perfil, geom="bar") 
+
+# Basic barplot with ggplot
+ggplot.2017.perfils <- ggplot(data=my_data7h, aes(x=Perfil, y=n)) +
+  geom_bar(stat="identity") +
+  #scale_x_discrete(breaks = NULL) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  geom_text(aes(label=n), vjust=-0.1, color="blue", size=5.5) +
+  labs(x="Perfils", y="N") + 
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=12),
+        axis.text.y = element_text(size=14),
+        axis.title.x = element_text(size=14),
+        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
+        legend.position = "top",
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14)
+        )
+
+ggsave("2017.barchart.perfils.png",
+       plot = ggplot.2017.perfils,
+       width = 15, height = 8, units = "cm", scale=2,
+       path=file.path(getwd(), imgpath) 
+       )
+# Mostra-ho en pantalla també
+ggplot.2017.perfils
+
+    # Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Perfils", style = "heading 1") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par(value = "Gràfic de barres", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.perfils.png"), width = 6, height = 3, style = "centered") %>% 
+
+
+```
+
 ### Decretada Majoria d'Edat
 
 ```{r Decretada Majoria Edat}
 
+# Get the data selected
+my_data7i <- my_data %>% 
+  count(Perfil,
+        Nacionalitat,
+        wt = NULL,
+        sort = FALSE) %>%
+  filter(!is.na(Nacionalitat)) %>%
+  filter(Perfil == "Decretada o recent majoria d'edat (Refugiat o Immigrant)")
+# Afegir fila a sota amb totals
+my_data7i.t <- rbind(my_data7i,
+      c("*** TOTALS ***", margin.table(as.matrix(my_data7i$n), 2))
+)
+
+# Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par(value = "Decretada majoria d'edat", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_table(my_data7h.t, style = "table_template") %>%
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("Nacionalitat dels menors amb majoria d'edat decretada o recent (Refugiat o Immigrant)", style = "Balloon Text")
+
+
+
 # ggplot2 chart
-  
+  # Gràfic de barres ara
+# ----------------------------------------
+## First look at a quick and dirty version of the future ggplot2 chart (prior to customizations)
+#qplot(data=my_data7h, x=Perfil, geom="bar") 
+
+# Basic barplot with ggplot
+ggplot.2017.dec.majoria.edat <- ggplot(data=my_data7i, aes(x=Nacionalitat, y=n)) +
+  geom_bar(stat="identity") +
+  #scale_x_discrete(breaks = NULL) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  geom_text(aes(label=n), vjust=1.6, color="white", size=6.5) +
+  labs(x="Nacionalitat dels menors amb majoria d'edat decretada", y="N") + 
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=12),
+        axis.text.y = element_text(size=14),
+        axis.title.x = element_text(size=14),
+        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
+        legend.position = "none",
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14)
+        )
+
+ggsave("2017.barchart.dec.majoria.edat.png",
+       plot = ggplot.2017.dec.majoria.edat,
+       width = 15, height = 8, units = "cm", scale=2,
+       path=file.path(getwd(), imgpath) 
+       )
+# Mostra-ho en pantalla també
+ggplot.2017.dec.majoria.edat
+
     # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
   body_add_break() %>% 
-  body_add_par(value = "Decretada Majoria d'Edat", style = "heading 2") %>% 
+  body_add_par(value = "Decretada o recent majoria d'edat (Refugiat o Immigrant)", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.dec.majoria.edat.png"), width = 6, height = 3, style = "centered")
 
 
 ```
@@ -1106,8 +1255,6 @@ webshot(file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"),
 sankey.2017.sa.plot
 
 my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Perfils", style = "heading 1") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Casos segons relació entre Situació Administrativa i Perfil", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
@@ -1121,6 +1268,27 @@ my_doc <- my_doc %>%
 ### Resum
 
 ```{r Resum Origen Derivacions}
+
+# Get the data selected
+#data.frame(table(my_data$AlertesOrientacionsDe))
+my_data7j <- my_data %>% 
+  count(AlertesOrientacionsDe,
+        wt = NULL,
+        sort = FALSE)  
+# Afegir fila a sota amb totals
+my_data7j.t <- rbind(my_data7j,
+      c("*** TOTALS ***", margin.table(as.matrix(my_data7j$n), 2))
+)
+
+# Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_break() %>% 
+  body_add_par(value = "Origen de les Derivacions al CUESB", style = "heading 1") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par(value = "Resum", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_table(my_data7j.t, style = "table_template")
+
 
 # ggplot2 chart
   
@@ -1139,15 +1307,51 @@ my_doc <- my_doc %>%
 
 ```{r Evolució mensual de les derivacions del SAIER al CUESB}
 
-# ggplot2 chart
-  
-    # Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Evolució mensual de les derivacions del SAIER al CUESB", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+# Get the data selected
+my_data7j.saier <- my_data %>% 
+  count(AlertesOrientacionsDe,
+        MesDerivacioSAIER,
+        wt = NULL,
+        sort = FALSE) %>%
+  filter(AlertesOrientacionsDe == "SAIER") 
 
+
+# ggplot2 chart
+## First look at a quick and dirty version of the future ggplot2 chart (prior to customizations)
+#qplot(data=my_data7j.saier, x=MesDerivacioSAIER, geom="bar") 
+
+# Basic barplot with ggplot
+ggplot.2017.n.mes.saier <- ggplot(data=my_data7j.saier, aes(x=MesDerivacioSAIER, y=n)) +
+  geom_bar(stat="identity") +
+  geom_text(aes(label=n), vjust=-0.2, color="blue", size=6.5) +
+  labs(x="Mes de Derivació del SAIER al CUESB", y="N") + 
+  #scale_fill_discrete(name="Continents") + # Legend Title
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5, size=14),
+        axis.text.y = element_text(size=14),
+        axis.title.x = element_text(size=14),
+        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
+        legend.position = "none",
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14)
+        )
+
+ggsave("2017.barchart.n.mes.saier.png",
+       plot = ggplot.2017.n.mes.saier,
+       width = 15, height = 8, units = "cm", scale=2,
+       path=file.path(getwd(), imgpath) 
+       )
+# Mostra-ho en pantalla també
+ggplot.2017.n.mes.saier
+
+# Afegir contingut a l'informe en Word
+my_doc <- my_doc %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par(value = "Evolució mensual", style = "heading 2") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.n.mes.saier.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("Evolució mensual de les derivacions d'usuaris del SAIER al CUESB", style = "Balloon Text")
+  
 
 ```
 
@@ -1157,17 +1361,32 @@ my_doc <- my_doc %>%
 
 ```{r Recurrència}
 
-# ggplot2 chart
-  
-    # Afegir contingut a l'informe en Word
+# Get the data selected
+my_data7k <- my_data %>% 
+  count(Expedient,
+        wt = NULL,
+        sort = TRUE) %>%
+  filter(!is.na(Expedient)) %>%
+  filter(n > 0) %>%
+  count(n,
+      wt = NULL,
+      sort = TRUE)
+
+# Afegir fila a sota amb totals
+my_data7k.t <- rbind(my_data7k,
+      c("*** TOTALS ***", margin.table(as.matrix(my_data7k$nn), 2))
+)
+colnames(my_data7k.t) <- c("Casos", "N")
+
+
+  # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
   body_add_break() %>% 
   body_add_par(value = "Recurrència", style = "heading 1") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Percentatge de casos en que l'usuari torna una 2a vegada o més", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
-
+  body_add_table(my_data7k.t, style = "table_template")
 
 ```
 
