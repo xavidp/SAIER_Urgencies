@@ -53,6 +53,8 @@ if (!require("stringr")) install.packages("stringr"); library(stringr)
 if(!require(widgetframe)){ install.packages("widgetframe") }; require(widgetframe)
 if(!require(htmlwidgets)){ install.packages("htmlwidgets") }; require(htmlwidgets) 
 if(!require(rpivotTable)){ install.packages("rpivotTable") }; require(rpivotTable)
+if(!require(formattable)){ install.packages("formattable") }; require(formattable)
+
 if(!require(rvest)){ install.packages("rvest") }; require(rvest)
 if(!require(magick)){ install.packages("magick") }; require(magick) # See: https://cran.r-project.org/web/packages/magick/vignettes/intro.html
 if(!require(svglite)){ install.packages("svglite") }; require(svglite) # See: https://www.opencpu.org/posts/svg-release/
@@ -449,12 +451,9 @@ my_data7c <- my_data %>%
 # ggplot2 chart
 # Get the data selected
 my_data7d <- my_data %>% 
-  count(NacionalitatAngles,
-        MesDerivacioSAIER,
+  count(MesDerivacioSAIER,
         wt = NULL,
-        sort = FALSE) %>%
-  filter(!is.na(NacionalitatAngles)
-         )
+        sort = FALSE)
 
 ## First look at a quick and dirty version of the future ggplot2 chart (prior to customizations)
 #qplot(data=my_data7d, x=MesDerivacioSAIER, geom="bar") 
@@ -462,7 +461,7 @@ my_data7d <- my_data %>%
 # Basic barplot with ggplot
 ggplot.2017.n.mes <- ggplot(data=my_data7d, aes(x=MesDerivacioSAIER, y=n)) +
   geom_bar(stat="identity") +
-  geom_text(aes(label=n), vjust=-0.2, color="blue", size=6.5) +
+  geom_text(aes(label=n), vjust=1.6, color="white", size=6.5) +
   labs(x="Mes de Derivació al SAIER", y="N") + 
   #scale_fill_discrete(name="Continents") + # Legend Title
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5, size=14),
@@ -691,7 +690,7 @@ my_data7e <- my_data %>%
 ggplot.2017.nacio.menors <- ggplot(data=my_data7e, aes(x=Nacionalitat, color=Continent, fill=Continent, y=n)) +
   geom_bar(stat="identity") +
   #scale_x_discrete(breaks = NULL) +
-  geom_text(aes(label=n), vjust=-0.2, color="blue", size=6.5) +
+  geom_text(aes(label=n), vjust=-0.1, color="blue", size=4.5) +
   #geom_text(aes(label=n), vjust=1.6, color="white", size=3.5) +
   labs(x="Nacionalitat dels Menors", y="N") + 
   #scale_fill_discrete(name="Continents") + # Legend Title
@@ -838,7 +837,8 @@ my_data7d <- my_data %>%
             MesDerivacioSAIER,
             wt = NULL, sort = FALSE)
 
-# Create the pivot table and save html on disk
+# Option 1) Create the pivot table and save html on disk
+# .......................................................
 #pt <- rpivotTable(my_data7d)
 pt.2017.SA.t <- rpivotTable(
   data = my_data7d, 
@@ -874,12 +874,25 @@ pt.2017.SA.t
 #   # .[[2]]
 # #  html_nodes(".pvtTable") 
 
+# Opció 2) Segon intent de crear el heatmap table. Ara amb el paquet formattable
+# ...........................................
+# my_data7d.ft <- my_data %>% 
+#       count(MesDerivacioSAIER,
+#             SituacioAdministrativa,
+#             wt = NULL, sort = FALSE) %>%
+#   tidyr::spread(unique(MesDerivacioSAIER), unique(SituacioAdministrativa), n)
+# 
+# formattable(my_data7d.ft, list(area(col = c(a:c))
+#                             ~ color_tile("transparent", "pink")
+#                             )
+#             )
+
 # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Evolució mensual i Totals", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"), width = 5, height = 4, style = "centered") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par("La intensitat del color vermell és proporcional a la suma de casos de cada tipus", style = "Balloon Text")
 
@@ -961,7 +974,7 @@ my_doc <- my_doc %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Resum", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.sa.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.sa.png"), width = 6, height = 3, style = "centered")
 
 
 ```
@@ -1113,7 +1126,7 @@ my_doc <- my_doc %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Decretada majoria d'edat", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_table(my_data7h.t, style = "table_template") %>%
+  body_add_table(my_data7i.t, style = "table_template") %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par("Nacionalitat dels menors amb majoria d'edat decretada o recent (Refugiat o Immigrant)", style = "Balloon Text")
 
@@ -1132,7 +1145,7 @@ ggplot.2017.dec.majoria.edat <- ggplot(data=my_data7i, aes(x=Nacionalitat, y=n))
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   geom_text(aes(label=n), vjust=1.6, color="white", size=6.5) +
   labs(x="Nacionalitat dels menors amb majoria d'edat decretada", y="N") + 
-  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=12),
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
         axis.text.y = element_text(size=14),
         axis.title.x = element_text(size=14),
         axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
@@ -1245,7 +1258,7 @@ sankey.2017.sa.plot <- sankeyNetwork(Links = links,
               Target = "target",
               Value = "value",
               NodeID = "name",
-              fontSize= 16,
+              fontSize= 24,
               nodeWidth = 30)
 
 saveWidget(sankey.2017.sa.plot, file=file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"), selfcontained=TRUE) 
@@ -1279,6 +1292,7 @@ my_data7j <- my_data %>%
 my_data7j.t <- rbind(my_data7j,
       c("*** TOTALS ***", margin.table(as.matrix(my_data7j$n), 2))
 )
+colnames(my_data7j.t) <- c("Orígens", "N")
 
 # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
@@ -1345,12 +1359,13 @@ ggplot.2017.n.mes.saier
 
 # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
+  body_add_break() %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Evolució mensual", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.n.mes.saier.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Evolució mensual de les derivacions d'usuaris del SAIER al CUESB", style = "Balloon Text")
+  body_add_par("Evolució mensual de les derivacions d'usuaris del SAIER al CUESB (abans de que el tornin a derivar del CUESB al SAIER un altre cop)", style = "Balloon Text")
   
 
 ```
@@ -1366,7 +1381,6 @@ my_data7k <- my_data %>%
   count(Expedient,
         wt = NULL,
         sort = TRUE) %>%
-  filter(!is.na(Expedient)) %>%
   filter(n > 0) %>%
   count(n,
       wt = NULL,
@@ -1376,7 +1390,7 @@ my_data7k <- my_data %>%
 my_data7k.t <- rbind(my_data7k,
       c("*** TOTALS ***", margin.table(as.matrix(my_data7k$nn), 2))
 )
-colnames(my_data7k.t) <- c("Casos", "N")
+colnames(my_data7k.t) <- c("Nombre de vegades", "Casos")
 
 
   # Afegir contingut a l'informe en Word
@@ -1384,7 +1398,7 @@ my_doc <- my_doc %>%
   body_add_break() %>% 
   body_add_par(value = "Recurrència", style = "heading 1") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Percentatge de casos en que l'usuari torna una 2a vegada o més", style = "heading 2") %>% 
+  body_add_par(value = "Visites de la mateixa persona al CUESB", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_table(my_data7k.t, style = "table_template")
 
