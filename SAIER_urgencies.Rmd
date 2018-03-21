@@ -16,7 +16,7 @@ Resultats destacats a partir de les dades de derivacions del CUESB al SAIER.
 
 ```{r paquets, echo=FALSE}
 if (!require("checkpoint")) install.packages("checkpoint"); library(checkpoint)
-checkpoint("2018-03-01") # Keep R packages from this date for reproducibility
+checkpoint("2018-03-16") # Keep R packages from this date for reproducibility
 # https://www.r-bloggers.com/updated-checkpoint-package-faster-reproducibility-with-more-feedback/
 # https://www.r-bloggers.com/new-features-in-the-checkpoint-package-version-0-4-0/
 
@@ -31,6 +31,7 @@ pacman::p_load(leaflet.minicharts); library(leaflet.minicharts)
 if (!require("readxl")) install.packages("readxl"); library(readxl)
 if (!require("dplyr")) install.packages("dplyr"); library(dplyr)
 if (!require("stringr")) install.packages("stringr"); library(stringr)
+if (!require("tidyimpute")) install.packages("tidyimpute"); library(tidyimpute)
 
 # Allowi also Ploting Maps Using rworldmap
 # Derived from: https://blog.learningtree.com/how-to-display-data-on-a-world-map-in-r/
@@ -50,18 +51,18 @@ if (!require("stringr")) install.packages("stringr"); library(stringr)
 
 # Add package widget frame so that we attempt to get responsive iframes produced by htmlwidgets such as theones from rpivotTable
 # See: https://github.com/bhaskarvk/widgetframe
-if(!require(widgetframe)){ install.packages("widgetframe") }; require(widgetframe)
-if(!require(htmlwidgets)){ install.packages("htmlwidgets") }; require(htmlwidgets) 
-if(!require(rpivotTable)){ install.packages("rpivotTable") }; require(rpivotTable)
-if(!require(formattable)){ install.packages("formattable") }; require(formattable)
+if(!require("widgetframe")){ install.packages("widgetframe") }; require(widgetframe)
+if(!require("htmlwidgets")){ install.packages("htmlwidgets") }; require(htmlwidgets) 
+if(!require("rpivotTable")){ install.packages("rpivotTable") }; require(rpivotTable)
+if(!require("formattable")){ install.packages("formattable") }; require(formattable)
 
-if(!require(rvest)){ install.packages("rvest") }; require(rvest)
-if(!require(magick)){ install.packages("magick") }; require(magick) # See: https://cran.r-project.org/web/packages/magick/vignettes/intro.html
-if(!require(svglite)){ install.packages("svglite") }; require(svglite) # See: https://www.opencpu.org/posts/svg-release/
-if(!require(rsvg)){ install.packages("rsvg") }; require(rsvg) # See: https://www.opencpu.org/posts/svg-release/
+if(!require("rvest")){ install.packages("rvest") }; require(rvest)
+if(!require("magick")){ install.packages("magick") }; require(magick) # See: https://cran.r-project.org/web/packages/magick/vignettes/intro.html
+if(!require("svglite")){ install.packages("svglite") }; require(svglite) # See: https://www.opencpu.org/posts/svg-release/
+if(!require("rsvg")){ install.packages("rsvg") }; require(rsvg) # See: https://www.opencpu.org/posts/svg-release/
 
 # Add webshot to allos making screenshots from htmlwidgets for printed versions of reports
-if(!require(webshot)){ install.packages("webshot") }; require(webshot)
+if(!require("webshot")){ install.packages("webshot") }; require(webshot)
 # Install also phantomjs thorugh webshot as a required dependency (only once)
 #webshot::install_phantomjs(baseURL = "https://bitbucket.org/ariya/phantomjs/downloads/")
 
@@ -87,6 +88,7 @@ if (!require("profvis")) install.packages("profvis"); library(profvis)
 ##   Veure: https://davidgohel.github.io/officer/ 
 if (!require("officer")) install.packages("officer"); library(officer) # https://davidgohel.github.io/officer/
 if (!require("magrittr")) install.packages("magrittr"); library(magrittr) # Package `magrittr` makes officer usage easier.
+if (!require("flextable")) install.packages("flextable"); library(flextable)
 if (!require("mschart")) install.packages("mschart"); library(mschart)
 ##
 ## o
@@ -877,25 +879,69 @@ pt.2017.SA.t
 
 # Opció 2) Segon intent de crear el heatmap table. Ara amb el paquet formattable
 # ...........................................
-# my_data7d.ft <- my_data %>% 
-#       count(MesDerivacioSAIER,
-#             SituacioAdministrativa,
-#             wt = NULL, sort = FALSE) %>%
-#   tidyr::spread(unique(MesDerivacioSAIER), unique(SituacioAdministrativa), n)
-# 
-# formattable(my_data7d.ft, list(area(col = c(a:c))
-#                             ~ color_tile("transparent", "pink")
-#                             )
-#             )
+ my_data7d.t <- my_data %>% 
+       count(MesDerivacioSAIER,
+             SituacioAdministrativa,
+             wt = NULL, sort = FALSE) %>%
+   tidyr::spread(SituacioAdministrativa, n)
+
+ # # Make heatmap-like table  
+ # formattable(my_data7d.t, list(area(col = colnames(my_data7d.t)[-1])
+ #                             ~ color_tile("transparent", "pink")
+ #                             )
+ #             )
+ 
+ # add margin table. since any NA make the whole sum NA, we need to remove NA's first so that we get the right marginal sums
+ # impute(.tbl, .na, ...) (from package tidyimpute)
+ # margin.table(as.matrix(impute(my_data7d.t[,-1], 0)), 2)
+ # margin.table(as.matrix(impute(my_data7d.t[,-1], 0)), 1)
+ 
+ # Afegir fila i columna amb totals
+ my_data7d.t2 <- cbind(rbind(my_data7d.t[,1], "*** TOTALS ***"), 
+                       as_tibble(addmargins(as.matrix(impute(my_data7d.t[,-1], 0)))))
+ # Fes nova heatmap-like table amb totals marginals, en objecte formattable
+ my_data7d.ft <- formattable(my_data7d.t2, list(area(col = colnames(my_data7d.t2)[-1])
+                             ~ color_tile("transparent", "red")
+                             )
+             )
+ # Display the formattable object on screen
+ my_data7d.ft
+ 
+ # Convert the formattable into a DT object so that it can be saved to disk
+ my_data7d.dt <- as.datatable(my_data7d.ft, 
+                              options = list(pageLength = 15, 
+                                             dom = 't'))  # dom=t is for removing the search (filter) box
+ 
+ 
+ #Save html with table to disk
+ htmlwidgets::saveWidget(my_data7d.dt, file=file.path(getwd(), htmlpath, "2017.formatdatatable.sa.month.html"), selfcontained=TRUE) 
+ # convert into responsive widget
+ my_data7d.dt <- frameWidget(my_data7d.dt)
+
+ # Make screenshot out of that heatmap-like table, just in case, for easy adding into word document report
+  webshot(file.path(getwd(), htmlpath, "2017.formatdatatable.sa.month.html"),
+        file=file.path(getwd(), imgpath, "2017.formatdatatable.sa.month.png"),
+        delay=0.5)
+  
+  # Read saved image
+  my_image <- image_read(file.path(getwd(), imgpath, "2017.formatdatatable.sa.month.png"))
+  # Trim image
+  my_image_trimmed <- image_trim(my_image)
+  # Save trimmed image again to disk
+  image_write(my_image_trimmed, path = file.path(getwd(), imgpath, "2017.formatdatatable.sa.month.trimmed.png"))
+
 
 # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Evolució mensual i Totals", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_table(my_data7d.t2, style = "table_template") %>%
+#  body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_img(src = file.path(getwd(), imgpath, "2017.formatdatatable.sa.month.trimmed.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_par("La intensitat del color vermell és proporcional a la suma de casos de cada tipus", style = "Balloon Text")
+
 
 ```
 
@@ -1372,6 +1418,7 @@ my_data7k <- my_data %>%
         wt = NULL,
         sort = TRUE) %>%
   filter(n > 0) %>%
+  filter(Expedient != "NO CONSTA") %>%
   count(n,
       wt = NULL,
       sort = TRUE)
@@ -1391,6 +1438,8 @@ my_doc <- my_doc %>%
   body_add_par(value = "Visites de la mateixa persona al CUESB", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_table(my_data7k.t, style = "table_template")
+  body_add_par("Aquesta taula correspon només als informes de derivació en que consta el número d'expedient únic d'usuari.", style = "Balloon Text")
+
 
 ```
 
