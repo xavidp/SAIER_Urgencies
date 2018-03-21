@@ -140,8 +140,8 @@ my_doc <- read_docx(path=file.path(getwd(), templatepath, "2017.Word_AAI_templat
 
 my_doc <- my_doc %>% 
   body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "Title") %>% 
+  body_add_par(value = "Índex:", style = "Normal") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Continguts", style = "Normal") %>% 
   body_add_toc(level = 3) 
 
 
@@ -713,6 +713,7 @@ ggplot.2017.nacio.menors
 
     # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
+  body_add_break() %>% 
   body_add_par(value = "Orígens dels menors", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacio.menors.png"), width = 6, height = 3, style = "centered") %>% 
@@ -1117,7 +1118,7 @@ my_data7i <- my_data %>%
   filter(!is.na(Nacionalitat)) %>%
   filter(Perfil == "Decretada o recent majoria d'edat (Refugiat o Immigrant)")
 # Afegir fila a sota amb totals
-my_data7i.t <- rbind(my_data7i,
+my_data7i.t <- rbind(my_data7i[-1],
       c("*** TOTALS ***", margin.table(as.matrix(my_data7i$n), 2))
 )
 
@@ -1303,17 +1304,6 @@ my_doc <- my_doc %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_table(my_data7j.t, style = "table_template")
 
-
-# ggplot2 chart
-  
-    # Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Origen Derivació a CUESB", style = "heading 1") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Resum", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
 
 
 ```
