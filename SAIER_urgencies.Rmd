@@ -55,6 +55,7 @@ if(!require("widgetframe")){ install.packages("widgetframe") }; require(widgetfr
 if(!require("htmlwidgets")){ install.packages("htmlwidgets") }; require(htmlwidgets) 
 if(!require("rpivotTable")){ install.packages("rpivotTable") }; require(rpivotTable)
 if(!require("formattable")){ install.packages("formattable") }; require(formattable)
+if(!require("DT")){ install.packages("DT") }; require(DT)
 
 if(!require("rvest")){ install.packages("rvest") }; require(rvest)
 if(!require("magick")){ install.packages("magick") }; require(magick) # See: https://cran.r-project.org/web/packages/magick/vignettes/intro.html
@@ -1437,7 +1438,7 @@ my_doc <- my_doc %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Visites de la mateixa persona al CUESB", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_table(my_data7k.t, style = "table_template")
+  body_add_table(my_data7k.t, style = "table_template") %>%
   body_add_par("Aquesta taula correspon només als informes de derivació en que consta el número d'expedient únic d'usuari.", style = "Balloon Text")
 
 
