@@ -121,7 +121,7 @@ runParam <- T
 
 crear.html.leaflet.2017.agegroups <- runParam
 crear.html.ggplotly.2017.nacionalitat <- runParam
-crear.html.p2017.nacio.i <- runParam
+crear.html.p2017.nacio.i <- F # runParam
 crear.html.leaflet.2017.gender <- runParam
 crear.html.pt.2017.SA.t <- runParam
 crear.html.dt.2017.sa.month <- runParam
@@ -429,7 +429,7 @@ my_data7b <- my_data %>%
                         index=c("Continent","NacionalitatAngles"),
                         vSize="n",
                         type="index",
-                        title="Nacionalitats d'Usuaris Derivats del CUESB al SAIER 2017",
+                        title="Nacionalitats d´Usuaris Derivats del CUESB al SAIER 2017",
                         overlap.labels=1,
                         force.print.labels=TRUE,
                         aspRatio=2,
@@ -483,10 +483,10 @@ my_doc <- my_doc %>%
 ### Derivacions CUESB -> SAIER 2017: Nacionalitats Interactive Chart 2017
 
 ```{r Derivacions CUESB -> SAIER 2017: Nacionalitats Interactive Chart 2017}
-p2017.nacio.i=d3tree2( p2017.nacio ,  rootname = "Nacionalitats d'Usuaris Derivats del CUESB al SAIER 2017" )
+p2017.nacio.i=d3tree2( p2017.nacio ,  rootname = "Nacionalitats d´Usuaris Derivats del CUESB al SAIER 2017" )
 
 if (crear.html.p2017.nacio.i == TRUE) {
-  htmlwidgets::saveWidget(p2017.nacio.i, file=file.path(getwd(), htmlpath, "2017.d2tree2.nacionalitat.html"), selfcontained=TRUE) 
+  saveWidget(p2017.nacio.i, file=file.path(getwd(), htmlpath, "2017.d2tree2.nacionalitat.html"), selfcontained=TRUE) 
 }
 
 if (mostrar.p2017.nacio.i == TRUE) {
