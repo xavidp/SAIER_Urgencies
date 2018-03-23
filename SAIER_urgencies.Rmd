@@ -356,9 +356,16 @@ my_doc <- my_doc %>%
 
 # Convertir a versió plotly del gràfic de ggplot
 ggplotly.2017.nacionalitat <- ggplotly(p = ggplot.2017.nacionalitat)
-htmlwidgets::saveWidget(ggplotly.2017.nacionalitat, file=file.path(getwd(), htmlpath, "2017.ggplotly.nacionalitat.html"), selfcontained=TRUE) 
-ggplotly.2017.nacionalitat
 
+crear.html.ggplotly.2017.nacionalitat <- F
+if (crear.html.ggplotly.2017.nacionalitat == TRUE) {
+  htmlwidgets::saveWidget(ggplotly.2017.nacionalitat, file=file.path(getwd(), htmlpath, "2017.ggplotly.nacionalitat.html"), selfcontained=TRUE) 
+}
+
+mostrar.html.ggplotly.2017.nacionalitat <- T
+if (mostrar.html.ggplotly.2017.nacionalitat == TRUE) {
+  ggplotly.2017.nacionalitat
+}
 
 ```
 
@@ -435,8 +442,16 @@ my_doc <- my_doc %>%
 
 ```{r Derivacions CUESB -> SAIER 2017: Nacionalitats Interactive Chart 2017}
 p2017.nacio.i=d3tree2( p2017.nacio ,  rootname = "Nacionalitats d'Usuaris Derivats del CUESB al SAIER 2017" )
-htmlwidgets::saveWidget(p2017.nacio.i, file=file.path(getwd(), htmlpath, "2017.d2tree2.nacionalitat.html"), selfcontained=TRUE) 
-p2017.nacio.i
+
+crear.html.p2017.nacio.i <- F
+if (crear.html.p2017.nacio.i == TRUE) {
+  htmlwidgets::saveWidget(p2017.nacio.i, file=file.path(getwd(), htmlpath, "2017.d2tree2.nacionalitat.html"), selfcontained=TRUE) 
+}
+
+mostrar.p2017.nacio.i <- T
+if (mostrar.p2017.nacio.i == TRUE) {
+  p2017.nacio.i
+}
 
 ```
 
@@ -655,7 +670,10 @@ my_doc <- my_doc %>%
       legendPosition = "topright"
     )
 
-    saveWidget(leaflet.2017.agegroups, file=file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"), selfcontained=TRUE) 
+    crear.html.leaflet.2017.agegroups <- F
+    if (crear.html.leaflet.2017.agegroups == TRUE) {
+      saveWidget(leaflet.2017.agegroups, file=file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"), selfcontained=TRUE) 
+    }
 
     webshot(file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"),
         file=file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"),
@@ -793,11 +811,18 @@ my_doc <- my_doc %>%
 #    opacity = 1
   )
   
-  saveWidget(leaflet.2017.gender, file=file.path(getwd(), htmlpath, "2017.leaflet.gender.html"), selfcontained=TRUE) 
+  crear.html.leaflet.2017.gender <- F
+  if (crear.html.leaflet.2017.gender == TRUE) {
+    saveWidget(leaflet.2017.gender, file=file.path(getwd(), htmlpath, "2017.leaflet.gender.html"), selfcontained=TRUE) 
+  }
   webshot(file.path(getwd(), htmlpath, "2017.leaflet.gender.html"),
         file=file.path(getwd(), imgpath, "2017.leaflet.gender.png"),
         delay=0.5, selector="#htmlwidget_container")
-  leaflet.2017.gender
+  
+  mostrar.html.leaflet.2017.gender <- T
+  if (mostrar.html.leaflet.2017.gender == TRUE) {
+    leaflet.2017.gender
+  }
 
   # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
@@ -891,15 +916,15 @@ ggplot.2017.sa <- ggplot(data=my_data7f, aes(x=SituacioAdministrativa, y=n)) +
   geom_bar(stat="identity") +
   #scale_x_discrete(breaks = NULL) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
-  geom_text(aes(label=n), vjust=-0.2, color="blue", size=6.5) +
+  geom_text(aes(label=n), vjust=-0.2, color="blue", size=4.5) +
   labs(x="Situació Administrativa", y="N") + 
-  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
-        axis.text.y = element_text(size=14),
-        axis.title.x = element_text(size=14),
-        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=10),
+        axis.text.y = element_text(size=12),
+        axis.title.x = element_text(size=12),
+        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=12),
         legend.position = "top",
-        legend.title = element_text(size=16),
-        legend.text = element_text(size=14)
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=10)
         )
 
 ggsave("2017.barchart.sa.png",
@@ -913,8 +938,9 @@ ggplot.2017.sa
     # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.sa.png"), width = 6, height = 3, style = "centered")
-
+#  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.sa.png"), width = 6, height = 3, style = "centered")
+  body_add_gg(value = ggplot.2017.sa, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
+  body_add_par("", style = "Normal") # blank paragraph
 
 ```
 
@@ -946,17 +972,22 @@ pt.2017.SA.t <- rpivotTable(
   rendererName = "Heatmap"
   )
 frameWidget(pt.2017.SA.t)
-#getwd()
-#file.path(htmlpath, "2017.pt.SituacioAdministrativa.html")
-saveWidget(pt.2017.SA.t, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.t.html"), selfcontained=TRUE) 
+
+crear.html.pt.2017.SA.t <- F
+if (crear.html.pt.2017.SA.t == TRUE) {
+  saveWidget(pt.2017.SA.t, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.t.html"), selfcontained=TRUE) 
+}
 webshot(file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.t.html"),
         file=file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"),
 #        delay=0.5, selector=".pvtUi") # to get both the heatmap table and buttons of variables in rows and columns surrounding it
         delay=0.5, selector=".pvtRendererArea") # to get only the heatmap table with results
 
-pt.2017.SA.t
+mostrar.html.pt.2017.SA.t <- T
+if (mostrar.html.pt.2017.SA.t == TRUE) {
+  pt.2017.SA.t
+}
 
-# #Codi extra per a extreure taula de dades de resultats, fent "web craping"" amb rvest
+# #Codi extra per a extreure taula de dades de resultats, fent "web scraping"" amb rvest
 # # No va no sé per què. Aturo la prova, per ara.
 # url_base <- file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.t.html")
 # #class(read_html(url_base))
@@ -1003,10 +1034,13 @@ pt.2017.SA.t
                                              dom = 't'))  # dom=t is for removing the search (filter) box
  
  
+crear.html.dt.2017.sa.month <- F
+if (crear.html.dt.2017.sa.month == TRUE) {
  #Save html with table to disk
  htmlwidgets::saveWidget(my_data7d.dt, file=file.path(getwd(), htmlpath, "2017.formatdatatable.sa.month.html"), selfcontained=TRUE) 
  # convert into responsive widget
  my_data7d.dt <- frameWidget(my_data7d.dt)
+}
 
  # Make screenshot out of that heatmap-like table, just in case, for easy adding into word document report
   webshot(file.path(getwd(), htmlpath, "2017.formatdatatable.sa.month.html"),
@@ -1059,17 +1093,17 @@ my_data7g <- my_data %>%
 ggplot.2017.pais.tramit.ue <- ggplot(data=my_data7g, aes(x=PaisTramitSituacioAdministrativa, y=n)) +
   geom_bar(stat="identity") +
   #scale_x_discrete(breaks = NULL) +
-  geom_text(aes(label=n), vjust=1.3, color="white", size=6.5) +
+  geom_text(aes(label=n), vjust=1.3, color="white", size=4.5) +
   #geom_text(aes(label=n), vjust=1.6, color="white", size=3.5) +
   labs(x="Denegada la Protecció Internacional a un altre País de la UE", y="N") + 
   #scale_fill_discrete(name="Continents") + # Legend Title
-  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
-        axis.text.y = element_text(size=14),
-        axis.title.x = element_text(size=14),
-        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=12),
+        axis.text.y = element_text(size=12),
+        axis.title.x = element_text(size=12),
+        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=12),
         legend.position = "top",
-        legend.title = element_text(size=16),
-        legend.text = element_text(size=14)
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=10)
         )
 
 ggsave("2017.barchart.pais.tramit.ue.png",
@@ -1083,7 +1117,8 @@ ggplot.2017.pais.tramit.ue
    # Afegir contingut a l'informe en Word
  my_doc <- my_doc %>% 
    body_add_par(value = "Denegats a un altre País Europeu", style = "heading 2") %>% 
-   body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.pais.tramit.ue.png"), width = 6, height = 4, style = "centered") %>% 
+#   body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.pais.tramit.ue.png"), width = 6, height = 4, style = "centered") %>% 
+   body_add_gg(value = ggplot.2017.pais.tramit.ue, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
    body_add_par("", style = "Normal")  # blank paragraph
   
 ```
@@ -1154,8 +1189,9 @@ ggplot.2017.perfils
     # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.perfils.png"), width = 6, height = 3, style = "centered")  
-
+#  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.perfils.png"), width = 6, height = 3, style = "centered")  
+  body_add_gg(value = ggplot.2017.perfils, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
+  body_add_par("", style = "Normal") # blank paragraph
 
 ```
 
@@ -1198,15 +1234,15 @@ ggplot.2017.dec.majoria.edat <- ggplot(data=my_data7i, aes(x=Nacionalitat, y=n))
   geom_bar(stat="identity") +
   #scale_x_discrete(breaks = NULL) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
-  geom_text(aes(label=n), vjust=1.6, color="white", size=6.5) +
+  geom_text(aes(label=n), vjust=1.6, color="white", size=4.5) +
   labs(x="Nacionalitat dels menors amb majoria d'edat decretada", y="N") + 
-  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
-        axis.text.y = element_text(size=14),
-        axis.title.x = element_text(size=14),
-        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=12),
+        axis.text.y = element_text(size=12),
+        axis.title.x = element_text(size=12),
+        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=12),
         legend.position = "none",
-        legend.title = element_text(size=16),
-        legend.text = element_text(size=14)
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=10)
         )
 
 ggsave("2017.barchart.dec.majoria.edat.png",
@@ -1220,7 +1256,9 @@ ggplot.2017.dec.majoria.edat
     # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.dec.majoria.edat.png"), width = 6, height = 3, style = "centered")
+#  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.dec.majoria.edat.png"), width = 6, height = 3, style = "centered")
+  body_add_gg(value = ggplot.2017.dec.majoria.edat, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
+  body_add_par("", style = "Normal") # blank paragraph
 
 
 ```
@@ -1314,11 +1352,18 @@ sankey.2017.sa.plot <- sankeyNetwork(Links = links,
               fontSize= 24,
               nodeWidth = 30)
 
-saveWidget(sankey.2017.sa.plot, file=file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"), selfcontained=TRUE) 
+crear.html.sankey.2017.sa.plot <- F
+if (crear.html.sankey.2017.sa.plot == TRUE) {
+  saveWidget(sankey.2017.sa.plot, file=file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"), selfcontained=TRUE) 
+}
 webshot(file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"),
         file=file.path(getwd(), imgpath, "2017.sankey.sa.p.png"),
         delay=0.5, selector="#htmlwidget_container")
-sankey.2017.sa.plot
+
+mostrar.html.sankey.2017.sa.plot <- T
+if (mostrar.html.sankey.2017.sa.plot == TRUE) {
+  sankey.2017.sa.plot
+}
 
 my_doc <- my_doc %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
@@ -1379,16 +1424,16 @@ my_data7j.saier <- my_data %>%
 # Basic barplot with ggplot
 ggplot.2017.n.mes.saier <- ggplot(data=my_data7j.saier, aes(x=MesDerivacioSAIER, y=n)) +
   geom_bar(stat="identity") +
-  geom_text(aes(label=n), vjust=-0.2, color="blue", size=6.5) +
+  geom_text(aes(label=n), vjust=-0.2, color="blue", size=4.5) +
   labs(x="Mes de Derivació del SAIER al CUESB", y="N") + 
   #scale_fill_discrete(name="Continents") + # Legend Title
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5, size=14),
-        axis.text.y = element_text(size=14),
-        axis.title.x = element_text(size=14),
-        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5, size=12),
+        axis.text.y = element_text(size=12),
+        axis.title.x = element_text(size=12),
+        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=12),
         legend.position = "none",
-        legend.title = element_text(size=16),
-        legend.text = element_text(size=14)
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=10)
         )
 
 ggsave("2017.barchart.n.mes.saier.png",
@@ -1405,7 +1450,8 @@ my_doc <- my_doc %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par(value = "Evolució mensual", style = "heading 2") %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.n.mes.saier.png"), width = 6, height = 3, style = "centered") %>% 
+#  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.n.mes.saier.png"), width = 6, height = 3, style = "centered") %>% 
+  body_add_gg(value = ggplot.2017.n.mes.saier, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
   body_add_par("", style = "Normal") %>% # blank paragraph
   body_add_par("Evolució mensual de les derivacions d'usuaris del SAIER al CUESB (abans de que el tornin a derivar del CUESB al SAIER un altre cop)", style = "Balloon Text")
   
