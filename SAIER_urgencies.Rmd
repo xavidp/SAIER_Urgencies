@@ -309,12 +309,15 @@ ggplot.2017.nacionalitat <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, col
 # Mostra-ho en pantalla també
 ggplot.2017.nacionalitat
 
-# Grava a disc per si un cas també
-ggsave("2017.barchart.nacionality.png",
+crear.png.ggplot.2017.nacionalitat <- F
+if (crear.png.ggplot.2017.nacionalitat == TRUE) {
+  # Grava a disc per si un cas també
+  ggsave("2017.barchart.nacionality.png",
        plot = ggplot.2017.nacionalitat,
        width = 30, height = 10, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
+}
 
   # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
@@ -362,7 +365,7 @@ if (crear.html.ggplotly.2017.nacionalitat == TRUE) {
   htmlwidgets::saveWidget(ggplotly.2017.nacionalitat, file=file.path(getwd(), htmlpath, "2017.ggplotly.nacionalitat.html"), selfcontained=TRUE) 
 }
 
-mostrar.html.ggplotly.2017.nacionalitat <- T
+mostrar.html.ggplotly.2017.nacionalitat <- F
 if (mostrar.html.ggplotly.2017.nacionalitat == TRUE) {
   ggplotly.2017.nacionalitat
 }
@@ -448,7 +451,7 @@ if (crear.html.p2017.nacio.i == TRUE) {
   htmlwidgets::saveWidget(p2017.nacio.i, file=file.path(getwd(), htmlpath, "2017.d2tree2.nacionalitat.html"), selfcontained=TRUE) 
 }
 
-mostrar.p2017.nacio.i <- T
+mostrar.p2017.nacio.i <- F
 if (mostrar.p2017.nacio.i == TRUE) {
   p2017.nacio.i
 }
@@ -499,14 +502,20 @@ ggplot.2017.n.mes <- ggplot(data=my_data7d, aes(x=MesDerivacioSAIER, y=n)) +
         legend.text = element_text(size=14)
         )
 
-ggsave("2017.barchart.n.mes.png",
+crear.png.ggplot.2017.barchart.n.mes <- F
+if (crear.png.ggplot.2017.barchart.n.mes == TRUE) {
+  ggsave("2017.barchart.n.mes.png",
        plot = ggplot.2017.n.mes,
        width = 15, height = 8, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
-# Mostra-ho en pantalla també
-ggplot.2017.n.mes
+}
 
+mostrar.html.ggplot.2017.n.mes <- F
+if (mostrar.html.ggplot.2017.n.mes == TRUE) {
+  # Mostra-ho en pantalla també
+  ggplot.2017.n.mes
+}
 
 # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
@@ -736,13 +745,20 @@ ggplot.2017.nacio.menors <- ggplot(data=my_data7e, aes(x=Nacionalitat, color=Con
         legend.text = element_text(size=10)
         )
 
-ggsave("2017.barchart.nacio.menors.png",
+crear.png.ggplot.2017.nacio.menors <- F
+if (crear.png.ggplot.2017.nacio.menors == TRUE) {
+  ggsave("2017.barchart.nacio.menors.png",
        plot = ggplot.2017.nacio.menors,
        width = 15, height = 8, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
-# Mostra-ho en pantalla també
-ggplot.2017.nacio.menors
+}
+
+mostrar.html.ggplot.2017.nacio.menors <- F
+if (mostrar.html.ggplot.2017.nacio.menors == TRUE) {
+  # Mostra-ho en pantalla també
+  ggplot.2017.nacio.menors
+}
 
     # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
@@ -819,7 +835,7 @@ my_doc <- my_doc %>%
         file=file.path(getwd(), imgpath, "2017.leaflet.gender.png"),
         delay=0.5, selector="#htmlwidget_container")
   
-  mostrar.html.leaflet.2017.gender <- T
+  mostrar.html.leaflet.2017.gender <- F
   if (mostrar.html.leaflet.2017.gender == TRUE) {
     leaflet.2017.gender
   }
@@ -927,13 +943,20 @@ ggplot.2017.sa <- ggplot(data=my_data7f, aes(x=SituacioAdministrativa, y=n)) +
         legend.text = element_text(size=10)
         )
 
-ggsave("2017.barchart.sa.png",
+crear.png.ggplot.2017.sa <- F
+if (crear.png.ggplot.2017.sa == TRUE) {
+  ggsave("2017.barchart.sa.png",
        plot = ggplot.2017.sa,
        width = 15, height = 8, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
-# Mostra-ho en pantalla també
-ggplot.2017.sa
+}
+
+mostrar.ggplot.2017.sa <- F
+if (mostrar.ggplot.2017.sa == TRUE) {
+  # Mostra-ho en pantalla també
+  ggplot.2017.sa
+}
 
     # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
@@ -982,7 +1005,7 @@ webshot(file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.t.html"),
 #        delay=0.5, selector=".pvtUi") # to get both the heatmap table and buttons of variables in rows and columns surrounding it
         delay=0.5, selector=".pvtRendererArea") # to get only the heatmap table with results
 
-mostrar.html.pt.2017.SA.t <- T
+mostrar.html.pt.2017.SA.t <- F
 if (mostrar.html.pt.2017.SA.t == TRUE) {
   pt.2017.SA.t
 }
@@ -1106,13 +1129,20 @@ ggplot.2017.pais.tramit.ue <- ggplot(data=my_data7g, aes(x=PaisTramitSituacioAdm
         legend.text = element_text(size=10)
         )
 
-ggsave("2017.barchart.pais.tramit.ue.png",
+crear.png.ggplot.2017.pais.tramit.ue <- F
+if (crear.png.ggplot.2017.pais.tramit.ue == TRUE) {
+  ggsave("2017.barchart.pais.tramit.ue.png",
        plot = ggplot.2017.pais.tramit.ue,
        width = 15, height = 8, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
-# Mostra-ho en pantalla també
-ggplot.2017.pais.tramit.ue
+}
+
+mostrar.png.ggplot.2017.pais.tramit.ue <- F
+if (mostrar.png.ggplot.2017.pais.tramit.ue == TRUE) {
+  # Mostra-ho en pantalla també
+  ggplot.2017.pais.tramit.ue
+}
 
    # Afegir contingut a l'informe en Word
  my_doc <- my_doc %>% 
@@ -1178,13 +1208,20 @@ ggplot.2017.perfils <- ggplot(data=my_data7h, aes(x=Perfil, y=n)) +
         legend.text = element_text(size=14)
         )
 
-ggsave("2017.barchart.perfils.png",
+crear.png.ggplot.2017.perfils <- F
+if (crear.png.ggplot.2017.perfils == TRUE) {
+  ggsave("2017.barchart.perfils.png",
        plot = ggplot.2017.perfils,
        width = 15, height = 8, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
-# Mostra-ho en pantalla també
-ggplot.2017.perfils
+}
+
+mostrar.ggplot.2017.perfils <- F
+if (mostrar.ggplot.2017.perfils == TRUE) {
+  # Mostra-ho en pantalla també
+  ggplot.2017.perfils
+}
 
     # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
@@ -1245,14 +1282,20 @@ ggplot.2017.dec.majoria.edat <- ggplot(data=my_data7i, aes(x=Nacionalitat, y=n))
         legend.text = element_text(size=10)
         )
 
-ggsave("2017.barchart.dec.majoria.edat.png",
+crear.png.ggplot.2017.dec.majoria.edat <- F
+if (crear.png.ggplot.2017.dec.majoria.edat == TRUE) {
+  ggsave("2017.barchart.dec.majoria.edat.png",
        plot = ggplot.2017.dec.majoria.edat,
        width = 15, height = 8, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
-# Mostra-ho en pantalla també
-ggplot.2017.dec.majoria.edat
+}
 
+mostrar.ggplot.2017.dec.majoria.edat <- F
+if (mostrar.ggplot.2017.dec.majoria.edat == TRUE) {
+  # Mostra-ho en pantalla també
+  ggplot.2017.dec.majoria.edat
+}
     # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
   body_add_par("", style = "Normal") %>% # blank paragraph
@@ -1360,7 +1403,7 @@ webshot(file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"),
         file=file.path(getwd(), imgpath, "2017.sankey.sa.p.png"),
         delay=0.5, selector="#htmlwidget_container")
 
-mostrar.html.sankey.2017.sa.plot <- T
+mostrar.html.sankey.2017.sa.plot <- F
 if (mostrar.html.sankey.2017.sa.plot == TRUE) {
   sankey.2017.sa.plot
 }
@@ -1436,13 +1479,20 @@ ggplot.2017.n.mes.saier <- ggplot(data=my_data7j.saier, aes(x=MesDerivacioSAIER,
         legend.text = element_text(size=10)
         )
 
-ggsave("2017.barchart.n.mes.saier.png",
+crear.png.ggplot.2017.n.mes.saier <- F
+if (crear.png.ggplot.2017.n.mes.saier == TRUE) {
+  ggsave("2017.barchart.n.mes.saier.png",
        plot = ggplot.2017.n.mes.saier,
        width = 15, height = 8, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
-# Mostra-ho en pantalla també
-ggplot.2017.n.mes.saier
+}
+
+mostrar.ggplot.2017.n.mes.saier <- F
+if (mostrar.ggplot.2017.n.mes.saier == TRUE) {
+  # Mostra-ho en pantalla també
+  ggplot.2017.n.mes.saier
+}
 
 # Afegir contingut a l'informe en Word
 my_doc <- my_doc %>% 
