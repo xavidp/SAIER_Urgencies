@@ -8,6 +8,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# Set overall timer to zero
+start_all <- Sys.time()
 ```
 
 ## Urgències SAIER 2017
@@ -109,6 +111,46 @@ htmlpath      <- "Html"; dir.create(htmlpath, recursive = TRUE, showWarnings = F
 imgpath       <- "Grafics"; dir.create(imgpath, recursive = TRUE, showWarnings = FALSE)
 templatepath  <- "Plantilles"; dir.create(templatepath, recursive = TRUE, showWarnings = FALSE)
 docpath       <- "Informes"; dir.create(docpath, recursive = TRUE, showWarnings = FALSE)
+logspath      <- "Logs"; dir.create(logspath, recursive = TRUE, showWarnings = FALSE)
+
+# WorkFlow control
+# ----------------
+# Paràmetres per a controlar quines parts del codi s'executen en cada run.
+#
+runParam <- T
+
+crear.html.leaflet.2017.agegroups <- runParam
+crear.html.ggplotly.2017.nacionalitat <- runParam
+crear.html.p2017.nacio.i <- runParam
+crear.html.leaflet.2017.gender <- runParam
+crear.html.pt.2017.SA.t <- runParam
+crear.html.dt.2017.sa.month <- runParam
+crear.html.sankey.2017.sa.plot <- runParam
+
+runParam <- T
+
+crear.png.ggplot.2017.nacionalitat <- runParam
+crear.png.ggplot.2017.barchart.n.mes <- runParam
+crear.png.ggplot.2017.nacio.menors <- runParam
+crear.png.ggplot.2017.sa <- runParam
+crear.png.ggplot.2017.pais.tramit.ue <- runParam
+crear.png.ggplot.2017.perfils <- runParam
+crear.png.ggplot.2017.dec.majoria.edat <- runParam
+crear.png.ggplot.2017.n.mes.saier <- runParam
+
+runParam <- F
+
+mostrar.p2017.nacio.i <- runParam
+mostrar.html.ggplot.2017.n.mes <- runParam
+mostrar.html.ggplot.2017.nacio.menors <- runParam
+mostrar.html.leaflet.2017.gender <- runParam
+mostrar.ggplot.2017.sa <- runParam
+mostrar.html.pt.2017.SA.t <- runParam
+mostrar.png.ggplot.2017.pais.tramit.ue <- runParam
+mostrar.ggplot.2017.perfils <- runParam
+mostrar.ggplot.2017.dec.majoria.edat <- runParam
+mostrar.html.sankey.2017.sa.plot <- runParam
+mostrar.ggplot.2017.n.mes.saier <- runParam
 
 ```
 
@@ -309,7 +351,6 @@ ggplot.2017.nacionalitat <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, col
 # Mostra-ho en pantalla també
 ggplot.2017.nacionalitat
 
-crear.png.ggplot.2017.nacionalitat <- F
 if (crear.png.ggplot.2017.nacionalitat == TRUE) {
   # Grava a disc per si un cas també
   ggsave("2017.barchart.nacionality.png",
@@ -325,8 +366,7 @@ my_doc <- my_doc %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
 #  body_add_img(src=file.path(getwd(),imgpath,"2017.barchart.nacionality.png"),width=6,height=3,style="centered") %>% # Afegit via png de disc
 #  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_gg(value = ggplot.2017.nacionalitat, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
-  body_add_par("", style = "Normal") # blank paragraph
+  body_add_gg(value = ggplot.2017.nacionalitat, style = "centered")   # afegit via objecte ggplot directament (queda millor i no distorsionat!)
 
 
 # # Faceting also --------------------------------------
@@ -360,7 +400,6 @@ my_doc <- my_doc %>%
 # Convertir a versió plotly del gràfic de ggplot
 ggplotly.2017.nacionalitat <- ggplotly(p = ggplot.2017.nacionalitat)
 
-crear.html.ggplotly.2017.nacionalitat <- F
 if (crear.html.ggplotly.2017.nacionalitat == TRUE) {
   htmlwidgets::saveWidget(ggplotly.2017.nacionalitat, file=file.path(getwd(), htmlpath, "2017.ggplotly.nacionalitat.html"), selfcontained=TRUE) 
 }
@@ -446,12 +485,10 @@ my_doc <- my_doc %>%
 ```{r Derivacions CUESB -> SAIER 2017: Nacionalitats Interactive Chart 2017}
 p2017.nacio.i=d3tree2( p2017.nacio ,  rootname = "Nacionalitats d'Usuaris Derivats del CUESB al SAIER 2017" )
 
-crear.html.p2017.nacio.i <- F
 if (crear.html.p2017.nacio.i == TRUE) {
   htmlwidgets::saveWidget(p2017.nacio.i, file=file.path(getwd(), htmlpath, "2017.d2tree2.nacionalitat.html"), selfcontained=TRUE) 
 }
 
-mostrar.p2017.nacio.i <- F
 if (mostrar.p2017.nacio.i == TRUE) {
   p2017.nacio.i
 }
@@ -502,7 +539,6 @@ ggplot.2017.n.mes <- ggplot(data=my_data7d, aes(x=MesDerivacioSAIER, y=n)) +
         legend.text = element_text(size=14)
         )
 
-crear.png.ggplot.2017.barchart.n.mes <- F
 if (crear.png.ggplot.2017.barchart.n.mes == TRUE) {
   ggsave("2017.barchart.n.mes.png",
        plot = ggplot.2017.n.mes,
@@ -511,7 +547,6 @@ if (crear.png.ggplot.2017.barchart.n.mes == TRUE) {
        )
 }
 
-mostrar.html.ggplot.2017.n.mes <- F
 if (mostrar.html.ggplot.2017.n.mes == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.n.mes
@@ -632,7 +667,9 @@ my_doc <- my_doc %>%
   body_add_par("", style = "Normal") %>% # blank paragraph
 #  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 6, height = 3, style = "centered") %>% 
   body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize_2000px.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_par("", style = "Normal") # blank paragraph
+  body_add_par("", style = "Normal") %>% # blank paragraph
+  body_add_par("Nombre d´individus a cada nucli familiar", style = "Balloon Text")
+
 
   
 ```
@@ -679,7 +716,6 @@ my_doc <- my_doc %>%
       legendPosition = "topright"
     )
 
-    crear.html.leaflet.2017.agegroups <- F
     if (crear.html.leaflet.2017.agegroups == TRUE) {
       saveWidget(leaflet.2017.agegroups, file=file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"), selfcontained=TRUE) 
     }
@@ -745,7 +781,6 @@ ggplot.2017.nacio.menors <- ggplot(data=my_data7e, aes(x=Nacionalitat, color=Con
         legend.text = element_text(size=10)
         )
 
-crear.png.ggplot.2017.nacio.menors <- F
 if (crear.png.ggplot.2017.nacio.menors == TRUE) {
   ggsave("2017.barchart.nacio.menors.png",
        plot = ggplot.2017.nacio.menors,
@@ -754,7 +789,6 @@ if (crear.png.ggplot.2017.nacio.menors == TRUE) {
        )
 }
 
-mostrar.html.ggplot.2017.nacio.menors <- F
 if (mostrar.html.ggplot.2017.nacio.menors == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.nacio.menors
@@ -827,7 +861,6 @@ my_doc <- my_doc %>%
 #    opacity = 1
   )
   
-  crear.html.leaflet.2017.gender <- F
   if (crear.html.leaflet.2017.gender == TRUE) {
     saveWidget(leaflet.2017.gender, file=file.path(getwd(), htmlpath, "2017.leaflet.gender.html"), selfcontained=TRUE) 
   }
@@ -835,7 +868,6 @@ my_doc <- my_doc %>%
         file=file.path(getwd(), imgpath, "2017.leaflet.gender.png"),
         delay=0.5, selector="#htmlwidget_container")
   
-  mostrar.html.leaflet.2017.gender <- F
   if (mostrar.html.leaflet.2017.gender == TRUE) {
     leaflet.2017.gender
   }
@@ -934,16 +966,15 @@ ggplot.2017.sa <- ggplot(data=my_data7f, aes(x=SituacioAdministrativa, y=n)) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   geom_text(aes(label=n), vjust=-0.2, color="blue", size=4.5) +
   labs(x="Situació Administrativa", y="N") + 
-  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=10),
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=8),
         axis.text.y = element_text(size=12),
-        axis.title.x = element_text(size=12),
+        axis.title.x = element_text(size=10),
         axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=12),
         legend.position = "top",
         legend.title = element_text(size=12),
         legend.text = element_text(size=10)
         )
 
-crear.png.ggplot.2017.sa <- F
 if (crear.png.ggplot.2017.sa == TRUE) {
   ggsave("2017.barchart.sa.png",
        plot = ggplot.2017.sa,
@@ -952,7 +983,6 @@ if (crear.png.ggplot.2017.sa == TRUE) {
        )
 }
 
-mostrar.ggplot.2017.sa <- F
 if (mostrar.ggplot.2017.sa == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.sa
@@ -996,7 +1026,6 @@ pt.2017.SA.t <- rpivotTable(
   )
 frameWidget(pt.2017.SA.t)
 
-crear.html.pt.2017.SA.t <- F
 if (crear.html.pt.2017.SA.t == TRUE) {
   saveWidget(pt.2017.SA.t, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.t.html"), selfcontained=TRUE) 
 }
@@ -1005,7 +1034,6 @@ webshot(file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.t.html"),
 #        delay=0.5, selector=".pvtUi") # to get both the heatmap table and buttons of variables in rows and columns surrounding it
         delay=0.5, selector=".pvtRendererArea") # to get only the heatmap table with results
 
-mostrar.html.pt.2017.SA.t <- F
 if (mostrar.html.pt.2017.SA.t == TRUE) {
   pt.2017.SA.t
 }
@@ -1056,8 +1084,6 @@ if (mostrar.html.pt.2017.SA.t == TRUE) {
                               options = list(pageLength = 15, 
                                              dom = 't'))  # dom=t is for removing the search (filter) box
  
- 
-crear.html.dt.2017.sa.month <- F
 if (crear.html.dt.2017.sa.month == TRUE) {
  #Save html with table to disk
  htmlwidgets::saveWidget(my_data7d.dt, file=file.path(getwd(), htmlpath, "2017.formatdatatable.sa.month.html"), selfcontained=TRUE) 
@@ -1129,7 +1155,6 @@ ggplot.2017.pais.tramit.ue <- ggplot(data=my_data7g, aes(x=PaisTramitSituacioAdm
         legend.text = element_text(size=10)
         )
 
-crear.png.ggplot.2017.pais.tramit.ue <- F
 if (crear.png.ggplot.2017.pais.tramit.ue == TRUE) {
   ggsave("2017.barchart.pais.tramit.ue.png",
        plot = ggplot.2017.pais.tramit.ue,
@@ -1138,7 +1163,6 @@ if (crear.png.ggplot.2017.pais.tramit.ue == TRUE) {
        )
 }
 
-mostrar.png.ggplot.2017.pais.tramit.ue <- F
 if (mostrar.png.ggplot.2017.pais.tramit.ue == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.pais.tramit.ue
@@ -1197,18 +1221,17 @@ ggplot.2017.perfils <- ggplot(data=my_data7h, aes(x=Perfil, y=n)) +
   geom_bar(stat="identity") +
   #scale_x_discrete(breaks = NULL) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
-  geom_text(aes(label=n), vjust=-0.1, color="blue", size=5.5) +
+  geom_text(aes(label=n), vjust=-0.1, color="blue", size=4.5) +
   labs(x="Perfils", y="N") + 
-  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=12),
-        axis.text.y = element_text(size=14),
-        axis.title.x = element_text(size=14),
-        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=14),
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=10),
+        axis.text.y = element_text(size=10),
+        axis.title.x = element_text(size=10),
+        axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=10),
         legend.position = "top",
-        legend.title = element_text(size=16),
-        legend.text = element_text(size=14)
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=10)
         )
 
-crear.png.ggplot.2017.perfils <- F
 if (crear.png.ggplot.2017.perfils == TRUE) {
   ggsave("2017.barchart.perfils.png",
        plot = ggplot.2017.perfils,
@@ -1217,7 +1240,6 @@ if (crear.png.ggplot.2017.perfils == TRUE) {
        )
 }
 
-mostrar.ggplot.2017.perfils <- F
 if (mostrar.ggplot.2017.perfils == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.perfils
@@ -1273,16 +1295,15 @@ ggplot.2017.dec.majoria.edat <- ggplot(data=my_data7i, aes(x=Nacionalitat, y=n))
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   geom_text(aes(label=n), vjust=1.6, color="white", size=4.5) +
   labs(x="Nacionalitat dels menors amb majoria d'edat decretada", y="N") + 
-  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=12),
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=10),
         axis.text.y = element_text(size=12),
-        axis.title.x = element_text(size=12),
+        axis.title.x = element_text(size=10),
         axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=12),
         legend.position = "none",
         legend.title = element_text(size=12),
         legend.text = element_text(size=10)
         )
 
-crear.png.ggplot.2017.dec.majoria.edat <- F
 if (crear.png.ggplot.2017.dec.majoria.edat == TRUE) {
   ggsave("2017.barchart.dec.majoria.edat.png",
        plot = ggplot.2017.dec.majoria.edat,
@@ -1291,7 +1312,6 @@ if (crear.png.ggplot.2017.dec.majoria.edat == TRUE) {
        )
 }
 
-mostrar.ggplot.2017.dec.majoria.edat <- F
 if (mostrar.ggplot.2017.dec.majoria.edat == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.dec.majoria.edat
@@ -1395,7 +1415,6 @@ sankey.2017.sa.plot <- sankeyNetwork(Links = links,
               fontSize= 24,
               nodeWidth = 30)
 
-crear.html.sankey.2017.sa.plot <- F
 if (crear.html.sankey.2017.sa.plot == TRUE) {
   saveWidget(sankey.2017.sa.plot, file=file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"), selfcontained=TRUE) 
 }
@@ -1403,7 +1422,6 @@ webshot(file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"),
         file=file.path(getwd(), imgpath, "2017.sankey.sa.p.png"),
         delay=0.5, selector="#htmlwidget_container")
 
-mostrar.html.sankey.2017.sa.plot <- F
 if (mostrar.html.sankey.2017.sa.plot == TRUE) {
   sankey.2017.sa.plot
 }
@@ -1479,7 +1497,6 @@ ggplot.2017.n.mes.saier <- ggplot(data=my_data7j.saier, aes(x=MesDerivacioSAIER,
         legend.text = element_text(size=10)
         )
 
-crear.png.ggplot.2017.n.mes.saier <- F
 if (crear.png.ggplot.2017.n.mes.saier == TRUE) {
   ggsave("2017.barchart.n.mes.saier.png",
        plot = ggplot.2017.n.mes.saier,
@@ -1488,7 +1505,6 @@ if (crear.png.ggplot.2017.n.mes.saier == TRUE) {
        )
 }
 
-mostrar.ggplot.2017.n.mes.saier <- F
 if (mostrar.ggplot.2017.n.mes.saier == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.n.mes.saier
@@ -1575,3 +1591,24 @@ sessionInfo()
 stopCluster(cl) # shut down the cluster
 
 ```
+
+```{r Store session info (package versions, etc) in the logs folder}
+###################################################
+# Store session info (package versions, etc) in the logs folder
+###################################################
+sink(file.path(logspath, paste0("log_", format(Sys.Date(), format="%y%m%d"), ".txt")))
+cat("Sys.info() : \n")
+cat("--------------------\n")
+data.frame(Sys.info())
+cat("\n\nsessionInfo() : \n")
+cat("--------------------\n")
+sessionInfo()
+cat("--------------------\n")
+# Show overall duration of the run
+duration_all <- Sys.time()-start_all;
+duration_all_msg <- paste(duration_all, attr(duration_all, "units"), sep=" ");
+cat(paste0("\nDurantion of the whole run: ", duration_all_msg));
+
+sink()
+```
+
