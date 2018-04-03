@@ -117,8 +117,9 @@ logspath      <- "Logs"; dir.create(logspath, recursive = TRUE, showWarnings = F
 # ----------------
 # Paràmetres per a controlar quines parts del codi s'executen en cada run.
 #
-runParam <- T
+runParam <- F
 
+# Crear addicionalment arxius html parcials amb gràfics interactius (opcional)
 crear.html.leaflet.2017.agegroups <- runParam
 crear.html.ggplotly.2017.nacionalitat <- runParam
 crear.html.p2017.nacio.i <- F # runParam
@@ -127,8 +128,9 @@ crear.html.pt.2017.SA.t <- runParam
 crear.html.dt.2017.sa.month <- runParam
 crear.html.sankey.2017.sa.plot <- runParam
 
-runParam <- T
+runParam <- F
 
+# Crear addicionalment arxius png en disc amb gràfics per separat (opcional)
 crear.png.ggplot.2017.nacionalitat <- runParam
 crear.png.ggplot.2017.barchart.n.mes <- runParam
 crear.png.ggplot.2017.nacio.menors <- runParam
@@ -140,6 +142,7 @@ crear.png.ggplot.2017.n.mes.saier <- runParam
 
 runParam <- F
 
+# Mostrar gràfics per pantalla addicionalment (opcional)
 mostrar.p2017.nacio.i <- runParam
 mostrar.html.ggplot.2017.n.mes <- runParam
 mostrar.html.ggplot.2017.nacio.menors <- runParam
@@ -151,6 +154,11 @@ mostrar.ggplot.2017.perfils <- runParam
 mostrar.ggplot.2017.dec.majoria.edat <- runParam
 mostrar.html.sankey.2017.sa.plot <- runParam
 mostrar.ggplot.2017.n.mes.saier <- runParam
+
+runParam <- T
+
+# Crear informe en arxiu de Microsoft Word (.docx) en disc
+crear.informe.word <- runParam
 
 ```
 
@@ -176,19 +184,22 @@ registerDoParallel(cl) # register the cluster
 
 
 ```{r Inici informe en word}
-require(officer)
-require(magrittr)
-
-my_doc <- read_docx(path=file.path(getwd(), templatepath, "2017.Word_AAI_template_v03.docx") )
-#my_doc <- read_docx()
-# styles_info(my_doc)
-
-my_doc <- my_doc %>% 
-  body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "Title") %>% 
-  body_add_par(value = "Índex:", style = "Normal") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_toc(level = 3) 
-
+if (crear.informe.word == TRUE) {
+  
+  require(officer)
+  require(magrittr)
+  
+  my_doc <- read_docx(path=file.path(getwd(), templatepath, "2017.Word_AAI_template_v03.docx") )
+  #my_doc <- read_docx()
+  # styles_info(my_doc)
+  
+  my_doc <- my_doc %>% 
+    body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "Title") %>% 
+    body_add_par(value = "Índex:", style = "Normal") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_toc(level = 3) 
+  
+}
 
 ```
 
@@ -272,16 +283,19 @@ my_data7a.top10 <- rbind(my_data7a.top10,
       c("*** TOTALS ***", margin.table(as.matrix(my_data7a$n), 2))
 )
 
-
-# Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Nacionalitats per continents", style = "heading 1") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Nacionalitats més freqüents", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_table(my_data7a.top10, style = "table_template") %>%
-  body_add_par(value = "10 Nacionalitats més freqüents en 2017", style = "table title")
+if (crear.informe.word == TRUE) {
+  
+  # Afegir contingut a l'informe en Word
+  my_doc <- my_doc %>% 
+    body_add_break() %>% 
+    body_add_par(value = "Nacionalitats per continents", style = "heading 1") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_par(value = "Nacionalitats més freqüents", style = "heading 2") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_table(my_data7a.top10, style = "table_template") %>%
+    body_add_par(value = "10 Nacionalitats més freqüents en 2017", style = "table title")
+  
+}
 
 ```
 
@@ -337,7 +351,7 @@ ggplot.2017.nacionalitat <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, col
   geom_bar(stat="identity") +
 #  geom_text(aes(label=n), vjust=1.6, color="white", size=6.5) +
   geom_text(aes(label=n), vjust=-0.2, color="blue", size=2.5) +
-  labs(x="Nacionality", y="N") + 
+  labs(x="Nacionalitat", y="N") + 
   #scale_fill_discrete(name="Continents") + # Legend Title
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5, size=8),
         axis.text.y = element_text(size=8),
@@ -360,14 +374,17 @@ if (crear.png.ggplot.2017.nacionalitat == TRUE) {
        )
 }
 
+if (crear.informe.word == TRUE) {
+  
   # Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_par(value = "Totals i per països", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-#  body_add_img(src=file.path(getwd(),imgpath,"2017.barchart.nacionality.png"),width=6,height=3,style="centered") %>% # Afegit via png de disc
-#  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_gg(value = ggplot.2017.nacionalitat, style = "centered")   # afegit via objecte ggplot directament (queda millor i no distorsionat!)
-
+  my_doc <- my_doc %>% 
+    body_add_par(value = "Totals i per països", style = "heading 2") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    #  body_add_img(src=file.path(getwd(),imgpath,"2017.barchart.nacionality.png"),width=6,height=3,style="centered") %>% # Afegit via png de disc
+    #  body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_gg(value = ggplot.2017.nacionalitat, style = "centered")   # afegit via objecte ggplot directament (queda millor i no distorsionat!)
+  
+}
 
 # # Faceting also --------------------------------------
 # ggplot.2017.nacionalitat.faceted <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, color=Continent, fill=Continent, y=n)) +
@@ -440,16 +457,18 @@ my_data7b <- my_data %>%
     )  
     dev.off()
     
-# Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Gràfic alternatiu", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Mida de l'àrea proporcional al nombre", style = "Balloon Text")
-
-  
+    if (crear.informe.word == TRUE) {
+      
+      # Afegir contingut a l'informe en Word
+      my_doc <- my_doc %>% 
+        body_add_break() %>% 
+        body_add_par(value = "Gràfic alternatiu", style = "heading 2") %>% 
+        body_add_par("", style = "Normal") %>% # blank paragraph
+        body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+        body_add_par("", style = "Normal") %>% # blank paragraph
+        body_add_par("Mida de l'àrea proporcional al nombre", style = "Balloon Text")
+      
+    }  
     
 ```
 
@@ -552,17 +571,20 @@ if (mostrar.html.ggplot.2017.n.mes == TRUE) {
   ggplot.2017.n.mes
 }
 
-# Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Evolució mensual", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-#  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.n.mes.png"), width = 6, height = 3, style = "centered") %>% 
-#  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_gg(value = ggplot.2017.n.mes, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Evolució mensual de les derivacions d'usuaris del CUESB al SAIER", style = "Balloon Text")
-
+if (crear.informe.word == TRUE) {
+  
+  # Afegir contingut a l'informe en Word
+  my_doc <- my_doc %>% 
+    body_add_break() %>% 
+    body_add_par(value = "Evolució mensual", style = "heading 2") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    #  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.n.mes.png"), width = 6, height = 3, style = "centered") %>% 
+    #  body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_gg(value = ggplot.2017.n.mes, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_par("Evolució mensual de les derivacions d'usuaris del CUESB al SAIER", style = "Balloon Text")
+  
+}
 
 ```
 
@@ -657,20 +679,23 @@ my_doc <- my_doc %>%
   # Re-scale image
   my_image_scaled <- image_scale(my_image_trimmed, "2000") # width to 2000px and height proportional to keep aspect ratio
   image_write(my_image_scaled, path = file.path(getwd(), imgpath, "2017.worldmap.familysize_2000px.png"))
-              
-  # Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Nuclis familiars", style = "heading 1") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "D'on són les famílies més nombroses o els individus sols?", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-#  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize_2000px.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Nombre d´individus a cada nucli familiar", style = "Balloon Text")
-
-
+           
+  if (crear.informe.word == TRUE) {
+    
+    # Afegir contingut a l'informe en Word
+    my_doc <- my_doc %>% 
+      body_add_break() %>% 
+      body_add_par(value = "Nuclis familiars", style = "heading 1") %>% 
+      body_add_par("", style = "Normal") %>% # blank paragraph
+      body_add_par(value = "D'on són les famílies més nombroses o els individus sols?", style = "heading 2") %>% 
+      body_add_par("", style = "Normal") %>% # blank paragraph
+      #  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 6, height = 3, style = "centered") %>% 
+      body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize_2000px.png"), width = 6, height = 3, style = "centered") %>% 
+      body_add_par("", style = "Normal") %>% # blank paragraph
+      body_add_par("Nombre d´individus a cada nucli familiar", style = "Balloon Text")
+    
+  }
+  
   
 ```
 
@@ -724,13 +749,17 @@ my_doc <- my_doc %>%
         file=file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"),
         delay=0.5, selector = "#htmlwidget_container")
 
-# Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_par(value = "Distribució d'adults i menors per països", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Verd fosc: Adult | Verd clar: Menor | Taronja: Desconegut", style = "Balloon Text")
+    if (crear.informe.word == TRUE) {
+      
+      # Afegir contingut a l'informe en Word
+      my_doc <- my_doc %>% 
+        body_add_par(value = "Distribució d'adults i menors per països", style = "heading 2") %>% 
+        body_add_par("", style = "Normal") %>% # blank paragraph
+        body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"), width = 6, height = 3, style = "centered") %>% 
+        body_add_par("", style = "Normal") %>% # blank paragraph
+        body_add_par("Verd fosc: Adult | Verd clar: Menor | Taronja: Desconegut", style = "Balloon Text")
+      
+    }
 
   # Pending-1
   # =======================================================
@@ -794,15 +823,19 @@ if (mostrar.html.ggplot.2017.nacio.menors == TRUE) {
   ggplot.2017.nacio.menors
 }
 
-    # Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Orígens dels menors", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-#  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacio.menors.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_gg(value = ggplot.2017.nacio.menors, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Nacionalitats dels menors en casos de derivacions d'usuaris del CUESB al SAIER", style = "Balloon Text")
+if (crear.informe.word == TRUE) {
+  
+  # Afegir contingut a l'informe en Word
+  my_doc <- my_doc %>% 
+    body_add_break() %>% 
+    body_add_par(value = "Orígens dels menors", style = "heading 2") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    #  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacio.menors.png"), width = 6, height = 3, style = "centered") %>% 
+    body_add_gg(value = ggplot.2017.nacio.menors, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_par("Nacionalitats dels menors en casos de derivacions d'usuaris del CUESB al SAIER", style = "Balloon Text")
+  
+}
 
 ```
 
@@ -872,14 +905,18 @@ my_doc <- my_doc %>%
     leaflet.2017.gender
   }
 
-  # Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Gènere", style = "heading 1") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.gender.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Blau: Homes; Rosa: Dones. Groc: Desconegut", style = "Balloon Text")
+  if (crear.informe.word == TRUE) {
+    
+    # Afegir contingut a l'informe en Word
+    my_doc <- my_doc %>% 
+      body_add_break() %>% 
+      body_add_par(value = "Gènere", style = "heading 1") %>% 
+      body_add_par("", style = "Normal") %>% # blank paragraph
+      body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.gender.png"), width = 6, height = 3, style = "centered") %>% 
+      body_add_par("", style = "Normal") %>% # blank paragraph
+      body_add_par("Blau: Homes; Rosa: Dones. Groc: Desconegut", style = "Balloon Text")
+    
+  }
   
 ```
 
@@ -902,15 +939,18 @@ my_data7f.t <- rbind(my_data7f,
       c("*** TOTALS ***", margin.table(as.matrix(my_data7f$n), 2))
 )
 
-# Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Situació Administrativa", style = "heading 1") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Resum", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_table(my_data7f.t, style = "table_template")
-
+if (crear.informe.word == TRUE) {
+  
+  # Afegir contingut a l'informe en Word
+  my_doc <- my_doc %>% 
+    body_add_break() %>% 
+    body_add_par(value = "Situació Administrativa", style = "heading 1") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_par(value = "Resum", style = "heading 2") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_table(my_data7f.t, style = "table_template")
+  
+}
 
 ```
 
@@ -988,12 +1028,16 @@ if (mostrar.ggplot.2017.sa == TRUE) {
   ggplot.2017.sa
 }
 
-    # Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-#  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.sa.png"), width = 6, height = 3, style = "centered")
-  body_add_gg(value = ggplot.2017.sa, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
-  body_add_par("", style = "Normal") # blank paragraph
+if (crear.informe.word == TRUE) {
+  
+  # Afegir contingut a l'informe en Word
+  my_doc <- my_doc %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    #  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.sa.png"), width = 6, height = 3, style = "centered")
+    body_add_gg(value = ggplot.2017.sa, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
+    body_add_par("", style = "Normal") # blank paragraph
+  
+}
 
 ```
 
@@ -1103,20 +1147,22 @@ if (crear.html.dt.2017.sa.month == TRUE) {
   # Save trimmed image again to disk
   image_write(my_image_trimmed, path = file.path(getwd(), imgpath, "2017.formatdatatable.sa.month.trimmed.png"))
 
-
-# Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Evolució mensual i Totals", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_table(my_data7d.t2, style = "table_template") %>%
-#  body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.formatdatatable.sa.month.trimmed.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_par("La intensitat del color vermell és proporcional a la suma de casos de cada tipus", style = "Balloon Text")
-
-
+  if (crear.informe.word == TRUE) {
+    
+    # Afegir contingut a l'informe en Word
+    my_doc <- my_doc %>% 
+      body_add_break() %>% 
+      body_add_par("", style = "Normal") %>% # blank paragraph
+      body_add_par(value = "Evolució mensual i Totals", style = "heading 2") %>% 
+      body_add_par("", style = "Normal") %>% # blank paragraph
+      body_add_table(my_data7d.t2, style = "table_template") %>%
+      #  body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"), width = 6, height = 3, style = "centered") %>% 
+      body_add_par("", style = "Normal") %>% # blank paragraph
+      body_add_img(src = file.path(getwd(), imgpath, "2017.formatdatatable.sa.month.trimmed.png"), width = 6, height = 3, style = "centered") %>% 
+      body_add_par("La intensitat del color vermell és proporcional a la suma de casos de cada tipus", style = "Balloon Text")
+    
+  }
+  
 ```
 
 
@@ -1168,13 +1214,17 @@ if (mostrar.png.ggplot.2017.pais.tramit.ue == TRUE) {
   ggplot.2017.pais.tramit.ue
 }
 
-   # Afegir contingut a l'informe en Word
- my_doc <- my_doc %>% 
-   body_add_par(value = "Denegats a un altre País Europeu", style = "heading 2") %>% 
-#   body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.pais.tramit.ue.png"), width = 6, height = 4, style = "centered") %>% 
-   body_add_gg(value = ggplot.2017.pais.tramit.ue, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
-   body_add_par("", style = "Normal")  # blank paragraph
+if (crear.informe.word == TRUE) {
   
+  # Afegir contingut a l'informe en Word
+  my_doc <- my_doc %>% 
+    body_add_par(value = "Denegats a un altre País Europeu", style = "heading 2") %>% 
+    #   body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.pais.tramit.ue.png"), width = 6, height = 4, style = "centered") %>% 
+    body_add_gg(value = ggplot.2017.pais.tramit.ue, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
+    body_add_par("", style = "Normal")  # blank paragraph
+  
+}
+
 ```
 
 ## Perfils
@@ -1195,15 +1245,18 @@ my_data7h.t <- rbind(my_data7h,
       c("*** TOTALS ***", margin.table(as.matrix(my_data7h$n), 2))
 )
 
-# Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Perfils", style = "heading 1") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Resum", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_table(my_data7h.t, style = "table_template")
-
+if (crear.informe.word == TRUE) {
+  
+  # Afegir contingut a l'informe en Word
+  my_doc <- my_doc %>% 
+    body_add_break() %>% 
+    body_add_par(value = "Perfils", style = "heading 1") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_par(value = "Resum", style = "heading 2") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_table(my_data7h.t, style = "table_template")
+  
+}
 
 ```
 
@@ -1223,7 +1276,7 @@ ggplot.2017.perfils <- ggplot(data=my_data7h, aes(x=Perfil, y=n)) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   geom_text(aes(label=n), vjust=-0.1, color="blue", size=4.5) +
   labs(x="Perfils", y="N") + 
-  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=10),
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=8),
         axis.text.y = element_text(size=10),
         axis.title.x = element_text(size=10),
         axis.title.y = element_text(angle = 0, hjust = 0.5, vjust=0.5, size=10),
@@ -1245,12 +1298,16 @@ if (mostrar.ggplot.2017.perfils == TRUE) {
   ggplot.2017.perfils
 }
 
-    # Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-#  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.perfils.png"), width = 6, height = 3, style = "centered")  
-  body_add_gg(value = ggplot.2017.perfils, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
-  body_add_par("", style = "Normal") # blank paragraph
+if (crear.informe.word == TRUE) {
+  
+  # Afegir contingut a l'informe en Word
+  my_doc <- my_doc %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    #  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.perfils.png"), width = 6, height = 3, style = "centered")  
+    body_add_gg(value = ggplot.2017.perfils, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
+    body_add_par("", style = "Normal") # blank paragraph
+  
+}
 
 ```
 
@@ -1271,16 +1328,18 @@ my_data7i.t <- rbind(my_data7i[-1],
       c("*** TOTALS ***", margin.table(as.matrix(my_data7i$n), 2))
 )
 
-# Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Decretada majoria d'edat", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_table(my_data7i.t, style = "table_template") %>%
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Nacionalitat dels menors amb majoria d'edat decretada o recent (Refugiat o Immigrant)", style = "Balloon Text")
-
-
+if (crear.informe.word == TRUE) {
+  
+  # Afegir contingut a l'informe en Word
+  my_doc <- my_doc %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_par(value = "Decretada majoria d'edat", style = "heading 2") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_table(my_data7i.t, style = "table_template") %>%
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_par("Nacionalitat dels menors amb majoria d'edat decretada o recent (Refugiat o Immigrant)", style = "Balloon Text")
+  
+}
 
 # ggplot2 chart
   # Gràfic de barres ara
@@ -1316,13 +1375,17 @@ if (mostrar.ggplot.2017.dec.majoria.edat == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.dec.majoria.edat
 }
-    # Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-#  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.dec.majoria.edat.png"), width = 6, height = 3, style = "centered")
-  body_add_gg(value = ggplot.2017.dec.majoria.edat, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
-  body_add_par("", style = "Normal") # blank paragraph
 
+if (crear.informe.word == TRUE) {
+  
+  # Afegir contingut a l'informe en Word
+  my_doc <- my_doc %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    #  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.dec.majoria.edat.png"), width = 6, height = 3, style = "centered")
+    body_add_gg(value = ggplot.2017.dec.majoria.edat, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
+    body_add_par("", style = "Normal") # blank paragraph
+  
+}
 
 ```
 
@@ -1426,13 +1489,17 @@ if (mostrar.html.sankey.2017.sa.plot == TRUE) {
   sankey.2017.sa.plot
 }
 
-my_doc <- my_doc %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Casos segons relació entre Situació Administrativa i Perfil", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_img(src = file.path(getwd(), imgpath, "2017.sankey.sa.p.png"), width = 6, height = 4, style = "centered") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("NO CONSTA: No es disposa de dades", style = "Balloon Text")
+if (crear.informe.word == TRUE) {
+  
+  my_doc <- my_doc %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_par(value = "Casos segons relació entre Situació Administrativa i Perfil", style = "heading 2") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_img(src = file.path(getwd(), imgpath, "2017.sankey.sa.p.png"), width = 6, height = 4, style = "centered") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_par("NO CONSTA: No es disposa de dades", style = "Balloon Text")
+  
+}
 
 ```
 ## Origen Derivació a CUESB
@@ -1453,15 +1520,18 @@ my_data7j.t <- rbind(my_data7j,
 )
 colnames(my_data7j.t) <- c("Orígens", "N")
 
-# Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Origen de les Derivacions al CUESB", style = "heading 1") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Resum", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_table(my_data7j.t, style = "table_template")
-
+if (crear.informe.word == TRUE) {
+  
+  # Afegir contingut a l'informe en Word
+  my_doc <- my_doc %>% 
+    body_add_break() %>% 
+    body_add_par(value = "Origen de les Derivacions al CUESB", style = "heading 1") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_par(value = "Resum", style = "heading 2") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_table(my_data7j.t, style = "table_template")
+  
+}
 
 
 ```
@@ -1510,17 +1580,20 @@ if (mostrar.ggplot.2017.n.mes.saier == TRUE) {
   ggplot.2017.n.mes.saier
 }
 
-# Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Evolució mensual", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-#  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.n.mes.saier.png"), width = 6, height = 3, style = "centered") %>% 
-  body_add_gg(value = ggplot.2017.n.mes.saier, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par("Evolució mensual de les derivacions d'usuaris del SAIER al CUESB (abans de que el tornin a derivar del CUESB al SAIER un altre cop)", style = "Balloon Text")
+if (crear.informe.word == TRUE) {
   
+  # Afegir contingut a l'informe en Word
+  my_doc <- my_doc %>% 
+    body_add_break() %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_par(value = "Evolució mensual", style = "heading 2") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    #  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.n.mes.saier.png"), width = 6, height = 3, style = "centered") %>% 
+    body_add_gg(value = ggplot.2017.n.mes.saier, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_par("Evolució mensual de les derivacions d'usuaris del SAIER al CUESB (abans de que el tornin a derivar del CUESB al SAIER un altre cop)", style = "Balloon Text")
+  
+}
 
 ```
 
@@ -1547,34 +1620,38 @@ my_data7k.t <- rbind(my_data7k,
 )
 colnames(my_data7k.t) <- c("Nombre de visites", "Casos")
 
-
+if (crear.informe.word == TRUE) {
+  
   # Afegir contingut a l'informe en Word
-my_doc <- my_doc %>% 
-  body_add_break() %>% 
-  body_add_par(value = "Recurrència", style = "heading 1") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_par(value = "Visites de la mateixa persona al CUESB", style = "heading 2") %>% 
-  body_add_par("", style = "Normal") %>% # blank paragraph
-  body_add_table(my_data7k.t, style = "table_template") %>%
-  body_add_par("Aquesta taula correspon només als informes de derivació en que consta el número d'expedient únic d'usuari.", style = "Balloon Text")
-
+  my_doc <- my_doc %>% 
+    body_add_break() %>% 
+    body_add_par(value = "Recurrència", style = "heading 1") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_par(value = "Visites de la mateixa persona al CUESB", style = "heading 2") %>% 
+    body_add_par("", style = "Normal") %>% # blank paragraph
+    body_add_table(my_data7k.t, style = "table_template") %>%
+    body_add_par("Aquesta taula correspon només als informes de derivació en que consta el número d'expedient únic d'usuari.", style = "Balloon Text")
+  
+}
 
 ```
 
 ## Escriure informe en Word
 
 ```{r esborrany informe en word}
-
-print(my_doc, target=file.path(getwd(),
-                               docpath,
-                               paste0("2017.Derivacions_CUESB_a_SAIER_v", 
-                                      format(Sys.Date(), 
-                                             format="%y%m%d"
-                                             ),
-                                      ".docx")
-                               )
-      )
-invisible()
+if (crear.informe.word == TRUE) {
+  
+  print(my_doc, target=file.path(getwd(),
+                                 docpath,
+                                 paste0("2017.Derivacions_CUESB_a_SAIER_v", 
+                                        format(Sys.Date(), 
+                                               format="%y%m%d"
+                                        ),
+                                        ".docx")
+                                 )
+  )
+  invisible()
+}
 
 ```
 
