@@ -1,13 +1,14 @@
 ---
 title: "SAIER Urgències"
-author: "Ajuntament de Barcelona - AAI"
-date: "Novembre de 2017 - Març 2018"
+author: "Ajuntament de Barcelona - AAI - Xavier de Pedro (xdepedro@bcn.cat)"
+date: "Novembre de 2017 - Abril 2018"
 output:
+  html_document: default
   html_notebook: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 # Set overall timer to zero
 start_all <- Sys.time()
 ```
@@ -16,7 +17,7 @@ start_all <- Sys.time()
 
 Resultats destacats a partir de les dades de derivacions del CUESB al SAIER.
 
-```{r paquets, echo=FALSE}
+```{r paquets, echo=TRUE}
 if (!require("checkpoint")) install.packages("checkpoint"); library(checkpoint)
 checkpoint("2018-03-16") # Keep R packages from this date for reproducibility
 # https://www.r-bloggers.com/updated-checkpoint-package-faster-reproducibility-with-more-feedback/
@@ -140,10 +141,10 @@ crear.png.ggplot.2017.perfils <- runParam
 crear.png.ggplot.2017.dec.majoria.edat <- runParam
 crear.png.ggplot.2017.n.mes.saier <- runParam
 
-runParam <- F
+runParam <- T
 
 # Mostrar gràfics per pantalla addicionalment (opcional)
-mostrar.p2017.nacio.i <- runParam
+mostrar.p2017.nacio.i <- F #runParam
 mostrar.html.ggplot.2017.n.mes <- runParam
 mostrar.html.ggplot.2017.nacio.menors <- runParam
 mostrar.html.leaflet.2017.gender <- runParam
@@ -155,7 +156,7 @@ mostrar.ggplot.2017.dec.majoria.edat <- runParam
 mostrar.html.sankey.2017.sa.plot <- runParam
 mostrar.ggplot.2017.n.mes.saier <- runParam
 
-runParam <- T
+runParam <- F
 
 # Crear informe en arxiu de Microsoft Word (.docx) en disc
 crear.informe.word <- runParam
@@ -203,7 +204,7 @@ if (crear.informe.word == TRUE) {
 
 ```
 
-```{r Lectura i pre-processat dades, echo=FALSE}
+```{r Lectura i pre-processat dades, echo=TRUE}
 # -----------
 # CUESB Data
 # -----------
@@ -270,7 +271,15 @@ head(my_data5b)
 
 ```{r Derivacions CUESB -> SAIER 2017}
 
-
+# Get the data selected
+my_data7a <- my_data %>% 
+  count(NacionalitatAngles,
+        Continent,
+        wt = NULL,
+        sort = FALSE) %>%
+  filter(!is.na(NacionalitatAngles)
+         )
+# Get the top10 also
     my_data7a.top10 <-  my_data %>% 
           count(Nacionalitat, 
                 wt = NULL, sort = TRUE) %>%
@@ -333,16 +342,6 @@ if (crear.informe.word == TRUE) {
 
 
 ```{r Derivacions ggplot2 chart}
-
-# Get the data selected
-my_data7a <- my_data %>% 
-  count(NacionalitatAngles,
-        Continent,
-        wt = NULL,
-        sort = FALSE) %>%
-  filter(!is.na(NacionalitatAngles)
-         )
-
 
 # ggplot with params suitable for displaying on screen and for  officer::body_add_gg
 # --------------------------------------------------------------
@@ -727,6 +726,15 @@ if (crear.informe.word == TRUE) {
   
   head(my_data6d)
   
+  # Get the basemap ready for the leaflet plot
+  library(leaflet.minicharts)
+  library(leaflet)
+  
+  tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+  
+  basemap <- leaflet(width = "100%", height = "400px") %>%
+    addTiles(tilesURL)
+  
   colors <- c("green", "lightgreen", "orange")
   
   leaflet.2017.agegroups <- basemap %>%
@@ -844,14 +852,6 @@ if (crear.informe.word == TRUE) {
 
 ```{r Gender of users}
   
-  library(leaflet.minicharts)
-  library(leaflet)
-  
-  tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-  
-  basemap <- leaflet(width = "100%", height = "400px") %>%
-    addTiles(tilesURL)
-  
   # -------------------------------------------------------------
   my_data5d <- count(my_data, NacionalitatAngles, HomeDona, wt = NULL, sort = FALSE)
   my_data5d <- tidyr::spread(my_data5d, HomeDona, n)
@@ -956,7 +956,7 @@ if (crear.informe.word == TRUE) {
 
 ### Gràfic de barres de Situacions Administratives
 
-```{r Gràfic de barres de Situacions Administratives, echo=FALSE}
+```{r Gràfic de barres de Situacions Administratives, echo=TRUE}
 
 # Gràfic de barres ara
 # ----------------------------------------
@@ -1043,7 +1043,7 @@ if (crear.informe.word == TRUE) {
 
 ### Evolució mensual i Totals
 
-```{r Evolució mensual i Totals, echo=FALSE}
+```{r Evolució mensual i Totals, echo=TRUE}
 
 
 my_data7d <- my_data %>% 
@@ -1169,7 +1169,7 @@ if (crear.html.dt.2017.sa.month == TRUE) {
 
 ### Denegats a un altre País Europeu
 
-```{r Denegats a un altre País Europeu, echo=FALSE}
+```{r Denegats a un altre País Europeu, echo=TRUE}
 
 # ggplot2 chart
 # Get the data selected
@@ -1262,7 +1262,7 @@ if (crear.informe.word == TRUE) {
 
 ### Gràfic de barres de Perfils
 
-```{r Gràfic de barres de Perfils, echo=FALSE}
+```{r Gràfic de barres de Perfils, echo=TRUE}
 
 # Gràfic de barres ara
 # ----------------------------------------
