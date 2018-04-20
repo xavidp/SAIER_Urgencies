@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = FALSE)
 start_all <- Sys.time()
 ```
 
-## Urgències SAIER 2017
+## Urgències SAIER 
 
 Resultats destacats a partir de les dades de derivacions del CUESB al SAIER.
 
@@ -198,7 +198,7 @@ if (crear.informe.word == TRUE) {
   # styles_info(my_doc)
   
   my_doc <- my_doc %>% 
-    body_add_par(value = "Derivacions del CUESB al SAIER (2017)", style = "Title") %>% 
+    body_add_par(value = paste0("Derivacions del CUESB al SAIER (", anydades, ")"), style = "Title") %>% 
     body_add_par(value = "Índex:", style = "Normal") %>% 
     body_add_par("", style = "Normal") %>% # blank paragraph
     body_add_toc(level = 3) 
@@ -711,7 +711,14 @@ if (crear.informe.word == TRUE) {
   # -------------------------------------------------------------
   my_data6 <- count(my_data, NacionalitatAngles, GrupEdat, wt = NULL, sort = FALSE)
   my_data6b <- tidyr::spread(my_data6, GrupEdat, n)
-  colnames(my_data6b)[4] <- "desconegut"
+  if (length(my_data6b) > 3) {
+    colnames(my_data6b)[4] <- "desconegut"
+  } else {
+    desconegut <- rep(NA, length(my_data6b$NacionalitatAngles))
+    my_data6b <- cbind(my_data6b, desconegut)
+    my_data6b <- tbl_df(my_data6b)
+  }
+  
   my_data6b$NacionalitatAngles <- apply(my_data6b, 2, toupper)
   # Add coordinates to the countries from the Dades sheet, using left_join
   my_data6c <- my_data6b %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
@@ -728,6 +735,10 @@ if (crear.informe.word == TRUE) {
     #    group_by(Nacionalitat_Angles) %>%
     #    summarise_all(sum) %>%
     ungroup()
+  
+  
+
+
   
   head(my_data6d)
   
@@ -860,7 +871,14 @@ if (crear.informe.word == TRUE) {
   # -------------------------------------------------------------
   my_data5d <- count(my_data, NacionalitatAngles, HomeDona, wt = NULL, sort = FALSE)
   my_data5d <- tidyr::spread(my_data5d, HomeDona, n)
-  colnames(my_data5d)[4] <- "Desconegut"
+  if (length(my_data5d) > 3) {
+    colnames(my_data5d)[4] <- "Desconegut"
+  } else {
+    Desconegut <- rep(NA, length(my_data5d$NacionalitatAngles))
+    my_data5d <- cbind(my_data5d, Desconegut)
+    my_data5d <- tbl_df(my_data5d)
+  }
+  
   my_data5d$NacionalitatAngles <- apply(my_data5d, 2, toupper)
   # Add coordinates to the countries from the Dades sheet, using left_join
   my_data5e <- my_data5d %>% left_join(geodata, by = c("NacionalitatAngles" = "PaisAngles"))
