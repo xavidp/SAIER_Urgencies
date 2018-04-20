@@ -107,6 +107,9 @@ if (!require("mschart")) install.packages("mschart"); library(mschart)
 ```
 
 ```{r paràmetres inicials}
+#Paràmetre per controlar l'any (anydades)
+anydades <- "2017"
+
 #Paths
 htmlpath      <- "Html"; dir.create(htmlpath, recursive = TRUE, showWarnings = FALSE)
 imgpath       <- "Grafics"; dir.create(imgpath, recursive = TRUE, showWarnings = FALSE)
@@ -118,45 +121,45 @@ logspath      <- "Logs"; dir.create(logspath, recursive = TRUE, showWarnings = F
 # ----------------
 # Paràmetres per a controlar quines parts del codi s'executen en cada run.
 #
-runParam <- F
+runParam <- T
 
 # Crear addicionalment arxius html parcials amb gràfics interactius (opcional)
-crear.html.leaflet.2017.agegroups <- runParam
-crear.html.ggplotly.2017.nacionalitat <- runParam
-crear.html.p2017.nacio.i <- F # runParam
-crear.html.leaflet.2017.gender <- runParam
-crear.html.pt.2017.SA.t <- runParam
-crear.html.dt.2017.sa.month <- runParam
-crear.html.sankey.2017.sa.plot <- runParam
+crear.html.leaflet.agegroups <- runParam
+crear.html.ggplotly.nacionalitat <- runParam
+crear.html.pnacio.i <- F # runParam
+crear.html.leaflet.gender <- runParam
+crear.html.pt.SA.t <- runParam
+crear.html.dt.sa.month <- runParam
+crear.html.sankey.sa.plot <- runParam
 
-runParam <- F
+runParam <- T
 
 # Crear addicionalment arxius png en disc amb gràfics per separat (opcional)
-crear.png.ggplot.2017.nacionalitat <- runParam
-crear.png.ggplot.2017.barchart.n.mes <- runParam
-crear.png.ggplot.2017.nacio.menors <- runParam
-crear.png.ggplot.2017.sa <- runParam
-crear.png.ggplot.2017.pais.tramit.ue <- runParam
-crear.png.ggplot.2017.perfils <- runParam
-crear.png.ggplot.2017.dec.majoria.edat <- runParam
-crear.png.ggplot.2017.n.mes.saier <- runParam
+crear.png.ggplot.nacionalitat <- runParam
+crear.png.ggplot.barchart.n.mes <- runParam
+crear.png.ggplot.nacio.menors <- runParam
+crear.png.ggplot.sa <- runParam
+crear.png.ggplot.pais.tramit.ue <- runParam
+crear.png.ggplot.perfils <- runParam
+crear.png.ggplot.dec.majoria.edat <- runParam
+crear.png.ggplot.n.mes.saier <- runParam
 
 runParam <- T
 
 # Mostrar gràfics per pantalla addicionalment (opcional)
-mostrar.p2017.nacio.i <- F #runParam
-mostrar.html.ggplot.2017.n.mes <- runParam
-mostrar.html.ggplot.2017.nacio.menors <- runParam
-mostrar.html.leaflet.2017.gender <- runParam
-mostrar.ggplot.2017.sa <- runParam
-mostrar.html.pt.2017.SA.t <- runParam
-mostrar.png.ggplot.2017.pais.tramit.ue <- runParam
-mostrar.ggplot.2017.perfils <- runParam
-mostrar.ggplot.2017.dec.majoria.edat <- runParam
-mostrar.html.sankey.2017.sa.plot <- runParam
-mostrar.ggplot.2017.n.mes.saier <- runParam
+mostrar.pnacio.i <- F #runParam
+mostrar.html.ggplot.n.mes <- runParam
+mostrar.html.ggplot.nacio.menors <- runParam
+mostrar.html.leaflet.gender <- runParam
+mostrar.ggplot.sa <- runParam
+mostrar.html.pt.SA.t <- runParam
+mostrar.png.ggplot.pais.tramit.ue <- runParam
+mostrar.ggplot.perfils <- runParam
+mostrar.ggplot.dec.majoria.edat <- runParam
+mostrar.html.sankey.sa.plot <- runParam
+mostrar.ggplot.n.mes.saier <- runParam
 
-runParam <- F
+runParam <- T
 
 # Crear informe en arxiu de Microsoft Word (.docx) en disc
 crear.informe.word <- runParam
@@ -190,7 +193,7 @@ if (crear.informe.word == TRUE) {
   require(officer)
   require(magrittr)
   
-  my_doc <- read_docx(path=file.path(getwd(), templatepath, "2017.Word_AAI_template_v03.docx") )
+  my_doc <- read_docx(path=file.path(getwd(), templatepath, paste0(anydades, ".Word_AAI_template_v03.docx")) )
   #my_doc <- read_docx()
   # styles_info(my_doc)
   
@@ -209,6 +212,8 @@ if (crear.informe.word == TRUE) {
 # CUESB Data
 # -----------
 my_file <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v12.xlsx")
+#my_file <- file.path(".", "bbdd_urgencies_saier_demo.xlsx")
+
 # Read From xlsx sheet
 # ..............................
 # Option 1: readxl package
@@ -223,7 +228,7 @@ head(my_data)
 my_data <- my_data %>% 
 #  filter(ComunicacioDerivacio == "D" | ComunicacioDerivacio == "Derivació")
   filter(ComunicacioDerivacio == "DERIVACIÓ") %>%
-  filter(AnyDerivText == 2017)
+  filter(AnyDerivText == anydades)
 #colnames(my_data)
 
 
@@ -319,7 +324,7 @@ if (crear.informe.word == TRUE) {
     # # Afegir gràfic al word
     # my_doc2 <- read_docx()
     # my_doc2 <- body_add_chart(my_doc2, chart = my_barchart.2017.nacionalitats, style = "centered")
-    # print(my_doc2, target=file.path(getwd(), docpath, "2017.MSCharts.docx"))
+    # print(my_doc2, target=file.path(getwd(), docpath, paste0(anydades, ".MSCharts.docx")))
 
 # #Fer diagrama de barres equivalent amb plotly
 # my_data %>% count(NacionalitatAngles) %>%
@@ -335,7 +340,7 @@ if (crear.informe.word == TRUE) {
 # 
 # # Save plotly chart as htmlwidget to disk
 # htmlwidgets::saveWidget(as_widget(plotly.2017.nacionalitat),
-#                         file.path(getwd(), htmlpath, "2017.plotly.nacionalitat.barchart.html")
+#                         file.path(getwd(), htmlpath, paste0(anydades, ".plotly.nacionalitat.barchart.html"))
 # )
 
 ```
@@ -364,9 +369,9 @@ ggplot.2017.nacionalitat <- ggplot(data=my_data7a, aes(x=NacionalitatAngles, col
 # Mostra-ho en pantalla també
 ggplot.2017.nacionalitat
 
-if (crear.png.ggplot.2017.nacionalitat == TRUE) {
+if (crear.png.ggplot.nacionalitat == TRUE) {
   # Grava a disc per si un cas també
-  ggsave("2017.barchart.nacionality.png",
+  ggsave(paste0(anydades, ".barchart.nacionality.png"),
        plot = ggplot.2017.nacionalitat,
        width = 30, height = 10, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
@@ -379,7 +384,7 @@ if (crear.informe.word == TRUE) {
   my_doc <- my_doc %>% 
     body_add_par(value = "Totals i per països", style = "heading 2") %>% 
     body_add_par("", style = "Normal") %>% # blank paragraph
-    #  body_add_img(src=file.path(getwd(),imgpath,"2017.barchart.nacionality.png"),width=6,height=3,style="centered") %>% # Afegit via png de disc
+    #body_add_img(src=file.path(getwd(), imgpath, paste0(anydades,".barchart.nacionality.png")),width=6,height=3,style="centered") %>% # Afegit via png de disc
     #  body_add_par("", style = "Normal") %>% # blank paragraph
     body_add_gg(value = ggplot.2017.nacionalitat, style = "centered")   # afegit via objecte ggplot directament (queda millor i no distorsionat!)
   
@@ -392,7 +397,7 @@ if (crear.informe.word == TRUE) {
 #   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) +
 #   facet_wrap(~Continent)
 # 
-# ggsave("2017.barchart.nacionality.faceted.png",
+# ggsave(paste0(anydades, ".barchart.nacionality.faceted.png"),
 #        plot = ggplot.2017.nacionalitat.faceted,
 #        width = 40, height = 10, units = "cm", scale=2,
 #        path=file.path(getwd(), imgpath) 
@@ -401,7 +406,7 @@ if (crear.informe.word == TRUE) {
 # my_doc <- my_doc %>% 
 #   body_add_par(value = "Faceted bar chart", style = "heading 2") %>% 
 #   body_add_par("", style = "Normal") %>% # blank paragraph
-#   body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacionality.faceted.png"), width = 6, height = 3, style = "centered") %>% 
+#   body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".barchart.nacionality.faceted.png")), width = 6, height = 3, style = "centered") %>% 
 #   body_add_par("", style = "Normal") # blank paragraph
 # 
 # 
@@ -416,12 +421,12 @@ if (crear.informe.word == TRUE) {
 # Convertir a versió plotly del gràfic de ggplot
 ggplotly.2017.nacionalitat <- ggplotly(p = ggplot.2017.nacionalitat)
 
-if (crear.html.ggplotly.2017.nacionalitat == TRUE) {
-  htmlwidgets::saveWidget(ggplotly.2017.nacionalitat, file=file.path(getwd(), htmlpath, "2017.ggplotly.nacionalitat.html"), selfcontained=TRUE) 
+if (crear.html.ggplotly.nacionalitat == TRUE) {
+  htmlwidgets::saveWidget(ggplotly.2017.nacionalitat, file=file.path(getwd(), htmlpath, paste0(anydades, ".ggplotly.nacionalitat.html")), selfcontained=TRUE) 
 }
 
-mostrar.html.ggplotly.2017.nacionalitat <- F
-if (mostrar.html.ggplotly.2017.nacionalitat == TRUE) {
+mostrar.html.ggplotly.nacionalitat <- F
+if (mostrar.html.ggplotly.nacionalitat == TRUE) {
   ggplotly.2017.nacionalitat
 }
 
@@ -440,7 +445,7 @@ my_data7b <- my_data %>%
   filter(!is.na(NacionalitatAngles))
 
   # basic treemaps
-    png(filename=file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width=1200, height=600, units="px")
+    png(filename=file.path(getwd(), imgpath, paste0(anydades, ".treemap.nacionality.png")), width=1200, height=600, units="px")
     p2017.nacio=treemap(my_data7b,
                         index=c("Continent","NacionalitatAngles"),
                         vSize="n",
@@ -463,7 +468,7 @@ my_data7b <- my_data %>%
         body_add_break() %>% 
         body_add_par(value = "Gràfic alternatiu", style = "heading 2") %>% 
         body_add_par("", style = "Normal") %>% # blank paragraph
-        body_add_img(src = file.path(getwd(), imgpath, "2017.treemap.nacionality.png"), width = 6, height = 3, style = "centered") %>% 
+        body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".treemap.nacionality.png")), width = 6, height = 3, style = "centered") %>% 
         body_add_par("", style = "Normal") %>% # blank paragraph
         body_add_par("Mida de l'àrea proporcional al nombre", style = "Balloon Text")
       
@@ -503,11 +508,11 @@ my_data7b <- my_data %>%
 ```{r Derivacions CUESB -> SAIER 2017: Nacionalitats Interactive Chart 2017}
 p2017.nacio.i=d3tree2( p2017.nacio ,  rootname = "Nacionalitats d´Usuaris Derivats del CUESB al SAIER 2017" )
 
-if (crear.html.p2017.nacio.i == TRUE) {
-  saveWidget(p2017.nacio.i, file=file.path(getwd(), htmlpath, "2017.d2tree2.nacionalitat.html"), selfcontained=TRUE) 
+if (crear.html.pnacio.i == TRUE) {
+  saveWidget(p2017.nacio.i, file=file.path(getwd(), htmlpath, paste0(anydades, ".d2tree2.nacionalitat.html")), selfcontained=TRUE) 
 }
 
-if (mostrar.p2017.nacio.i == TRUE) {
+if (mostrar.pnacio.i == TRUE) {
   p2017.nacio.i
 }
 
@@ -557,15 +562,15 @@ ggplot.2017.n.mes <- ggplot(data=my_data7d, aes(x=MesDerivacioSAIER, y=n)) +
         legend.text = element_text(size=14)
         )
 
-if (crear.png.ggplot.2017.barchart.n.mes == TRUE) {
-  ggsave("2017.barchart.n.mes.png",
+if (crear.png.ggplot.barchart.n.mes == TRUE) {
+  ggsave(paste0(anydades, ".barchart.n.mes.png"),
        plot = ggplot.2017.n.mes,
        width = 15, height = 8, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
 }
 
-if (mostrar.html.ggplot.2017.n.mes == TRUE) {
+if (mostrar.html.ggplot.n.mes == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.n.mes
 }
@@ -577,7 +582,7 @@ if (crear.informe.word == TRUE) {
     body_add_break() %>% 
     body_add_par(value = "Evolució mensual", style = "heading 2") %>% 
     body_add_par("", style = "Normal") %>% # blank paragraph
-    #  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.n.mes.png"), width = 6, height = 3, style = "centered") %>% 
+    #  body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".barchart.n.mes.png")), width = 6, height = 3, style = "centered") %>% 
     #  body_add_par("", style = "Normal") %>% # blank paragraph
     body_add_gg(value = ggplot.2017.n.mes, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
     body_add_par("", style = "Normal") %>% # blank paragraph
@@ -601,10 +606,10 @@ if (crear.informe.word == TRUE) {
 
   my_mapped_data$NMembresNucli <- as.numeric(my_mapped_data$NMembresNucli)
   
-#  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width=1200, height=600, units="px")
-#  png(filename=file.path(getwd(), imgpath, "2017.worldmap.familysize.png"))
+#  png(filename=file.path(getwd(), imgpath, paste0(anydades, ".worldmap.familysize.png")), width=1200, height=600, units="px")
+#  png(filename=file.path(getwd(), imgpath, paste0(anydades, ".worldmap.familysize.png")))
   # Plot as svg
-  svglite(file.path(getwd(), imgpath, "2017.worldmap.familysize.svg"), width = 12, height = 6)
+  svglite(file.path(getwd(), imgpath, paste0(anydades, ".worldmap.familysize.svg")), width = 12, height = 6)
 
   
   worldmap.2017.familysize <- mapCountryData(my_mapped_data, 
@@ -618,7 +623,7 @@ if (crear.informe.word == TRUE) {
   dev.off()
 
   # Redo as png
-  png(file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width=1200, height=700, units="px")
+  png(file.path(getwd(), imgpath, paste0(anydades, ".worldmap.familysize.png")), width=1200, height=700, units="px")
   worldmap.2017.familysize <- mapCountryData(my_mapped_data, 
                  nameColumnToPlot = "NMembresNucli", 
                  catMethod="pretty",
@@ -655,29 +660,29 @@ if (crear.informe.word == TRUE) {
   )
   
   # render it into a bitmap array
-  bitmap <- rsvg(file.path(getwd(), imgpath, "2017.worldmap.familysize.svg"))
+  bitmap <- rsvg(file.path(getwd(), imgpath, paste0(anydades, ".worldmap.familysize.svg")))
   dim(bitmap)
   ## [1] 504 720   4
 
   # write to format
   png::writePNG(bitmap, 
-                file.path(getwd(), imgpath, "2017.worldmap.familysize_writepng.png"),
+                file.path(getwd(), imgpath, paste0(anydades, ".worldmap.familysize_writepng.png")),
                 dpi = 144)
-  rsvg_png(file.path(getwd(), imgpath, "2017.worldmap.familysize.svg"),
-           file.path(getwd(), imgpath, "2017.worldmap.familysize_rsvg.png"),
+  rsvg_png(file.path(getwd(), imgpath, paste0(anydades, ".worldmap.familysize.svg")),
+           file.path(getwd(), imgpath, paste0(anydades, ".worldmap.familysize_rsvg.png")),
            width = 1600) # If you only set width OR height, the image will be scaled keeping aspect ratio
 
 
   # Redimensionar mantenint proporcions amb imagemagick
-  my_image <- image_read(file.path(getwd(), imgpath, "2017.worldmap.familysize.png"))
+  my_image <- image_read(file.path(getwd(), imgpath, paste0(anydades, ".worldmap.familysize.png")))
   image_info(my_image)
   # Trim image
   my_image_trimmed <- image_trim(my_image)
   image_info(my_image_trimmed)
-  image_write(my_image_trimmed, path = file.path(getwd(), imgpath, "2017.worldmap.familysize_trimmed.png"))
+  image_write(my_image_trimmed, path = file.path(getwd(), imgpath, paste0(anydades, ".worldmap.familysize_trimmed.png")))
   # Re-scale image
   my_image_scaled <- image_scale(my_image_trimmed, "2000") # width to 2000px and height proportional to keep aspect ratio
-  image_write(my_image_scaled, path = file.path(getwd(), imgpath, "2017.worldmap.familysize_2000px.png"))
+  image_write(my_image_scaled, path = file.path(getwd(), imgpath, paste0(anydades, ".worldmap.familysize_2000px.png")))
            
   if (crear.informe.word == TRUE) {
     
@@ -688,8 +693,8 @@ if (crear.informe.word == TRUE) {
       body_add_par("", style = "Normal") %>% # blank paragraph
       body_add_par(value = "D'on són les famílies més nombroses o els individus sols?", style = "heading 2") %>% 
       body_add_par("", style = "Normal") %>% # blank paragraph
-      #  body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize.png"), width = 6, height = 3, style = "centered") %>% 
-      body_add_img(src = file.path(getwd(), imgpath, "2017.worldmap.familysize_2000px.png"), width = 6, height = 3, style = "centered") %>% 
+      #  body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".worldmap.familysize.png")), width = 6, height = 3, style = "centered") %>% 
+      body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".worldmap.familysize_2000px.png")), width = 6, height = 3, style = "centered") %>% 
       body_add_par("", style = "Normal") %>% # blank paragraph
       body_add_par("Nombre d´individus a cada nucli familiar", style = "Balloon Text")
     
@@ -749,12 +754,12 @@ if (crear.informe.word == TRUE) {
       legendPosition = "topright"
     )
 
-    if (crear.html.leaflet.2017.agegroups == TRUE) {
-      saveWidget(leaflet.2017.agegroups, file=file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"), selfcontained=TRUE) 
+    if (crear.html.leaflet.agegroups == TRUE) {
+      saveWidget(leaflet.2017.agegroups, file=file.path(getwd(), htmlpath, paste0(anydades, ".leaflet.agegroups.html")), selfcontained=TRUE) 
     }
 
-    webshot(file.path(getwd(), htmlpath, "2017.leaflet.agegroups.html"),
-        file=file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"),
+    webshot(file.path(getwd(), htmlpath, paste0(anydades, ".leaflet.agegroups.html")),
+        file=file.path(getwd(), imgpath, paste0(anydades, ".leaflet.agegroups.png")),
         delay=0.5, selector = "#htmlwidget_container")
 
     if (crear.informe.word == TRUE) {
@@ -763,7 +768,7 @@ if (crear.informe.word == TRUE) {
       my_doc <- my_doc %>% 
         body_add_par(value = "Distribució d'adults i menors per països", style = "heading 2") %>% 
         body_add_par("", style = "Normal") %>% # blank paragraph
-        body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.agegroups.png"), width = 6, height = 3, style = "centered") %>% 
+        body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".leaflet.agegroups.png")), width = 6, height = 3, style = "centered") %>% 
         body_add_par("", style = "Normal") %>% # blank paragraph
         body_add_par("Verd fosc: Adult | Verd clar: Menor | Taronja: Desconegut", style = "Balloon Text")
       
@@ -818,15 +823,15 @@ ggplot.2017.nacio.menors <- ggplot(data=my_data7e, aes(x=Nacionalitat, color=Con
         legend.text = element_text(size=10)
         )
 
-if (crear.png.ggplot.2017.nacio.menors == TRUE) {
-  ggsave("2017.barchart.nacio.menors.png",
+if (crear.png.ggplot.nacio.menors == TRUE) {
+  ggsave(paste0(anydades, ".barchart.nacio.menors.png"),
        plot = ggplot.2017.nacio.menors,
        width = 15, height = 8, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
 }
 
-if (mostrar.html.ggplot.2017.nacio.menors == TRUE) {
+if (mostrar.html.ggplot.nacio.menors == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.nacio.menors
 }
@@ -838,7 +843,7 @@ if (crear.informe.word == TRUE) {
     body_add_break() %>% 
     body_add_par(value = "Orígens dels menors", style = "heading 2") %>% 
     body_add_par("", style = "Normal") %>% # blank paragraph
-    #  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.nacio.menors.png"), width = 6, height = 3, style = "centered") %>% 
+    #  body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".barchart.nacio.menors.png")), width = 6, height = 3, style = "centered") %>% 
     body_add_gg(value = ggplot.2017.nacio.menors, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
     body_add_par("", style = "Normal") %>% # blank paragraph
     body_add_par("Nacionalitats dels menors en casos de derivacions d'usuaris del CUESB al SAIER", style = "Balloon Text")
@@ -894,14 +899,14 @@ if (crear.informe.word == TRUE) {
 #    opacity = 1
   )
   
-  if (crear.html.leaflet.2017.gender == TRUE) {
-    saveWidget(leaflet.2017.gender, file=file.path(getwd(), htmlpath, "2017.leaflet.gender.html"), selfcontained=TRUE) 
+  if (crear.html.leaflet.gender == TRUE) {
+    saveWidget(leaflet.2017.gender, file=file.path(getwd(), htmlpath, paste0(anydades, ".leaflet.gender.html")), selfcontained=TRUE) 
   }
-  webshot(file.path(getwd(), htmlpath, "2017.leaflet.gender.html"),
-        file=file.path(getwd(), imgpath, "2017.leaflet.gender.png"),
+  webshot(file.path(getwd(), htmlpath, paste0(anydades, ".leaflet.gender.html")),
+        file=file.path(getwd(), imgpath, paste0(anydades, ".leaflet.gender.png")),
         delay=0.5, selector="#htmlwidget_container")
   
-  if (mostrar.html.leaflet.2017.gender == TRUE) {
+  if (mostrar.html.leaflet.gender == TRUE) {
     leaflet.2017.gender
   }
 
@@ -912,7 +917,7 @@ if (crear.informe.word == TRUE) {
       body_add_break() %>% 
       body_add_par(value = "Gènere", style = "heading 1") %>% 
       body_add_par("", style = "Normal") %>% # blank paragraph
-      body_add_img(src = file.path(getwd(), imgpath, "2017.leaflet.gender.png"), width = 6, height = 3, style = "centered") %>% 
+      body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".leaflet.gender.png")), width = 6, height = 3, style = "centered") %>% 
       body_add_par("", style = "Normal") %>% # blank paragraph
       body_add_par("Blau: Homes; Rosa: Dones. Groc: Desconegut", style = "Balloon Text")
     
@@ -978,10 +983,10 @@ if (crear.informe.word == TRUE) {
 #   )
 # frameWidget(pt.2017.SA.g)
 # #getwd()
-# #file.path(htmlpath, "2017.pt.SituacioAdministrativa.html")
-# saveWidget(pt.2017.SA.g, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.g.html"), selfcontained=TRUE) 
-# webshot(file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.g.html"),
-#         file=file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"),
+# #file.path(htmlpath, paste0(anydades, ".pt.SituacioAdministrativa.html"))
+# saveWidget(pt.2017.SA.g, file=file.path(getwd(), htmlpath, paste0(anydades, ".pt.SituacioAdministrativa.g.html")), selfcontained=TRUE) 
+# webshot(file.path(getwd(), htmlpath, paste0(anydades, ".pt.SituacioAdministrativa.g.html")),
+#         file=file.path(getwd(), imgpath, paste0(anydades, ".pt.SituacioAdministrativa.g.png")),
 # #        delay=0.5, selector=".pvtUi") # to get both the heatmap table and buttons of variables in rows and columns surrounding it
 #         delay=0.5, selector=".pvtRendererArea") # to get only the heatmap table with results
 # 
@@ -991,7 +996,7 @@ if (crear.informe.word == TRUE) {
 # my_doc <- my_doc %>% 
 #   body_add_par(value = "Gràfic de barres de Situacions Administratives", style = "heading 2") %>% 
 #   body_add_par("", style = "Normal") %>% # blank paragraph
-#   body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.g.png"), width = 6, height = 4, style = "centered") %>% 
+#   body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".pt.SituacioAdministrativa.g.png")), width = 6, height = 4, style = "centered") %>% 
 #   body_add_par("", style = "Normal")  # blank paragraph
 
 # Option 2) Make the chart with ggplot2
@@ -1015,15 +1020,15 @@ ggplot.2017.sa <- ggplot(data=my_data7f, aes(x=SituacioAdministrativa, y=n)) +
         legend.text = element_text(size=10)
         )
 
-if (crear.png.ggplot.2017.sa == TRUE) {
-  ggsave("2017.barchart.sa.png",
+if (crear.png.ggplot.sa == TRUE) {
+  ggsave(paste0(anydades, ".barchart.sa.png"),
        plot = ggplot.2017.sa,
        width = 15, height = 8, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
 }
 
-if (mostrar.ggplot.2017.sa == TRUE) {
+if (mostrar.ggplot.sa == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.sa
 }
@@ -1033,7 +1038,7 @@ if (crear.informe.word == TRUE) {
   # Afegir contingut a l'informe en Word
   my_doc <- my_doc %>% 
     body_add_par("", style = "Normal") %>% # blank paragraph
-    #  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.sa.png"), width = 6, height = 3, style = "centered")
+    #  body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".barchart.sa.png")), width = 6, height = 3, style = "centered")
     body_add_gg(value = ggplot.2017.sa, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
     body_add_par("", style = "Normal") # blank paragraph
   
@@ -1071,20 +1076,20 @@ pt.2017.SA.t <- rpivotTable(
 frameWidget(pt.2017.SA.t)
 
 if (crear.html.pt.2017.SA.t == TRUE) {
-  saveWidget(pt.2017.SA.t, file=file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.t.html"), selfcontained=TRUE) 
+  saveWidget(pt.2017.SA.t, file=file.path(getwd(), htmlpath, paste0(anydades, ".pt.SituacioAdministrativa.t.html")), selfcontained=TRUE) 
 }
-webshot(file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.t.html"),
-        file=file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"),
+webshot(file.path(getwd(), htmlpath, paste0(anydades, ".pt.SituacioAdministrativa.t.html")),
+        file=file.path(getwd(), imgpath, paste0(anydades, ".pt.SituacioAdministrativa.t.png")),
 #        delay=0.5, selector=".pvtUi") # to get both the heatmap table and buttons of variables in rows and columns surrounding it
         delay=0.5, selector=".pvtRendererArea") # to get only the heatmap table with results
 
-if (mostrar.html.pt.2017.SA.t == TRUE) {
+if (mostrar.html.pt.SA.t == TRUE) {
   pt.2017.SA.t
 }
 
 # #Codi extra per a extreure taula de dades de resultats, fent "web scraping"" amb rvest
 # # No va no sé per què. Aturo la prova, per ara.
-# url_base <- file.path(getwd(), htmlpath, "2017.pt.SituacioAdministrativa.t.html")
+# url_base <- file.path(getwd(), htmlpath, paste0(anydades, ".pt.SituacioAdministrativa.t.html"))
 # #class(read_html(url_base))
 # webpage <- read_html(url_base) %>%
 #   html_nodes(".pvtTable") 
@@ -1128,24 +1133,24 @@ if (mostrar.html.pt.2017.SA.t == TRUE) {
                               options = list(pageLength = 15, 
                                              dom = 't'))  # dom=t is for removing the search (filter) box
  
-if (crear.html.dt.2017.sa.month == TRUE) {
+if (crear.html.dt.sa.month == TRUE) {
  #Save html with table to disk
- htmlwidgets::saveWidget(my_data7d.dt, file=file.path(getwd(), htmlpath, "2017.formatdatatable.sa.month.html"), selfcontained=TRUE) 
+ htmlwidgets::saveWidget(my_data7d.dt, file=file.path(getwd(), htmlpath, paste0(anydades, ".formatdatatable.sa.month.html")), selfcontained=TRUE) 
  # convert into responsive widget
  my_data7d.dt <- frameWidget(my_data7d.dt)
 }
 
  # Make screenshot out of that heatmap-like table, just in case, for easy adding into word document report
-  webshot(file.path(getwd(), htmlpath, "2017.formatdatatable.sa.month.html"),
-        file=file.path(getwd(), imgpath, "2017.formatdatatable.sa.month.png"),
+  webshot(file.path(getwd(), htmlpath, paste0(anydades, ".formatdatatable.sa.month.html")),
+        file=file.path(getwd(), imgpath, paste0(anydades, ".formatdatatable.sa.month.png")),
         delay=0.5)
   
   # Read saved image
-  my_image <- image_read(file.path(getwd(), imgpath, "2017.formatdatatable.sa.month.png"))
+  my_image <- image_read(file.path(getwd(), imgpath, paste0(anydades, ".formatdatatable.sa.month.png")))
   # Trim image
   my_image_trimmed <- image_trim(my_image)
   # Save trimmed image again to disk
-  image_write(my_image_trimmed, path = file.path(getwd(), imgpath, "2017.formatdatatable.sa.month.trimmed.png"))
+  image_write(my_image_trimmed, path = file.path(getwd(), imgpath, paste0(anydades, ".formatdatatable.sa.month.trimmed.png")))
 
   if (crear.informe.word == TRUE) {
     
@@ -1156,9 +1161,9 @@ if (crear.html.dt.2017.sa.month == TRUE) {
       body_add_par(value = "Evolució mensual i Totals", style = "heading 2") %>% 
       body_add_par("", style = "Normal") %>% # blank paragraph
       body_add_table(my_data7d.t2, style = "table_template") %>%
-      #  body_add_img(src = file.path(getwd(), imgpath, "2017.pt.SituacioAdministrativa.t.png"), width = 6, height = 3, style = "centered") %>% 
+      #  body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".pt.SituacioAdministrativa.t.png")), width = 6, height = 3, style = "centered") %>% 
       body_add_par("", style = "Normal") %>% # blank paragraph
-      body_add_img(src = file.path(getwd(), imgpath, "2017.formatdatatable.sa.month.trimmed.png"), width = 6, height = 3, style = "centered") %>% 
+      body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".formatdatatable.sa.month.trimmed.png")), width = 6, height = 3, style = "centered") %>% 
       body_add_par("La intensitat del color vermell és proporcional a la suma de casos de cada tipus", style = "Balloon Text")
     
   }
@@ -1201,15 +1206,15 @@ ggplot.2017.pais.tramit.ue <- ggplot(data=my_data7g, aes(x=PaisTramitSituacioAdm
         legend.text = element_text(size=10)
         )
 
-if (crear.png.ggplot.2017.pais.tramit.ue == TRUE) {
-  ggsave("2017.barchart.pais.tramit.ue.png",
+if (crear.png.ggplot.pais.tramit.ue == TRUE) {
+  ggsave(paste0(anydades, ".barchart.pais.tramit.ue.png"),
        plot = ggplot.2017.pais.tramit.ue,
        width = 15, height = 8, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
 }
 
-if (mostrar.png.ggplot.2017.pais.tramit.ue == TRUE) {
+if (mostrar.png.ggplot.pais.tramit.ue == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.pais.tramit.ue
 }
@@ -1219,7 +1224,7 @@ if (crear.informe.word == TRUE) {
   # Afegir contingut a l'informe en Word
   my_doc <- my_doc %>% 
     body_add_par(value = "Denegats a un altre País Europeu", style = "heading 2") %>% 
-    #   body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.pais.tramit.ue.png"), width = 6, height = 4, style = "centered") %>% 
+    #   body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".barchart.pais.tramit.ue.png")), width = 6, height = 4, style = "centered") %>% 
     body_add_gg(value = ggplot.2017.pais.tramit.ue, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
     body_add_par("", style = "Normal")  # blank paragraph
   
@@ -1285,15 +1290,15 @@ ggplot.2017.perfils <- ggplot(data=my_data7h, aes(x=Perfil, y=n)) +
         legend.text = element_text(size=10)
         )
 
-if (crear.png.ggplot.2017.perfils == TRUE) {
-  ggsave("2017.barchart.perfils.png",
+if (crear.png.ggplot.perfils == TRUE) {
+  ggsave(paste0(anydades, ".barchart.perfils.png"),
        plot = ggplot.2017.perfils,
        width = 15, height = 8, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
 }
 
-if (mostrar.ggplot.2017.perfils == TRUE) {
+if (mostrar.ggplot.perfils == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.perfils
 }
@@ -1303,7 +1308,7 @@ if (crear.informe.word == TRUE) {
   # Afegir contingut a l'informe en Word
   my_doc <- my_doc %>% 
     body_add_par("", style = "Normal") %>% # blank paragraph
-    #  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.perfils.png"), width = 6, height = 3, style = "centered")  
+    #  body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".barchart.perfils.png")), width = 6, height = 3, style = "centered")  
     body_add_gg(value = ggplot.2017.perfils, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
     body_add_par("", style = "Normal") # blank paragraph
   
@@ -1363,15 +1368,15 @@ ggplot.2017.dec.majoria.edat <- ggplot(data=my_data7i, aes(x=Nacionalitat, y=n))
         legend.text = element_text(size=10)
         )
 
-if (crear.png.ggplot.2017.dec.majoria.edat == TRUE) {
-  ggsave("2017.barchart.dec.majoria.edat.png",
+if (crear.png.ggplot.dec.majoria.edat == TRUE) {
+  ggsave(paste0(anydades, ".barchart.dec.majoria.edat.png"),
        plot = ggplot.2017.dec.majoria.edat,
        width = 15, height = 8, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
 }
 
-if (mostrar.ggplot.2017.dec.majoria.edat == TRUE) {
+if (mostrar.ggplot.dec.majoria.edat == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.dec.majoria.edat
 }
@@ -1381,7 +1386,7 @@ if (crear.informe.word == TRUE) {
   # Afegir contingut a l'informe en Word
   my_doc <- my_doc %>% 
     body_add_par("", style = "Normal") %>% # blank paragraph
-    #  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.dec.majoria.edat.png"), width = 6, height = 3, style = "centered")
+    #  body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".barchart.dec.majoria.edat.png")), width = 6, height = 3, style = "centered")
     body_add_gg(value = ggplot.2017.dec.majoria.edat, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
     body_add_par("", style = "Normal") # blank paragraph
   
@@ -1478,14 +1483,14 @@ sankey.2017.sa.plot <- sankeyNetwork(Links = links,
               fontSize= 24,
               nodeWidth = 30)
 
-if (crear.html.sankey.2017.sa.plot == TRUE) {
-  saveWidget(sankey.2017.sa.plot, file=file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"), selfcontained=TRUE) 
+if (crear.html.sankey.sa.plot == TRUE) {
+  saveWidget(sankey.2017.sa.plot, file=file.path(getwd(), htmlpath, paste0(anydades, ".sankey.sa.p.html")), selfcontained=TRUE) 
 }
-webshot(file.path(getwd(), htmlpath, "2017.sankey.sa.p.html"),
-        file=file.path(getwd(), imgpath, "2017.sankey.sa.p.png"),
+webshot(file.path(getwd(), htmlpath, paste0(anydades, ".sankey.sa.p.html")),
+        file=file.path(getwd(), imgpath, paste0(anydades, ".sankey.sa.p.png")),
         delay=0.5, selector="#htmlwidget_container")
 
-if (mostrar.html.sankey.2017.sa.plot == TRUE) {
+if (mostrar.html.sankey.sa.plot == TRUE) {
   sankey.2017.sa.plot
 }
 
@@ -1495,7 +1500,7 @@ if (crear.informe.word == TRUE) {
     body_add_par("", style = "Normal") %>% # blank paragraph
     body_add_par(value = "Casos segons relació entre Situació Administrativa i Perfil", style = "heading 2") %>% 
     body_add_par("", style = "Normal") %>% # blank paragraph
-    body_add_img(src = file.path(getwd(), imgpath, "2017.sankey.sa.p.png"), width = 6, height = 4, style = "centered") %>% 
+    body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".sankey.sa.p.png")), width = 6, height = 4, style = "centered") %>% 
     body_add_par("", style = "Normal") %>% # blank paragraph
     body_add_par("NO CONSTA: No es disposa de dades", style = "Balloon Text")
   
@@ -1567,15 +1572,15 @@ ggplot.2017.n.mes.saier <- ggplot(data=my_data7j.saier, aes(x=MesDerivacioSAIER,
         legend.text = element_text(size=10)
         )
 
-if (crear.png.ggplot.2017.n.mes.saier == TRUE) {
-  ggsave("2017.barchart.n.mes.saier.png",
+if (crear.png.ggplot.n.mes.saier == TRUE) {
+  ggsave(paste0(anydades, ".barchart.n.mes.saier.png"),
        plot = ggplot.2017.n.mes.saier,
        width = 15, height = 8, units = "cm", scale=2,
        path=file.path(getwd(), imgpath) 
        )
 }
 
-if (mostrar.ggplot.2017.n.mes.saier == TRUE) {
+if (mostrar.ggplot.n.mes.saier == TRUE) {
   # Mostra-ho en pantalla també
   ggplot.2017.n.mes.saier
 }
@@ -1588,7 +1593,7 @@ if (crear.informe.word == TRUE) {
     body_add_par("", style = "Normal") %>% # blank paragraph
     body_add_par(value = "Evolució mensual", style = "heading 2") %>% 
     body_add_par("", style = "Normal") %>% # blank paragraph
-    #  body_add_img(src = file.path(getwd(), imgpath, "2017.barchart.n.mes.saier.png"), width = 6, height = 3, style = "centered") %>% 
+    #  body_add_img(src = file.path(getwd(), imgpath, paste0(anydades, ".barchart.n.mes.saier.png")), width = 6, height = 3, style = "centered") %>% 
     body_add_gg(value = ggplot.2017.n.mes.saier, style = "centered") %>%  # afegit via objecte ggplot directament (queda millor i no distorsionat!)
     body_add_par("", style = "Normal") %>% # blank paragraph
     body_add_par("Evolució mensual de les derivacions d'usuaris del SAIER al CUESB (abans de que el tornin a derivar del CUESB al SAIER un altre cop)", style = "Balloon Text")
@@ -1643,7 +1648,7 @@ if (crear.informe.word == TRUE) {
   
   print(my_doc, target=file.path(getwd(),
                                  docpath,
-                                 paste0("2017.Derivacions_CUESB_a_SAIER_v", 
+                                 paste0(paste0(anydades, ".Derivacions_CUESB_a_SAIER_v"), 
                                         format(Sys.Date(), 
                                                format="%y%m%d"
                                         ),
