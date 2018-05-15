@@ -19,7 +19,7 @@ Resultats destacats a partir de les dades de derivacions del CUESB al SAIER.
 
 ```{r paquets, echo=TRUE}
 if (!require("checkpoint")) install.packages("checkpoint"); library(checkpoint)
-checkpoint("2018-03-16") # Keep R packages from this date for reproducibility
+#checkpoint("2018-03-16") # Keep R packages from this date for reproducibility
 # https://www.r-bloggers.com/updated-checkpoint-package-faster-reproducibility-with-more-feedback/
 # https://www.r-bloggers.com/new-features-in-the-checkpoint-package-version-0-4-0/
 
@@ -193,7 +193,7 @@ if (crear.informe.word == TRUE) {
   require(officer)
   require(magrittr)
   
-  my_doc <- read_docx(path=file.path(getwd(), templatepath, paste0(anydades, ".Word_AAI_template_v03.docx")) )
+  my_doc <- read_docx(path=file.path(getwd(), templatepath, paste0("Word_AAI_template_v03.docx")) )
   #my_doc <- read_docx()
   # styles_info(my_doc)
   
@@ -211,8 +211,8 @@ if (crear.informe.word == TRUE) {
 # -----------
 # CUESB Data
 # -----------
-my_file <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v12.xlsx")
-#my_file <- file.path(".", "bbdd_urgencies_saier_demo.xlsx")
+#my_file <- file.path("K:\\QUOTA\\DIMM_COMU\\SAIER\\Urgències\ CUESB", "0 Base de dades_v12.xlsx")
+my_file <- file.path(".", "Dades", "bbdd_urgencies_saier_demo.xlsx")
 
 # Read From xlsx sheet
 # ..............................
@@ -1093,7 +1093,7 @@ pt.2017.SA.t <- rpivotTable(
   )
 frameWidget(pt.2017.SA.t)
 
-if (crear.html.pt.2017.SA.t == TRUE) {
+if (crear.html.pt.SA.t == TRUE) {
   saveWidget(pt.2017.SA.t, file=file.path(getwd(), htmlpath, paste0(anydades, ".pt.SituacioAdministrativa.t.html")), selfcontained=TRUE) 
 }
 webshot(file.path(getwd(), htmlpath, paste0(anydades, ".pt.SituacioAdministrativa.t.html")),
